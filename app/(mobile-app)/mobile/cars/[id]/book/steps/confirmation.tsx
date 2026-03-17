@@ -144,16 +144,16 @@ export function ConfirmationStep({ bookingId, vehicle, data, total }: Confirmati
         </div>
       )}
 
-      {/* Fixed Bottom Buttons */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[#f5f5f7] border-t border-border/30 p-5 pb-8">
+      {/* Fixed Bottom Buttons - Above bottom nav */}
+      <div className="fixed bottom-[80px] left-0 right-0 px-5">
         <div className="flex gap-3">
           <Link href={`/mobile/rides`} className="flex-1">
-            <button className="w-full py-4 rounded-2xl font-semibold text-base bg-white border border-border transition-all active:scale-[0.98]">
+            <button className="w-full py-4 rounded-full font-semibold text-base bg-white border border-border shadow-lg transition-all active:scale-[0.98]">
               View Booking
             </button>
           </Link>
           <Link href="/mobile" className="flex-1">
-            <button className="w-full py-4 rounded-2xl font-semibold text-base bg-foreground text-background transition-all active:scale-[0.98]">
+            <button className="w-full py-4 rounded-full font-semibold text-base bg-foreground text-background shadow-lg transition-all active:scale-[0.98]">
               Done
             </button>
           </Link>
