@@ -71,12 +71,17 @@ export async function POST(request: NextRequest) {
       vehicle_id,
       pickup_date,
       return_date,
+      pickup_time,
       pickup_location,
       return_location,
+      delivery_type,
+      payment_method,
+      driver_license,
+      passport,
       discount_code,
     } = body
 
-    // Get vehicle details
+    // Get vehicle details with company
     const { data: vehicle, error: vehicleError } = await supabase
       .from('vehicles')
       .select('*, company:companies(*)')
@@ -87,21 +92,39 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Vehicle not found' }, { status: 404 })
     }
 
+    // Check vehicle availability
+    const { data: existingBookings } = await supabase
+      .from('bookings')
+      .select('id')
+      .eq('vehicle_id', vehicle_id)
+      .in('status', ['pending', 'confirmed', 'active'])
+      .or(`and(pickup_date.lte.${return_date},return_date.gte.${pickup_date})`)
+
+    if (existingBookings && existingBookings.length > 0) {
+      return NextResponse.json({ 
+        error: 'Vehicle is not available for the selected dates' 
+      }, { status: 400 })
+    }
+
     // Calculate price
-    const pickupDate = new Date(pickup_date)
-    const returnDate = new Date(return_date)
-    const days = Math.ceil((returnDate.getTime() - pickupDate.getTime()) / (1000 * 60 * 60 * 24))
-    let total_price = vehicle.price_per_day * days
+    const pickupDateObj = new Date(pickup_date)
+    const returnDateObj = new Date(return_date)
+    const days = Math.max(1, Math.ceil((returnDateObj.getTime() - pickupDateObj.getTime()) / (1000 * 60 * 60 * 24)))
+    let subtotal = vehicle.price_per_day * days
+    const deposit = vehicle.deposit_amount || Math.round(subtotal * 0.5)
 
     // Apply discount if provided
     let discount_amount = 0
     if (discount_code) {
-      // Simple discount logic - could be expanded
       if (discount_code === 'FIRST20') {
-        discount_amount = total_price * 0.2
-        total_price -= discount_amount
+        discount_amount = subtotal * 0.2
+      } else if (discount_code === 'WELCOME10') {
+        discount_amount = subtotal * 0.1
       }
+      subtotal -= discount_amount
     }
+
+    const total_price = subtotal + deposit
 
     // Create booking
     const { data: booking, error: bookingError } = await supabase
@@ -112,32 +135,77 @@ export async function POST(request: NextRequest) {
         company_id: vehicle.company_id,
         pickup_date,
         return_date,
+        pickup_time,
         pickup_location,
         return_location,
+        delivery_type,
         total_price,
-        deposit_paid: vehicle.deposit_amount,
+        subtotal,
+        deposit_amount: deposit,
         discount_code,
         discount_amount,
+        payment_method,
         status: 'pending',
         payment_status: 'pending',
+        // Store document info
+        driver_license_info: driver_license,
+        passport_info: passport,
       })
       .select()
       .single()
 
     if (bookingError) throw bookingError
 
-    // Create notification for business
+    // Update vehicle status to 'booked'
+    await supabase
+      .from('vehicles')
+      .update({ status: 'booked' })
+      .eq('id', vehicle_id)
+
+    // Create notification for business owner
+    if (vehicle.company?.owner_id) {
+      await supabase.from('notifications').insert({
+        user_id: vehicle.company.owner_id,
+        title: 'New Booking Request',
+        message: `New booking for ${vehicle.brand} ${vehicle.model} from ${new Date(pickup_date).toLocaleDateString()} to ${new Date(return_date).toLocaleDateString()}`,
+        type: 'booking',
+        metadata: {
+          booking_id: booking.id,
+          vehicle_id: vehicle.id,
+          total_price,
+        },
+      })
+    }
+
+    // Create notification for customer
     await supabase.from('notifications').insert({
-      user_id: vehicle.company?.owner_id,
-      title: 'New Booking Request',
-      message: `New booking for ${vehicle.brand} ${vehicle.model}`,
+      user_id: user.id,
+      title: 'Booking Confirmed',
+      message: `Your booking for ${vehicle.brand} ${vehicle.model} has been received. We'll confirm shortly.`,
       type: 'booking',
+      metadata: {
+        booking_id: booking.id,
+        vehicle_id: vehicle.id,
+      },
     })
 
     // Update analytics
     await updateAnalytics(supabase, vehicle.company_id, 'booking_created', total_price)
 
-    return NextResponse.json({ booking }, { status: 201 })
+    // Get user profile for return
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('full_name, phone, avatar_url')
+      .eq('id', user.id)
+      .single()
+
+    return NextResponse.json({ 
+      booking: {
+        ...booking,
+        vehicle,
+        customer: profile,
+      }
+    }, { status: 201 })
   } catch (error: any) {
     console.error('Error creating booking:', error)
     return NextResponse.json({ error: error.message }, { status: 500 })
@@ -145,6 +213,8 @@ export async function POST(request: NextRequest) {
 }
 
 async function updateAnalytics(supabase: any, companyId: string, event: string, amount?: number) {
+  if (!companyId) return
+
   const today = new Date().toISOString().split('T')[0]
 
   // Upsert daily analytics

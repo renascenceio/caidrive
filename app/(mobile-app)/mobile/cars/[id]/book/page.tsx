@@ -150,53 +150,62 @@ export default function MobileBookingPage({ params }: { params: Promise<{ id: st
       return
     }
 
-    // Calculate totals
-    const days = calculateDays()
-    const subtotal = (vehicle?.price_per_day || 0) * days
-    const deposit = vehicle?.deposit_amount || 0
-    const total = subtotal + deposit
-
-    const { data: booking, error } = await supabase
-      .from('bookings')
-      .insert({
-        user_id: user.id,
-        vehicle_id: id,
-        start_date: bookingData.startDate,
-        end_date: bookingData.endDate,
-        pickup_location: bookingData.deliveryLocation === 'delivery' ? bookingData.deliveryAddress : 'Office Pickup',
-        dropoff_location: bookingData.deliveryLocation === 'delivery' ? bookingData.deliveryAddress : 'Office Dropoff',
-        total_amount: total,
-        deposit_amount: deposit,
-        status: 'pending',
-        payment_method: bookingData.paymentMethod,
-        // Store document info in notes
-        notes: JSON.stringify({
-          license: {
-            name: `${bookingData.licenseFirstName} ${bookingData.licenseSurname}`,
+    try {
+      // Call API to create booking - handles all business logic
+      const response = await fetch('/api/mobile/bookings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          vehicle_id: id,
+          pickup_date: bookingData.startDate,
+          return_date: bookingData.endDate,
+          pickup_time: bookingData.pickupTime,
+          pickup_location: bookingData.deliveryLocation === 'delivery' ? bookingData.deliveryAddress : 'Office Pickup',
+          return_location: bookingData.deliveryLocation === 'delivery' ? bookingData.deliveryAddress : 'Office Dropoff',
+          delivery_type: bookingData.deliveryLocation,
+          payment_method: bookingData.paymentMethod,
+          // Document info
+          driver_license: {
+            first_name: bookingData.licenseFirstName,
+            surname: bookingData.licenseSurname,
             number: bookingData.licenseNumber,
-            country: bookingData.licenseCountry,
+            address: bookingData.licenseAddress,
             expiry: bookingData.licenseExpiry,
+            country: bookingData.licenseCountry,
+            image: bookingData.licenseImage,
+            is_international: bookingData.isInternational,
           },
           passport: {
-            name: `${bookingData.passportFirstName} ${bookingData.passportSurname}`,
+            first_name: bookingData.passportFirstName,
+            surname: bookingData.passportSurname,
             number: bookingData.passportNumber,
             country: bookingData.passportCountry,
             expiry: bookingData.passportExpiry,
-          }
-        })
+            image: bookingData.passportImage,
+          },
+          // Card details if applicable
+          card_details: bookingData.paymentMethod === 'card' ? {
+            number: bookingData.cardNumber,
+            holder: bookingData.cardHolder,
+            expiry: bookingData.cardExpiry,
+          } : null,
+        }),
       })
-      .select()
-      .single()
 
-    if (error) {
+      const result = await response.json()
+
+      if (!response.ok) {
+        throw new Error(result.error || 'Failed to create booking')
+      }
+
+      setBookingId(result.booking.id)
+      setLoading(false)
+      nextStep() // Go to confirmation
+    } catch (error: any) {
       console.error('[v0] Booking error:', error)
       setLoading(false)
-      return
+      alert(error.message || 'Failed to create booking. Please try again.')
     }
-
-    setBookingId(booking.id)
-    setLoading(false)
-    nextStep() // Go to confirmation
   }
 
   const calculateDays = () => {

@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/client'
 import { 
   Car, Plus, Search, MoreVertical, Pencil, Pause, Play, 
-  Trash2, Copy, ArrowUpDown, Filter
+  Trash2, Copy, ArrowUpDown, Loader2
 } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -35,85 +36,83 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog'
-import { cn } from '@/lib/utils'
+import { useToast } from '@/hooks/use-toast'
 
-// Mock data grouped by brand
-const mockVehicles = {
-  'Aston Martin': [
-    { id: '1', model: 'DB12', year: 2024, color: 'Skyfall Silver', plate: 'AA12345', image: 'https://images.unsplash.com/photo-1596559873224-e0e8f6376f7d?w=400', price: 1600, status: 'active', views: 234, bookings: 12 },
-  ],
-  'Bentley': [
-    { id: '2', model: 'Continental GT', year: 2024, color: 'Beluga Black', plate: 'BB23456', image: 'https://images.unsplash.com/photo-1580274455191-1c62238fa333?w=400', price: 1400, status: 'active', views: 189, bookings: 8 },
-  ],
-  'BMW': [
-    { id: '3', model: 'M8 Competition', year: 2024, color: 'Frozen Black', plate: 'CC34567', image: 'https://images.unsplash.com/photo-1617531653332-bd46c24f2068?w=400', price: 800, status: 'active', views: 312, bookings: 15 },
-  ],
-  'Ferrari': [
-    { id: '4', model: 'SF90 Stradale', year: 2024, color: 'Rosso Corsa', plate: 'DD45678', image: 'https://images.unsplash.com/photo-1592198084033-aade902d1aae?w=400', price: 2500, status: 'active', views: 567, bookings: 23 },
-    { id: '5', model: 'F8 Tributo', year: 2023, color: 'Giallo Modena', plate: 'EE56789', image: 'https://images.unsplash.com/photo-1592198084033-aade902d1aae?w=400', price: 2200, status: 'paused', views: 423, bookings: 18 },
-  ],
-  'Lamborghini': [
-    { id: '6', model: 'Huracán EVO', year: 2024, color: 'Verde Mantis', plate: 'FF67890', image: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400', price: 2200, status: 'active', views: 489, bookings: 21 },
-    { id: '7', model: 'Urus', year: 2024, color: 'Nero Noctis', plate: 'GG78901', image: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400', price: 1500, status: 'active', views: 356, bookings: 14 },
-  ],
-  'McLaren': [
-    { id: '8', model: '720S Spider', year: 2024, color: 'Papaya Spark', plate: 'HH89012', image: 'https://images.unsplash.com/photo-1621135802920-133df287f89c?w=400', price: 2300, status: 'active', views: 401, bookings: 17 },
-  ],
-  'Porsche': [
-    { id: '9', model: '911 GT3 RS', year: 2024, color: 'GT Silver', plate: 'II90123', image: 'https://images.unsplash.com/photo-1614162692292-7ac56d7f373e?w=400', price: 1800, status: 'active', views: 534, bookings: 19 },
-  ],
-  'Rolls-Royce': [
-    { id: '10', model: 'Ghost', year: 2024, color: 'Black Diamond', plate: 'JJ01234', image: 'https://images.unsplash.com/photo-1631295868223-63265b40d9e4?w=400', price: 1500, status: 'active', views: 278, bookings: 11 },
-  ],
+interface Vehicle {
+  id: string
+  brand: string
+  model: string
+  year: number
+  color: string
+  license_plate: string
+  images: string[]
+  price_per_day: number
+  status: 'available' | 'booked' | 'maintenance' | 'paused'
+  company_id: string
+  views?: number
+  booking_count?: number
 }
 
-type Vehicle = typeof mockVehicles['Ferrari'][0]
-
 function VehicleCard({ 
-  vehicle, 
-  brand,
+  vehicle,
   onPause,
   onResume,
   onDelete,
-  onCopy
+  onDuplicate,
+  isLoading
 }: { 
   vehicle: Vehicle
-  brand: string
   onPause: (id: string) => void
   onResume: (id: string) => void
   onDelete: (id: string) => void
-  onCopy: (id: string) => void
+  onDuplicate: (id: string) => void
+  isLoading: string | null
 }) {
+  const isPaused = vehicle.status === 'paused' || vehicle.status === 'maintenance'
+  const isThisLoading = isLoading === vehicle.id
+
   return (
     <div className="flex items-center gap-4 rounded-lg border border-border bg-card p-4 transition-colors hover:bg-secondary/30">
       {/* Image */}
       <div className="relative h-16 w-24 shrink-0 overflow-hidden rounded-lg bg-secondary">
-        <Image src={vehicle.image} alt={vehicle.model} fill className="object-cover" />
+        <Image 
+          src={vehicle.images?.[0] || 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400'} 
+          alt={vehicle.model} 
+          fill 
+          className="object-cover" 
+        />
       </div>
 
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <p className="font-medium">{vehicle.year} {brand} {vehicle.model}</p>
-          {vehicle.status === 'paused' && (
-            <Badge variant="secondary">Paused</Badge>
-          )}
+          <p className="font-medium">{vehicle.year} {vehicle.brand} {vehicle.model}</p>
+          <Badge variant={
+            vehicle.status === 'available' ? 'default' :
+            vehicle.status === 'booked' ? 'secondary' :
+            'outline'
+          }>
+            {vehicle.status === 'available' ? 'Active' :
+             vehicle.status === 'booked' ? 'Booked' :
+             vehicle.status === 'paused' ? 'Paused' :
+             'Maintenance'}
+          </Badge>
         </div>
-        <p className="text-sm text-muted-foreground">{vehicle.color} · {vehicle.plate}</p>
+        <p className="text-sm text-muted-foreground">{vehicle.color || 'N/A'} · {vehicle.license_plate || 'No plate'}</p>
       </div>
 
       {/* Stats */}
       <div className="hidden items-center gap-6 lg:flex">
         <div className="text-center">
-          <p className="text-sm font-medium">{vehicle.views}</p>
+          <p className="text-sm font-medium">{vehicle.views || 0}</p>
           <p className="text-xs text-muted-foreground">Views</p>
         </div>
         <div className="text-center">
-          <p className="text-sm font-medium">{vehicle.bookings}</p>
+          <p className="text-sm font-medium">{vehicle.booking_count || 0}</p>
           <p className="text-xs text-muted-foreground">Bookings</p>
         </div>
         <div className="text-center">
-          <p className="text-sm font-medium">AED {vehicle.price.toLocaleString()}</p>
+          <p className="text-sm font-medium">AED {vehicle.price_per_day?.toLocaleString() || 0}</p>
           <p className="text-xs text-muted-foreground">Per Day</p>
         </div>
       </div>
@@ -121,8 +120,12 @@ function VehicleCard({
       {/* Actions */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon">
-            <MoreVertical className="h-4 w-4" />
+          <Button variant="ghost" size="icon" disabled={isThisLoading}>
+            {isThisLoading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <MoreVertical className="h-4 w-4" />
+            )}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
@@ -132,18 +135,18 @@ function VehicleCard({
               Modify
             </Link>
           </DropdownMenuItem>
-          {vehicle.status === 'active' ? (
-            <DropdownMenuItem onClick={() => onPause(vehicle.id)} className="gap-2">
-              <Pause className="h-4 w-4" />
-              Pause
-            </DropdownMenuItem>
-          ) : (
+          {isPaused ? (
             <DropdownMenuItem onClick={() => onResume(vehicle.id)} className="gap-2">
               <Play className="h-4 w-4" />
               Resume
             </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem onClick={() => onPause(vehicle.id)} className="gap-2" disabled={vehicle.status === 'booked'}>
+              <Pause className="h-4 w-4" />
+              Pause
+            </DropdownMenuItem>
           )}
-          <DropdownMenuItem onClick={() => onCopy(vehicle.id)} className="gap-2">
+          <DropdownMenuItem onClick={() => onDuplicate(vehicle.id)} className="gap-2">
             <Copy className="h-4 w-4" />
             Duplicate
           </DropdownMenuItem>
@@ -159,84 +162,186 @@ function VehicleCard({
 }
 
 export default function GaragePage() {
-  const [vehicles, setVehicles] = useState(mockVehicles)
+  const [vehicles, setVehicles] = useState<Vehicle[]>([])
+  const [loading, setLoading] = useState(true)
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState<string>('brand')
   const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [companyId, setCompanyId] = useState<string | null>(null)
+  const { toast } = useToast()
 
-  const handlePause = (id: string) => {
-    setVehicles(prev => {
-      const updated = { ...prev }
-      for (const brand in updated) {
-        updated[brand] = updated[brand].map(v => 
-          v.id === id ? { ...v, status: 'paused' as const } : v
-        )
+  useEffect(() => {
+    fetchVehicles()
+  }, [])
+
+  async function fetchVehicles() {
+    setLoading(true)
+    const supabase = createClient()
+    
+    // Get current user's company
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) {
+      setLoading(false)
+      return
+    }
+
+    // Get user's company
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('company_id')
+      .eq('id', user.id)
+      .single()
+
+    if (profile?.company_id) {
+      setCompanyId(profile.company_id)
+      
+      // Fetch vehicles for this company with booking counts
+      const { data: vehiclesData, error } = await supabase
+        .from('vehicles')
+        .select(`
+          *,
+          bookings:bookings(count)
+        `)
+        .eq('company_id', profile.company_id)
+        .order('brand', { ascending: true })
+
+      if (!error && vehiclesData) {
+        // Transform to include booking count
+        const vehiclesWithCounts = vehiclesData.map(v => ({
+          ...v,
+          booking_count: v.bookings?.[0]?.count || 0
+        }))
+        setVehicles(vehiclesWithCounts)
       }
-      return updated
-    })
+    }
+    
+    setLoading(false)
   }
 
-  const handleResume = (id: string) => {
-    setVehicles(prev => {
-      const updated = { ...prev }
-      for (const brand in updated) {
-        updated[brand] = updated[brand].map(v => 
-          v.id === id ? { ...v, status: 'active' as const } : v
-        )
-      }
-      return updated
-    })
+  const handlePause = async (id: string) => {
+    setActionLoading(id)
+    const supabase = createClient()
+    
+    const { error } = await supabase
+      .from('vehicles')
+      .update({ status: 'paused' })
+      .eq('id', id)
+
+    if (error) {
+      toast({ title: 'Error', description: 'Failed to pause vehicle', variant: 'destructive' })
+    } else {
+      setVehicles(prev => prev.map(v => v.id === id ? { ...v, status: 'paused' as const } : v))
+      toast({ title: 'Vehicle paused', description: 'The vehicle has been paused and will not appear in listings' })
+    }
+    setActionLoading(null)
   }
 
-  const handleDelete = (id: string) => {
-    setVehicles(prev => {
-      const updated = { ...prev }
-      for (const brand in updated) {
-        updated[brand] = updated[brand].filter(v => v.id !== id)
-      }
-      // Remove empty brands
-      for (const brand in updated) {
-        if (updated[brand].length === 0) delete updated[brand]
-      }
-      return updated
-    })
+  const handleResume = async (id: string) => {
+    setActionLoading(id)
+    const supabase = createClient()
+    
+    const { error } = await supabase
+      .from('vehicles')
+      .update({ status: 'available' })
+      .eq('id', id)
+
+    if (error) {
+      toast({ title: 'Error', description: 'Failed to resume vehicle', variant: 'destructive' })
+    } else {
+      setVehicles(prev => prev.map(v => v.id === id ? { ...v, status: 'available' as const } : v))
+      toast({ title: 'Vehicle resumed', description: 'The vehicle is now available for booking' })
+    }
+    setActionLoading(null)
+  }
+
+  const handleDelete = async (id: string) => {
+    setActionLoading(id)
+    const supabase = createClient()
+    
+    const { error } = await supabase
+      .from('vehicles')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      toast({ title: 'Error', description: 'Failed to remove vehicle. It may have active bookings.', variant: 'destructive' })
+    } else {
+      setVehicles(prev => prev.filter(v => v.id !== id))
+      toast({ title: 'Vehicle removed', description: 'The vehicle has been removed from your fleet' })
+    }
+    setActionLoading(null)
     setDeleteId(null)
   }
 
-  const handleCopy = (id: string) => {
-    setVehicles(prev => {
-      const updated = { ...prev }
-      for (const brand in updated) {
-        const vehicle = updated[brand].find(v => v.id === id)
-        if (vehicle) {
-          const newVehicle = {
-            ...vehicle,
-            id: `${vehicle.id}-copy-${Date.now()}`,
-            plate: `${vehicle.plate}-COPY`,
-            views: 0,
-            bookings: 0,
-          }
-          updated[brand] = [...updated[brand], newVehicle]
-          break
-        }
-      }
-      return updated
-    })
+  const handleDuplicate = async (id: string) => {
+    setActionLoading(id)
+    const supabase = createClient()
+    
+    const vehicleToCopy = vehicles.find(v => v.id === id)
+    if (!vehicleToCopy || !companyId) {
+      setActionLoading(null)
+      return
+    }
+
+    const { id: _, booking_count, views, ...vehicleData } = vehicleToCopy
+    const newVehicle = {
+      ...vehicleData,
+      license_plate: `${vehicleData.license_plate || 'NEW'}-COPY`,
+      status: 'paused' as const,
+      company_id: companyId,
+    }
+
+    const { data, error } = await supabase
+      .from('vehicles')
+      .insert(newVehicle)
+      .select()
+      .single()
+
+    if (error) {
+      toast({ title: 'Error', description: 'Failed to duplicate vehicle', variant: 'destructive' })
+    } else if (data) {
+      setVehicles(prev => [...prev, { ...data, booking_count: 0 }])
+      toast({ title: 'Vehicle duplicated', description: 'A copy has been created and is paused. Edit it to update details.' })
+    }
+    setActionLoading(null)
   }
 
+  // Group vehicles by brand
+  const groupedVehicles = vehicles.reduce((acc, vehicle) => {
+    const brand = vehicle.brand || 'Unknown'
+    if (!acc[brand]) acc[brand] = []
+    acc[brand].push(vehicle)
+    return acc
+  }, {} as Record<string, Vehicle[]>)
+
   // Filter vehicles by search
-  const filteredVehicles = Object.entries(vehicles).reduce((acc, [brand, cars]) => {
+  const filteredVehicles = Object.entries(groupedVehicles).reduce((acc, [brand, cars]) => {
     const filtered = cars.filter(car => 
-      car.model.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      car.plate.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      car.color.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      car.model?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      car.license_plate?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      car.color?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       brand.toLowerCase().includes(searchQuery.toLowerCase())
     )
     if (filtered.length > 0) acc[brand] = filtered
     return acc
-  }, {} as typeof vehicles)
+  }, {} as Record<string, Vehicle[]>)
 
-  const totalVehicles = Object.values(vehicles).flat().length
+  // Sort brands
+  const sortedBrands = Object.keys(filteredVehicles).sort((a, b) => {
+    if (sortBy === 'brand') return a.localeCompare(b)
+    return 0
+  })
+
+  const totalVehicles = vehicles.length
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-12">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -274,14 +379,12 @@ export default function GaragePage() {
             <SelectItem value="brand">Brand (A-Z)</SelectItem>
             <SelectItem value="year">Year (Newest)</SelectItem>
             <SelectItem value="price">Price (High-Low)</SelectItem>
-            <SelectItem value="views">Views (High-Low)</SelectItem>
-            <SelectItem value="bookings">Bookings (High-Low)</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       {/* Vehicles List */}
-      {Object.keys(filteredVehicles).length === 0 ? (
+      {sortedBrands.length === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Car className="h-12 w-12 text-muted-foreground/50" />
@@ -301,25 +404,25 @@ export default function GaragePage() {
         </Card>
       ) : (
         <div className="space-y-6">
-          {Object.entries(filteredVehicles).sort().map(([brand, cars]) => (
+          {sortedBrands.map((brand) => (
             <div key={brand}>
               {/* Brand Header */}
               <div className="mb-3 flex items-center gap-2">
                 <h2 className="text-lg font-semibold">{brand}</h2>
-                <Badge variant="secondary">{cars.length}</Badge>
+                <Badge variant="secondary">{filteredVehicles[brand].length}</Badge>
               </div>
               
               {/* Brand Vehicles */}
               <div className="space-y-2">
-                {cars.map((vehicle) => (
+                {filteredVehicles[brand].map((vehicle) => (
                   <VehicleCard
                     key={vehicle.id}
                     vehicle={vehicle}
-                    brand={brand}
                     onPause={handlePause}
                     onResume={handleResume}
                     onDelete={(id) => setDeleteId(id)}
-                    onCopy={handleCopy}
+                    onDuplicate={handleDuplicate}
+                    isLoading={actionLoading}
                   />
                 ))}
               </div>
@@ -334,12 +437,15 @@ export default function GaragePage() {
           <AlertDialogHeader>
             <AlertDialogTitle>Remove Vehicle</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to remove this vehicle from your fleet? This action cannot be undone.
+              Are you sure you want to remove this vehicle from your fleet? This action cannot be undone and the vehicle will be removed from all listings.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => deleteId && handleDelete(deleteId)} className="bg-destructive text-destructive-foreground">
+            <AlertDialogAction 
+              onClick={() => deleteId && handleDelete(deleteId)} 
+              className="bg-destructive text-destructive-foreground"
+            >
               Remove
             </AlertDialogAction>
           </AlertDialogFooter>

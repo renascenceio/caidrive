@@ -3,8 +3,126 @@
 import { useState, useRef } from 'react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
-import { Calendar, ChevronDown, Upload, Camera, X } from 'lucide-react'
+import { Calendar, ChevronDown, ChevronLeft, ChevronRight, Upload, Camera, X } from 'lucide-react'
 import type { BookingData } from '../page'
+
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 
+                'July', 'August', 'September', 'October', 'November', 'December']
+
+const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
+
+function CustomCalendar({ 
+  selectedDate, 
+  onSelect,
+  onClose,
+  minDate 
+}: { 
+  selectedDate: string
+  onSelect: (date: string) => void
+  onClose: () => void
+  minDate?: string
+}) {
+  const today = new Date()
+  const [viewDate, setViewDate] = useState(new Date(selectedDate || today))
+  
+  const year = viewDate.getFullYear()
+  const month = viewDate.getMonth()
+  
+  const firstDayOfMonth = new Date(year, month, 1)
+  const lastDayOfMonth = new Date(year, month + 1, 0)
+  const startingDayOfWeek = firstDayOfMonth.getDay()
+  const daysInMonth = lastDayOfMonth.getDate()
+  
+  const prevMonth = () => setViewDate(new Date(year, month - 1, 1))
+  const nextMonth = () => setViewDate(new Date(year, month + 1, 1))
+  
+  const days: (number | null)[] = []
+  for (let i = 0; i < startingDayOfWeek; i++) {
+    days.push(null)
+  }
+  for (let i = 1; i <= daysInMonth; i++) {
+    days.push(i)
+  }
+  
+  const isDateDisabled = (day: number) => {
+    const date = new Date(year, month, day)
+    const min = minDate ? new Date(minDate) : today
+    min.setHours(0, 0, 0, 0)
+    date.setHours(0, 0, 0, 0)
+    return date < min
+  }
+  
+  const isDateSelected = (day: number) => {
+    if (!selectedDate) return false
+    const date = new Date(year, month, day)
+    const selected = new Date(selectedDate)
+    return date.toDateString() === selected.toDateString()
+  }
+  
+  const handleSelect = (day: number) => {
+    if (isDateDisabled(day)) return
+    const date = new Date(year, month, day)
+    onSelect(date.toISOString().split('T')[0])
+    onClose()
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-5">
+      <div className="w-full max-w-sm bg-white rounded-2xl p-4">
+        {/* Month Navigation */}
+        <div className="flex items-center justify-between mb-4">
+          <button onClick={prevMonth} className="p-2 hover:bg-secondary rounded-lg">
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <span className="font-semibold">{MONTHS[month]} {year}</span>
+          <button onClick={nextMonth} className="p-2 hover:bg-secondary rounded-lg">
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </div>
+        
+        {/* Weekday Headers */}
+        <div className="grid grid-cols-7 gap-1 mb-2">
+          {WEEKDAYS.map(day => (
+            <div key={day} className="text-center text-xs text-muted-foreground py-2 font-medium">
+              {day}
+            </div>
+          ))}
+        </div>
+        
+        {/* Days Grid */}
+        <div className="grid grid-cols-7 gap-1">
+          {days.map((day, idx) => (
+            <div key={idx} className="aspect-square">
+              {day && (
+                <button
+                  onClick={() => handleSelect(day)}
+                  disabled={isDateDisabled(day)}
+                  className={cn(
+                    "w-full h-full rounded-full flex items-center justify-center text-sm transition-all",
+                    isDateSelected(day) 
+                      ? "bg-foreground text-background font-semibold" 
+                      : "hover:bg-secondary",
+                    isDateDisabled(day) && "text-muted-foreground/30 cursor-not-allowed hover:bg-transparent"
+                  )}
+                >
+                  {day}
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+        
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="w-full mt-4 py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  )
+}
 
 interface PassportStepProps {
   data: BookingData
@@ -37,6 +155,7 @@ const COUNTRIES = [
 
 export function PassportStep({ data, onChange, onNext }: PassportStepProps) {
   const [showCountryPicker, setShowCountryPicker] = useState(false)
+  const [showCalendar, setShowCalendar] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const selectedCountry = COUNTRIES.find(c => c.name === data.passportCountry) || COUNTRIES[0]
@@ -117,16 +236,18 @@ export function PassportStep({ data, onChange, onNext }: PassportStepProps) {
         {/* Expiry Date */}
         <div>
           <label className="text-sm text-muted-foreground mb-2 block">Expiry Date</label>
-          <div className="relative">
-            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-            <input
-              type="date"
-              value={data.passportExpiry}
-              onChange={(e) => onChange({ passportExpiry: e.target.value })}
-              min={new Date().toISOString().split('T')[0]}
-              className="w-full pl-12 pr-4 py-3.5 bg-white rounded-xl border border-border/50 text-sm"
-            />
-          </div>
+          <button
+            onClick={() => setShowCalendar(true)}
+            className="w-full flex items-center gap-3 px-4 py-3.5 bg-white rounded-xl border border-border/50 text-left"
+          >
+            <Calendar className="h-5 w-5 text-muted-foreground" />
+            <span className={data.passportExpiry ? "text-foreground text-sm" : "text-muted-foreground text-sm"}>
+              {data.passportExpiry 
+                ? new Date(data.passportExpiry).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
+                : 'Select expiry date'
+              }
+            </span>
+          </button>
         </div>
 
         {/* Upload Passport */}
@@ -180,6 +301,16 @@ export function PassportStep({ data, onChange, onNext }: PassportStepProps) {
           )}
         </div>
       </div>
+
+      {/* Calendar Modal */}
+      {showCalendar && (
+        <CustomCalendar
+          selectedDate={data.passportExpiry}
+          onSelect={(date) => onChange({ passportExpiry: date })}
+          onClose={() => setShowCalendar(false)}
+          minDate={new Date().toISOString().split('T')[0]}
+        />
+      )}
 
       {/* Country Picker Modal */}
       {showCountryPicker && (
