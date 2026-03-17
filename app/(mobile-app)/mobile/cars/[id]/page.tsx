@@ -163,7 +163,7 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
             src={images[selectedImageIndex]}
             alt={`${vehicle.brand} ${vehicle.model}`}
             fill
-            className="object-contain"
+            className="object-cover"
           />
           
           {/* Navigation Arrows */}
