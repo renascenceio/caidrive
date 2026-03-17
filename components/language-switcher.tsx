@@ -1,5 +1,6 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { Globe, Check } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -13,6 +14,24 @@ import { cn } from '@/lib/utils'
 
 export function LanguageSwitcher() {
   const { language, setLanguage } = useLanguage()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  if (!mounted) {
+    return (
+      <Button 
+        variant="ghost" 
+        size="icon" 
+        className="h-9 w-9 rounded-full"
+      >
+        <Globe className="h-4 w-4" />
+        <span className="sr-only">Switch language</span>
+      </Button>
+    )
+  }
 
   return (
     <DropdownMenu>

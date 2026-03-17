@@ -43,7 +43,7 @@ function BookingSuccessContent() {
       <div className="min-h-screen bg-background flex items-center justify-center p-4">
         <Card className="bg-card border-border max-w-md w-full">
           <CardContent className="pt-6 text-center">
-            <Loader2 className="h-12 w-12 animate-spin text-amber-500 mx-auto mb-4" />
+            <Loader2 className="h-12 w-12 animate-spin text-accent mx-auto mb-4" />
             <h2 className="text-xl font-semibold text-foreground mb-2">
               Confirming your booking...
             </h2>
@@ -72,7 +72,7 @@ function BookingSuccessContent() {
           <CardFooter className="flex flex-col gap-2">
             <Button
               onClick={() => router.back()}
-              className="w-full bg-amber-500 hover:bg-amber-600 text-black"
+              className="w-full bg-accent hover:bg-accent/90 text-white"
             >
               Try Again
             </Button>
@@ -106,8 +106,8 @@ function BookingSuccessContent() {
         <CardContent className="space-y-4">
           <div className="bg-muted/50 rounded-lg p-4 space-y-3">
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-amber-500/20 flex items-center justify-center">
-                <Car className="h-5 w-5 text-amber-500" />
+              <div className="h-10 w-10 rounded-full bg-accent/20 flex items-center justify-center">
+                <Car className="h-5 w-5 text-accent" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Booking ID</p>
@@ -117,8 +117,8 @@ function BookingSuccessContent() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-amber-500/20 flex items-center justify-center">
-                <Calendar className="h-5 w-5 text-amber-500" />
+              <div className="h-10 w-10 rounded-full bg-accent/20 flex items-center justify-center">
+                <Calendar className="h-5 w-5 text-accent" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Status</p>
@@ -126,8 +126,8 @@ function BookingSuccessContent() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-amber-500/20 flex items-center justify-center">
-                <MapPin className="h-5 w-5 text-amber-500" />
+              <div className="h-10 w-10 rounded-full bg-accent/20 flex items-center justify-center">
+                <MapPin className="h-5 w-5 text-accent" />
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Next Steps</p>
@@ -145,7 +145,7 @@ function BookingSuccessContent() {
         </CardContent>
         <CardFooter className="flex flex-col gap-2">
           <Link href="/rides" className="w-full">
-            <Button className="w-full bg-amber-500 hover:bg-amber-600 text-black">
+            <Button className="w-full bg-accent hover:bg-accent/90 text-white">
               View My Rides
             </Button>
           </Link>
@@ -165,7 +165,7 @@ function LoadingFallback() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="bg-card border-border max-w-md w-full">
         <CardContent className="pt-6 text-center">
-          <Loader2 className="h-12 w-12 animate-spin text-amber-500 mx-auto mb-4" />
+          <Loader2 className="h-12 w-12 animate-spin text-accent mx-auto mb-4" />
           <h2 className="text-xl font-semibold text-foreground mb-2">
             Loading...
           </h2>

@@ -139,7 +139,7 @@ export default function BookingPage() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-xl font-bold text-amber-500">
+                    <p className="text-xl font-bold text-accent">
                       ${vehicle.price_per_day}
                     </p>
                     <p className="text-xs text-muted-foreground">per day</p>

@@ -118,7 +118,7 @@ export function CheckoutForm({ vehicle, pickupDate, returnDate }: CheckoutFormPr
         {/* Total */}
         <div className="flex justify-between font-semibold">
           <span className="text-foreground">Total</span>
-          <span className="text-amber-500">${total.toFixed(2)}</span>
+          <span className="text-accent">${total.toFixed(2)}</span>
         </div>
 
         <p className="text-xs text-muted-foreground">
@@ -130,7 +130,7 @@ export function CheckoutForm({ vehicle, pickupDate, returnDate }: CheckoutFormPr
         <Button
           onClick={handleCheckout}
           disabled={loading}
-          className="w-full bg-amber-500 hover:bg-amber-600 text-black font-semibold"
+          className="w-full bg-accent hover:bg-accent/90 text-white font-semibold"
         >
           {loading ? (
             <>
