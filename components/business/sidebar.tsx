@@ -7,7 +7,7 @@ import {
   LayoutDashboard, Car, Users, CalendarDays, 
   CreditCard, Settings, ChevronLeft,
   Calendar, UserCircle, BarChart3, Wallet,
-  Megaphone, Star, MessageCircle, ChevronRight
+  Megaphone, Star, MessageCircle, ChevronRight, Shield
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -64,7 +64,8 @@ const navGroups = [
 
 const bottomItems = [
   { href: '/business/chats', icon: MessageCircle, label: 'Support Chats', notificationCount: 3 },
-  { href: '/business/setup', icon: Settings, label: 'Settings' },
+  { href: '/business/settings', icon: Settings, label: 'Settings' },
+  { href: '/business/admin', icon: Shield, label: 'Admin Panel', adminOnly: true },
 ]
 
 export function BusinessSidebar({ company, userName = 'User', lastLogin }: BusinessSidebarProps) {
