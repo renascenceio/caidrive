@@ -44,10 +44,10 @@ function DriverAppContent({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col">
-      {/* Theme Toggle - Fixed in corner */}
+      {/* Theme Toggle - Fixed below header */}
       <button
         onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-        className="fixed top-4 right-4 z-50 p-2.5 rounded-xl bg-secondary/80 backdrop-blur-sm border border-border/50 hover:bg-secondary transition-colors"
+        className="fixed top-14 right-5 z-50 p-2 rounded-xl bg-secondary/80 backdrop-blur-sm border border-border/50 hover:bg-secondary transition-colors"
       >
         {theme === 'dark' ? (
           <Sun className="h-4 w-4" />
