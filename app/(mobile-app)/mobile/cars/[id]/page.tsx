@@ -126,7 +126,7 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
   const brandLogo = brandLogos[vehicle.brand]
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] pb-28">
+    <div className="min-h-screen bg-[#f5f5f7] pb-40">
       {/* Header - Floating on Image */}
       <div className="fixed top-0 left-0 right-0 z-50 px-4 py-3">
         <div className="flex items-center justify-between">
@@ -230,20 +230,25 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
           </div>
         </div>
 
-        {/* Sound Button & Price Bar */}
+        {/* Sound Button & Price Bar - Matching PDF */}
         <div className="flex items-center gap-3">
           <button
             onClick={toggleSound}
-            className="p-3 bg-white rounded-xl border border-border/50"
+            className={cn(
+              "p-3.5 rounded-xl border transition-all",
+              soundEnabled 
+                ? "bg-foreground text-background border-foreground" 
+                : "bg-white text-muted-foreground border-border/50"
+            )}
           >
             {soundEnabled ? (
               <Volume2 className="h-5 w-5" />
             ) : (
-              <VolumeX className="h-5 w-5 text-muted-foreground" />
+              <VolumeX className="h-5 w-5" />
             )}
           </button>
           
-          <div className="flex-1 flex items-center justify-between bg-foreground text-background rounded-xl px-4 py-3">
+          <div className="flex-1 flex items-center justify-between bg-foreground text-background rounded-full px-5 py-3">
             <div className="flex items-center gap-2">
               {vehicle.original_price && (
                 <span className="text-sm text-background/60 line-through">
@@ -318,31 +323,19 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
           </div>
         </div>
 
-        {/* Technical Specification */}
+        {/* Technical Specification - Two columns, no image */}
         <div>
           <h2 className="font-semibold text-base mb-4">Technical specification</h2>
           
-          {/* Specs with Car Image */}
-          <div className="relative">
-            <div className="space-y-4">
-              <SpecItem icon={<Power className="h-5 w-5" />} label="Power" value={`${vehicle.horsepower || vehicle.power || 440} bhp`} />
-              <SpecItem icon={<Cog className="h-5 w-5" />} label="Engine" value={vehicle.engine_size || '3.9 liters'} />
-              <SpecItem icon={<Gauge className="h-5 w-5" />} label="0-100 / 0-200" value={`${vehicle.acceleration || 5.1} s / ${(vehicle.acceleration || 5.1) * 2.2}s`} />
-              <SpecItem icon={<Gauge className="h-5 w-5" />} label="Top speed" value={`${vehicle.max_speed || 440} km/h`} />
-              <SpecItem icon={<Cog className="h-5 w-5" />} label="Transmission" value={vehicle.transmission || 'Automatic'} />
-              <SpecItem icon={<Fuel className="h-5 w-5" />} label="Fuel Consumption" value={`${vehicle.fuel_consumption || 11.9} liters`} />
-              <SpecItem icon={<Cog className="h-5 w-5" />} label="Drive train" value={vehicle.drivetrain || '4x4'} />
-            </div>
-            
-            {/* Car Image Overlay */}
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-40 h-28 opacity-20 pointer-events-none">
-              <Image
-                src={images[0]}
-                alt={vehicle.model}
-                fill
-                className="object-contain"
-              />
-            </div>
+          <div className="grid grid-cols-2 gap-4">
+            <SpecItem icon={<Power className="h-5 w-5" />} label="Power" value={`${vehicle.horsepower || vehicle.power || 440} bhp`} />
+            <SpecItem icon={<Cog className="h-5 w-5" />} label="Engine" value={vehicle.engine_size || '3.9 liters'} />
+            <SpecItem icon={<Gauge className="h-5 w-5" />} label="0-100 / 0-200" value={`${vehicle.acceleration || 5.1}s / ${((vehicle.acceleration || 5.1) * 2.2).toFixed(1)}s`} />
+            <SpecItem icon={<Gauge className="h-5 w-5" />} label="Top speed" value={`${vehicle.max_speed || 440} km/h`} />
+            <SpecItem icon={<Cog className="h-5 w-5" />} label="Transmission" value={vehicle.transmission || 'Automatic'} />
+            <SpecItem icon={<Fuel className="h-5 w-5" />} label="Fuel Consumption" value={`${vehicle.fuel_consumption || 11.9} L`} />
+            <SpecItem icon={<Cog className="h-5 w-5" />} label="Drive train" value={vehicle.drivetrain || '4x4'} />
+            <SpecItem icon={<Users className="h-5 w-5" />} label="Seats" value={`${vehicle.seats || 4} seats`} />
           </div>
         </div>
 
@@ -426,8 +419,8 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
         </div>
       </div>
 
-      {/* Fixed Bottom Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-border/30 px-5 py-4 pb-8">
+      {/* Fixed Bottom Bar - Above bottom nav */}
+      <div className="fixed bottom-20 left-0 right-0 bg-white border-t border-border/30 px-5 py-3">
         <div className="flex items-center justify-between">
           <div>
             {vehicle.original_price && (
@@ -437,7 +430,7 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
           </div>
           
           <Link href={`/mobile/cars/${id}/book`} className="flex-1 ml-4">
-            <button className="w-full py-4 bg-foreground text-background font-semibold rounded-2xl flex items-center justify-center gap-2">
+            <button className="w-full py-4 bg-foreground text-background font-semibold rounded-full flex items-center justify-center gap-2">
               Book Now
               <ChevronRight className="h-5 w-5" />
             </button>
@@ -450,13 +443,13 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
 
 function SpecItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="flex items-center gap-3">
-      <div className="w-10 h-10 rounded-xl bg-white border border-border/30 flex items-center justify-center">
+    <div className="flex items-center gap-3 bg-white rounded-xl p-3 border border-border/30">
+      <div className="w-9 h-9 rounded-lg bg-secondary/50 flex items-center justify-center flex-shrink-0">
         {icon}
       </div>
-      <div>
-        <p className="text-xs text-muted-foreground">{label}</p>
-        <p className="font-semibold">{value}</p>
+      <div className="min-w-0">
+        <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{label}</p>
+        <p className="font-semibold text-sm truncate">{value}</p>
       </div>
     </div>
   )
