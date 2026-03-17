@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
@@ -12,7 +12,7 @@ const defaultBrands = [
   'Mercedes-Benz', 'Rolls-Royce', 'Bentley', 'McLaren', 'Audi'
 ]
 
-export default function MobileFiltersPage() {
+function FiltersContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   
@@ -343,5 +343,17 @@ export default function MobileFiltersPage() {
         </button>
       </div>
     </div>
+  )
+}
+
+export default function MobileFiltersPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Loading filters...</div>
+      </div>
+    }>
+      <FiltersContent />
+    </Suspense>
   )
 }
