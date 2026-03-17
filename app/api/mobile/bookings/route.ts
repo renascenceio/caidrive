@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
 
     const total_price = subtotal + deposit
 
-    // Create booking
+    // Create booking - only use columns that exist in schema
     const { data: booking, error: bookingError } = await supabase
       .from('bookings')
       .insert({
@@ -135,21 +135,21 @@ export async function POST(request: NextRequest) {
         company_id: vehicle.company_id,
         pickup_date,
         return_date,
-        pickup_time,
-        pickup_location,
-        return_location,
-        delivery_type,
+        pickup_location: { address: pickup_location, type: delivery_type, time: pickup_time },
+        return_location: { address: return_location },
         total_price,
-        subtotal,
-        deposit_amount: deposit,
+        deposit_paid: deposit,
         discount_code,
         discount_amount,
-        payment_method,
         status: 'pending',
         payment_status: 'pending',
-        // Store document info
-        driver_license_info: driver_license,
-        passport_info: passport,
+        // Store document and payment info in notes JSON
+        notes: JSON.stringify({
+          payment_method,
+          driver_license,
+          passport,
+          subtotal,
+        }),
       })
       .select()
       .single()
