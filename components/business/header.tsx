@@ -19,6 +19,7 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 import { signOut } from '@/app/auth/actions'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 interface Profile {
   id: string
@@ -73,6 +74,9 @@ export function BusinessHeader({ profile }: BusinessHeaderProps) {
       </Button>
 
       <div className="flex items-center gap-2 ml-auto">
+        {/* Theme Toggle */}
+        <ThemeToggle />
+
         {/* Notifications */}
         <Button variant="ghost" size="icon" className="relative">
           <Bell className="h-5 w-5" />

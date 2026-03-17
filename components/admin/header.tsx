@@ -20,6 +20,7 @@ import {
   SheetTitle,
 } from '@/components/ui/sheet'
 import { signOut } from '@/app/auth/actions'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 interface Profile {
   id: string
@@ -84,6 +85,9 @@ export function AdminHeader({ profile }: AdminHeaderProps) {
           <Shield className="h-3 w-3" />
           Super Admin
         </Badge>
+
+        {/* Theme Toggle */}
+        <ThemeToggle />
 
         {/* Notifications */}
         <Button variant="ghost" size="icon" className="relative">
