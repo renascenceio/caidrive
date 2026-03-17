@@ -1,10 +1,10 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { usePathname } from 'next/navigation'
-import { useTheme } from 'next-themes'
-import { Bell, Search, Menu, ChevronLeft, Home, Car, MapPin, Calendar, Heart, User, LogIn, UserPlus, ChevronRight } from 'lucide-react'
+import { usePathname, useRouter } from 'next/navigation'
+import { Bell, Search, Menu, ChevronLeft, Home, Car, MapPin, Calendar, Heart, User, LogIn, UserPlus, ChevronRight, LogOut, Settings } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -13,8 +13,17 @@ import {
   SheetTrigger,
   SheetTitle,
 } from '@/components/ui/sheet'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { LanguageSwitcher } from '@/components/language-switcher'
+import { createClient } from '@/lib/supabase/client'
+import type { User } from '@supabase/supabase-js'
 
 interface HeaderProps {
   title?: string
@@ -36,6 +45,35 @@ export function Header({
   onSearchClick,
 }: HeaderProps) {
   const pathname = usePathname()
+  const router = useRouter()
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [sheetOpen, setSheetOpen] = useState(false)
+
+  useEffect(() => {
+    const supabase = createClient()
+    
+    // Get initial user
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user)
+      setLoading(false)
+    })
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setUser(session?.user ?? null)
+    })
+
+    return () => subscription.unsubscribe()
+  }, [])
+
+  const handleSignOut = async () => {
+    const supabase = createClient()
+    await supabase.auth.signOut()
+    setSheetOpen(false)
+    setUser(null)
+    window.location.href = '/'
+  }
 
   return (
     <header className={cn(
@@ -153,16 +191,74 @@ export function Header({
             </Link>
           )}
 
-          {/* Desktop Profile Link */}
-          <Link href="/profile" className="hidden md:block">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-transparent hover:border-border hover:bg-secondary/50 transition-all duration-300">
-              <div className="h-8 w-8 rounded-full bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-700 dark:to-neutral-800" />
-              <span className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">Profile</span>
+          {/* Desktop User Menu */}
+          {!loading && (
+            <div className="hidden md:block">
+              {user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-transparent hover:border-border hover:bg-secondary/50 transition-all duration-300">
+                      <div className="h-8 w-8 rounded-full bg-gradient-to-br from-accent/30 to-accent/50 flex items-center justify-center">
+                        <span className="text-sm font-semibold text-accent">
+                          {user.email?.[0].toUpperCase() || 'U'}
+                        </span>
+                      </div>
+                      <span className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                        {user.email?.split('@')[0] || 'Profile'}
+                      </span>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <div className="px-2 py-1.5">
+                      <p className="text-sm font-medium">{user.email}</p>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile" className="cursor-pointer">
+                        <User className="mr-2 h-4 w-4" />
+                        Profile
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/rides" className="cursor-pointer">
+                        <Calendar className="mr-2 h-4 w-4" />
+                        My Rides
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/wishlist" className="cursor-pointer">
+                        <Heart className="mr-2 h-4 w-4" />
+                        Wishlist
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link href="/profile/settings" className="cursor-pointer">
+                        <Settings className="mr-2 h-4 w-4" />
+                        Settings
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut} className="text-destructive cursor-pointer">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Link href="/auth/login">
+                    <Button variant="ghost" size="sm">Sign In</Button>
+                  </Link>
+                  <Link href="/auth/sign-up">
+                    <Button size="sm">Create Account</Button>
+                  </Link>
+                </div>
+              )}
             </div>
-          </Link>
+          )}
 
           {/* Mobile Menu */}
-          <Sheet>
+          <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
             <SheetTrigger asChild className="md:hidden">
               <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full">
                 <Menu className="h-5 w-5" />
@@ -170,43 +266,61 @@ export function Header({
             </SheetTrigger>
             <SheetContent side="right" className="w-80 px-0">
               <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
-              <nav className="mt-8 flex flex-col">
-                <Link href="/" className="flex items-center gap-4 px-6 py-4 hover:bg-secondary/50 transition-colors">
+              
+              {/* User Info at Top */}
+              {user && (
+                <div className="px-6 py-4 border-b border-border">
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-accent/30 to-accent/50 flex items-center justify-center">
+                      <span className="text-lg font-semibold text-accent">
+                        {user.email?.[0].toUpperCase() || 'U'}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium truncate">{user.email?.split('@')[0]}</p>
+                      <p className="text-sm text-muted-foreground truncate">{user.email}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <nav className="mt-4 flex flex-col">
+                <Link href="/" onClick={() => setSheetOpen(false)} className="flex items-center gap-4 px-6 py-4 hover:bg-secondary/50 transition-colors">
                   <div className="h-10 w-10 rounded-xl bg-secondary flex items-center justify-center">
                     <Home className="h-5 w-5 text-muted-foreground" />
                   </div>
                   <span className="flex-1 font-medium">Home</span>
                   <ChevronRight className="h-5 w-5 text-muted-foreground" />
                 </Link>
-                <Link href="/cars" className="flex items-center gap-4 px-6 py-4 hover:bg-secondary/50 transition-colors">
+                <Link href="/cars" onClick={() => setSheetOpen(false)} className="flex items-center gap-4 px-6 py-4 hover:bg-secondary/50 transition-colors">
                   <div className="h-10 w-10 rounded-xl bg-secondary flex items-center justify-center">
                     <Car className="h-5 w-5 text-muted-foreground" />
                   </div>
                   <span className="flex-1 font-medium">Garage</span>
                   <ChevronRight className="h-5 w-5 text-muted-foreground" />
                 </Link>
-                <Link href="/places" className="flex items-center gap-4 px-6 py-4 hover:bg-secondary/50 transition-colors">
+                <Link href="/places" onClick={() => setSheetOpen(false)} className="flex items-center gap-4 px-6 py-4 hover:bg-secondary/50 transition-colors">
                   <div className="h-10 w-10 rounded-xl bg-secondary flex items-center justify-center">
                     <MapPin className="h-5 w-5 text-muted-foreground" />
                   </div>
                   <span className="flex-1 font-medium">Places</span>
                   <ChevronRight className="h-5 w-5 text-muted-foreground" />
                 </Link>
-                <Link href="/rides" className="flex items-center gap-4 px-6 py-4 hover:bg-secondary/50 transition-colors">
+                <Link href="/rides" onClick={() => setSheetOpen(false)} className="flex items-center gap-4 px-6 py-4 hover:bg-secondary/50 transition-colors">
                   <div className="h-10 w-10 rounded-xl bg-secondary flex items-center justify-center">
                     <Calendar className="h-5 w-5 text-muted-foreground" />
                   </div>
                   <span className="flex-1 font-medium">Rides</span>
                   <ChevronRight className="h-5 w-5 text-muted-foreground" />
                 </Link>
-                <Link href="/wishlist" className="flex items-center gap-4 px-6 py-4 hover:bg-secondary/50 transition-colors">
+                <Link href="/wishlist" onClick={() => setSheetOpen(false)} className="flex items-center gap-4 px-6 py-4 hover:bg-secondary/50 transition-colors">
                   <div className="h-10 w-10 rounded-xl bg-secondary flex items-center justify-center">
                     <Heart className="h-5 w-5 text-muted-foreground" />
                   </div>
                   <span className="flex-1 font-medium">Wishlist</span>
                   <ChevronRight className="h-5 w-5 text-muted-foreground" />
                 </Link>
-                <Link href="/profile" className="flex items-center gap-4 px-6 py-4 hover:bg-secondary/50 transition-colors">
+                <Link href="/profile" onClick={() => setSheetOpen(false)} className="flex items-center gap-4 px-6 py-4 hover:bg-secondary/50 transition-colors">
                   <div className="h-10 w-10 rounded-xl bg-secondary flex items-center justify-center">
                     <User className="h-5 w-5 text-muted-foreground" />
                   </div>
@@ -216,20 +330,34 @@ export function Header({
                 
                 <hr className="my-4 mx-6 border-border" />
                 
-                <Link href="/auth/login" className="flex items-center gap-4 px-6 py-4 hover:bg-secondary/50 transition-colors">
-                  <div className="h-10 w-10 rounded-xl bg-secondary flex items-center justify-center">
-                    <LogIn className="h-5 w-5 text-muted-foreground" />
-                  </div>
-                  <span className="flex-1 font-medium">Sign In</span>
-                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                </Link>
-                <Link href="/auth/sign-up" className="flex items-center gap-4 px-6 py-4 hover:bg-secondary/50 transition-colors">
-                  <div className="h-10 w-10 rounded-xl bg-accent/10 flex items-center justify-center">
-                    <UserPlus className="h-5 w-5 text-accent" />
-                  </div>
-                  <span className="flex-1 font-medium text-accent">Create Account</span>
-                  <ChevronRight className="h-5 w-5 text-accent" />
-                </Link>
+                {user ? (
+                  <button 
+                    onClick={handleSignOut}
+                    className="flex items-center gap-4 px-6 py-4 hover:bg-destructive/10 transition-colors text-left"
+                  >
+                    <div className="h-10 w-10 rounded-xl bg-destructive/10 flex items-center justify-center">
+                      <LogOut className="h-5 w-5 text-destructive" />
+                    </div>
+                    <span className="flex-1 font-medium text-destructive">Sign Out</span>
+                  </button>
+                ) : (
+                  <>
+                    <Link href="/auth/login" onClick={() => setSheetOpen(false)} className="flex items-center gap-4 px-6 py-4 hover:bg-secondary/50 transition-colors">
+                      <div className="h-10 w-10 rounded-xl bg-secondary flex items-center justify-center">
+                        <LogIn className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                      <span className="flex-1 font-medium">Sign In</span>
+                      <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                    </Link>
+                    <Link href="/auth/sign-up" onClick={() => setSheetOpen(false)} className="flex items-center gap-4 px-6 py-4 hover:bg-secondary/50 transition-colors">
+                      <div className="h-10 w-10 rounded-xl bg-accent/10 flex items-center justify-center">
+                        <UserPlus className="h-5 w-5 text-accent" />
+                      </div>
+                      <span className="flex-1 font-medium text-accent">Create Account</span>
+                      <ChevronRight className="h-5 w-5 text-accent" />
+                    </Link>
+                  </>
+                )}
               </nav>
             </SheetContent>
           </Sheet>
