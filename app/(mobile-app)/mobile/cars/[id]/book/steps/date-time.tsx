@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
-import { Calendar, Clock, MapPin, X, Check } from 'lucide-react'
+import { Calendar as CalendarIcon, Clock, MapPin, Check, ChevronLeft, ChevronRight } from 'lucide-react'
 import type { BookingData } from '../page'
 
 interface DateTimeStepProps {
@@ -17,46 +17,182 @@ const TIME_SLOTS = [
   '04:00 PM', '05:00 PM', '06:00 PM'
 ]
 
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 
+                'July', 'August', 'September', 'October', 'November', 'December']
+
+const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
+
+function CustomCalendar({ 
+  selectedDate, 
+  onSelect,
+  minDate 
+}: { 
+  selectedDate: string
+  onSelect: (date: string) => void
+  minDate?: string
+}) {
+  const today = new Date()
+  const [viewDate, setViewDate] = useState(new Date(selectedDate || today))
+  
+  const year = viewDate.getFullYear()
+  const month = viewDate.getMonth()
+  
+  const firstDayOfMonth = new Date(year, month, 1)
+  const lastDayOfMonth = new Date(year, month + 1, 0)
+  const startingDayOfWeek = firstDayOfMonth.getDay()
+  const daysInMonth = lastDayOfMonth.getDate()
+  
+  const prevMonth = () => setViewDate(new Date(year, month - 1, 1))
+  const nextMonth = () => setViewDate(new Date(year, month + 1, 1))
+  
+  const days: (number | null)[] = []
+  for (let i = 0; i < startingDayOfWeek; i++) {
+    days.push(null)
+  }
+  for (let i = 1; i <= daysInMonth; i++) {
+    days.push(i)
+  }
+  
+  const isDateDisabled = (day: number) => {
+    const date = new Date(year, month, day)
+    const min = minDate ? new Date(minDate) : today
+    min.setHours(0, 0, 0, 0)
+    date.setHours(0, 0, 0, 0)
+    return date < min
+  }
+  
+  const isDateSelected = (day: number) => {
+    if (!selectedDate) return false
+    const date = new Date(year, month, day)
+    const selected = new Date(selectedDate)
+    return date.toDateString() === selected.toDateString()
+  }
+  
+  const handleSelect = (day: number) => {
+    if (isDateDisabled(day)) return
+    const date = new Date(year, month, day)
+    onSelect(date.toISOString().split('T')[0])
+  }
+
+  return (
+    <div className="bg-white rounded-2xl border border-border/50 p-4">
+      {/* Month Navigation */}
+      <div className="flex items-center justify-between mb-4">
+        <button onClick={prevMonth} className="p-2 hover:bg-secondary rounded-lg">
+          <ChevronLeft className="h-5 w-5" />
+        </button>
+        <span className="font-semibold">{MONTHS[month]} {year}</span>
+        <button onClick={nextMonth} className="p-2 hover:bg-secondary rounded-lg">
+          <ChevronRight className="h-5 w-5" />
+        </button>
+      </div>
+      
+      {/* Weekday Headers */}
+      <div className="grid grid-cols-7 gap-1 mb-2">
+        {WEEKDAYS.map(day => (
+          <div key={day} className="text-center text-xs text-muted-foreground py-2 font-medium">
+            {day}
+          </div>
+        ))}
+      </div>
+      
+      {/* Days Grid */}
+      <div className="grid grid-cols-7 gap-1">
+        {days.map((day, idx) => (
+          <div key={idx} className="aspect-square">
+            {day && (
+              <button
+                onClick={() => handleSelect(day)}
+                disabled={isDateDisabled(day)}
+                className={cn(
+                  "w-full h-full rounded-full flex items-center justify-center text-sm transition-all",
+                  isDateSelected(day) 
+                    ? "bg-foreground text-background font-semibold" 
+                    : "hover:bg-secondary",
+                  isDateDisabled(day) && "text-muted-foreground/30 cursor-not-allowed hover:bg-transparent"
+                )}
+              >
+                {day}
+              </button>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export function DateTimeStep({ data, onChange, onNext }: DateTimeStepProps) {
-  const [showFromCalendar, setShowFromCalendar] = useState(false)
-  const [showToCalendar, setShowToCalendar] = useState(false)
+  const [activeCalendar, setActiveCalendar] = useState<'from' | 'to' | null>(null)
 
   const isValid = data.startDate && data.endDate && 
     (data.deliveryLocation === 'pickup' || data.deliveryAddress)
 
+  const formatDisplayDate = (dateStr: string) => {
+    if (!dateStr) return 'Select date'
+    const date = new Date(dateStr)
+    return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
+  }
+
   return (
-    <div className="px-5 py-6 pb-32">
+    <div className="px-5 py-6 pb-36">
       {/* Date Range */}
       <section className="mb-8">
         <h2 className="font-semibold text-base mb-4">Date range</h2>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
             <label className="text-sm text-muted-foreground mb-2 block">From</label>
-            <div className="relative">
-              <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <input
-                type="date"
-                value={data.startDate}
-                onChange={(e) => onChange({ startDate: e.target.value })}
-                min={new Date().toISOString().split('T')[0]}
-                className="w-full pl-12 pr-4 py-3.5 bg-white rounded-xl border border-border/50 text-sm"
-              />
-            </div>
+            <button
+              onClick={() => setActiveCalendar(activeCalendar === 'from' ? null : 'from')}
+              className={cn(
+                "w-full flex items-center gap-3 px-4 py-3.5 bg-white rounded-xl border text-sm text-left",
+                activeCalendar === 'from' ? "border-foreground" : "border-border/50"
+              )}
+            >
+              <CalendarIcon className="h-5 w-5 text-muted-foreground" />
+              <span className={data.startDate ? "text-foreground" : "text-muted-foreground"}>
+                {formatDisplayDate(data.startDate)}
+              </span>
+            </button>
           </div>
           <div>
             <label className="text-sm text-muted-foreground mb-2 block">To</label>
-            <div className="relative">
-              <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <input
-                type="date"
-                value={data.endDate}
-                onChange={(e) => onChange({ endDate: e.target.value })}
-                min={data.startDate || new Date().toISOString().split('T')[0]}
-                className="w-full pl-12 pr-4 py-3.5 bg-white rounded-xl border border-border/50 text-sm"
-              />
-            </div>
+            <button
+              onClick={() => setActiveCalendar(activeCalendar === 'to' ? null : 'to')}
+              className={cn(
+                "w-full flex items-center gap-3 px-4 py-3.5 bg-white rounded-xl border text-sm text-left",
+                activeCalendar === 'to' ? "border-foreground" : "border-border/50"
+              )}
+            >
+              <CalendarIcon className="h-5 w-5 text-muted-foreground" />
+              <span className={data.endDate ? "text-foreground" : "text-muted-foreground"}>
+                {formatDisplayDate(data.endDate)}
+              </span>
+            </button>
           </div>
         </div>
+
+        {/* Custom Calendar */}
+        {activeCalendar === 'from' && (
+          <CustomCalendar
+            selectedDate={data.startDate}
+            onSelect={(date) => {
+              onChange({ startDate: date })
+              setActiveCalendar('to')
+            }}
+            minDate={new Date().toISOString().split('T')[0]}
+          />
+        )}
+        {activeCalendar === 'to' && (
+          <CustomCalendar
+            selectedDate={data.endDate}
+            onSelect={(date) => {
+              onChange({ endDate: date })
+              setActiveCalendar(null)
+            }}
+            minDate={data.startDate || new Date().toISOString().split('T')[0]}
+          />
+        )}
       </section>
 
       {/* Select Time */}
@@ -111,11 +247,7 @@ export function DateTimeStep({ data, onChange, onNext }: DateTimeStepProps) {
           <div className="bg-white rounded-xl border border-border/50 p-4 space-y-3">
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Selected dates</span>
-              <span>{new Date(data.startDate).toLocaleDateString()} - {new Date(data.endDate).toLocaleDateString()}</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Full booking date</span>
-              <span>{new Date(data.startDate).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+              <span>{formatDisplayDate(data.startDate)} - {formatDisplayDate(data.endDate)}</span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Number of Days</span>
@@ -205,13 +337,13 @@ export function DateTimeStep({ data, onChange, onNext }: DateTimeStepProps) {
         )}
       </section>
 
-      {/* Fixed Bottom Button */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[#f5f5f7] border-t border-border/30 p-5 pb-8">
+      {/* Fixed Bottom Button - Above bottom nav */}
+      <div className="fixed bottom-[72px] left-0 right-0 bg-[#f5f5f7] border-t border-border/30 px-5 py-4">
         <button
           onClick={onNext}
           disabled={!isValid}
           className={cn(
-            "w-full py-4 rounded-2xl font-semibold text-base transition-all",
+            "w-full py-4 rounded-full font-semibold text-base transition-all",
             isValid
               ? "bg-foreground text-background"
               : "bg-foreground/30 text-background/50 cursor-not-allowed"

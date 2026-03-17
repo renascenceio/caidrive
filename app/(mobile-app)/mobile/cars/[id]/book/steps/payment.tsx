@@ -65,7 +65,7 @@ export function PaymentStep({
   }
 
   return (
-    <div className="px-5 py-6 pb-32">
+    <div className="px-5 py-6 pb-36">
       {/* Car Summary Card */}
       <div className="bg-white border border-border/30 rounded-2xl overflow-hidden mb-6">
         <div className="relative h-36">
@@ -277,13 +277,13 @@ export function PaymentStep({
         </span>
       </label>
 
-      {/* Fixed Bottom Button */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[#f5f5f7] border-t border-border/30 p-5 pb-8">
+      {/* Fixed Bottom Button - Above bottom nav */}
+      <div className="fixed bottom-[72px] left-0 right-0 bg-[#f5f5f7] border-t border-border/30 px-5 py-4">
         <button
           onClick={onSubmit}
           disabled={!data.termsAccepted || loading}
           className={cn(
-            "w-full py-4 rounded-2xl font-semibold text-base transition-all",
+            "w-full py-4 rounded-full font-semibold text-base transition-all",
             data.termsAccepted && !loading
               ? "bg-foreground text-background active:scale-[0.98]"
               : "bg-foreground/30 text-background/50 cursor-not-allowed"
