@@ -11,6 +11,7 @@ import {
   Sheet,
   SheetContent,
   SheetTrigger,
+  SheetTitle,
 } from '@/components/ui/sheet'
 import { ThemeToggle } from '@/components/theme-toggle'
 import { LanguageSwitcher } from '@/components/language-switcher'
@@ -168,6 +169,7 @@ export function Header({
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-80">
+              <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
               <nav className="mt-8 flex flex-col gap-4">
                 <Link href="/" className="text-lg font-medium">Home</Link>
                 <Link href="/cars" className="text-lg font-medium">Garage</Link>
