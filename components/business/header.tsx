@@ -16,6 +16,7 @@ import {
   Sheet,
   SheetContent,
   SheetTrigger,
+  SheetTitle,
 } from '@/components/ui/sheet'
 import { signOut } from '@/app/auth/actions'
 

@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
-import { Search, Star, ChevronRight, Gauge, Zap, Heart, Users, Power } from 'lucide-react'
+import { Search, Star, ChevronRight, Gauge, Zap, Heart } from 'lucide-react'
 
 // Brand logos - matching PDF design
 const topBrands = [
@@ -135,69 +135,73 @@ function PopularRideCard({ car }: { car: Vehicle }) {
   const [isWishlisted, setIsWishlisted] = useState(false)
 
   return (
-    <Link href={`/mobile/cars/${car.id}`} className="block">
-      <div className="bg-card border border-border rounded-3xl overflow-hidden shadow-sm">
-        {/* Car Image */}
-        <div className="relative h-44">
+    <Link href={`/mobile/cars/${car.id}`}>
+      <div className="relative rounded-3xl overflow-hidden group">
+        {/* Image */}
+        <div className="relative h-56">
           <Image
             src={car.images?.[0] || 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=800'}
             alt={`${car.brand} ${car.model}`}
             fill
-            className="object-cover"
+            className="object-cover transition-transform duration-500 group-hover:scale-105"
           />
           
-          {/* Rating Badge */}
-          <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 rounded-lg bg-black/50 backdrop-blur-md">
-            <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
-            <span className="text-xs font-medium text-white">{car.rating?.toFixed(1) || '4.7'}</span>
-          </div>
-
-          {/* Wishlist Heart */}
-          <button 
-            onClick={(e) => {
-              e.preventDefault()
-              setIsWishlisted(!isWishlisted)
-            }}
-            className="absolute top-3 right-3 p-2 rounded-full bg-black/30 backdrop-blur-md"
-          >
-            <Heart className={cn(
-              "h-4 w-4",
-              isWishlisted ? "fill-accent text-accent" : "text-white"
-            )} />
-          </button>
-        </div>
-
-        {/* Car Info */}
-        <div className="p-4">
-          <h3 className="text-base font-semibold mb-3">{car.brand} {car.model}</h3>
+          {/* Gradient Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
           
-          {/* Specs Row - Matching PDF exactly */}
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1.5">
-                <Gauge className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">{car.max_speed || 296} km/h</span>
+          {/* Top Badges */}
+          <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
+            <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/20">
+              <Star className="h-3.5 w-3.5 fill-white text-white" />
+              <span className="text-xs font-medium text-white">{car.rating?.toFixed(1) || '4.5'}</span>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-3 px-2.5 py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/20">
+                <div className="flex items-center gap-1">
+                  <Gauge className="h-3 w-3 text-white/70" />
+                  <span className="text-xs font-medium text-white">{car.max_speed || 300}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Zap className="h-3 w-3 text-white/70" />
+                  <span className="text-xs font-medium text-white">{car.acceleration || 3.5}s</span>
+                </div>
               </div>
-              <div className="flex items-center gap-1.5">
-                <Zap className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">{car.acceleration || 2.7} sec</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Users className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">{car.seats || 5} seats</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <Power className="h-4 w-4 text-muted-foreground" />
-                <span className="text-xs text-muted-foreground">{car.horsepower || 510} bhp</span>
-              </div>
+              
+              <button
+                onClick={(e) => {
+                  e.preventDefault()
+                  setIsWishlisted(!isWishlisted)
+                }}
+                className="p-2 rounded-xl bg-black/40 backdrop-blur-md border border-white/20"
+              >
+                <Heart className={cn(
+                  "h-4 w-4 transition-all",
+                  isWishlisted ? "fill-accent text-accent" : "text-white"
+                )} />
+              </button>
             </div>
           </div>
 
-          {/* Price */}
-          <div className="flex items-center justify-end">
-            <p className="text-lg font-bold">
-              ${car.price_per_day?.toLocaleString() || '1,899'}<span className="text-sm font-normal text-muted-foreground">/day</span>
-            </p>
+          {/* Content */}
+          <div className="absolute bottom-0 left-0 right-0 p-4">
+            <div className="inline-flex items-center px-2 py-1 rounded-lg bg-white/10 backdrop-blur-md border border-white/20 mb-2">
+              <span className="text-[10px] font-semibold text-white/90 uppercase tracking-wider">{car.brand}</span>
+            </div>
+            
+            <h3 className="text-xl font-bold text-white mb-1">{car.model}</h3>
+            
+            <div className="flex items-center justify-between mt-3">
+              <div className="flex items-center gap-2 text-xs text-white/70">
+                <span>{car.seats || 4} seats</span>
+                <span>•</span>
+                <span>{car.horsepower || 500} bhp</span>
+              </div>
+              <p className="text-lg font-bold text-white">
+                AED {car.price_per_day?.toLocaleString() || '1,500'}
+                <span className="text-xs font-normal text-white/70">/day</span>
+              </p>
+            </div>
           </div>
         </div>
       </div>
