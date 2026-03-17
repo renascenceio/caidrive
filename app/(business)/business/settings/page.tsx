@@ -48,6 +48,11 @@ export default function SettingsPage() {
   const [companyPhone, setCompanyPhone] = useState('')
   const [companyEmail, setCompanyEmail] = useState('')
 
+  // Profile state
+  const [profileName, setProfileName] = useState('')
+  const [profilePhone, setProfilePhone] = useState('')
+  const [savingProfile, setSavingProfile] = useState(false)
+
   // Notification settings
   const [emailNotifications, setEmailNotifications] = useState(true)
   const [bookingAlerts, setBookingAlerts] = useState(true)
@@ -75,6 +80,8 @@ export default function SettingsPage() {
 
     if (profileData) {
       setProfile(profileData)
+      setProfileName(profileData.full_name || '')
+      setProfilePhone(profileData.phone || '')
     }
 
     // Fetch company
@@ -96,6 +103,38 @@ export default function SettingsPage() {
     }
 
     setLoading(false)
+  }
+
+  async function handleSaveProfile() {
+    if (!profile) return
+    
+    setSavingProfile(true)
+    const supabase = createClient()
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({
+        full_name: profileName,
+        phone: profilePhone,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', profile.id)
+
+    if (error) {
+      toast({
+        title: 'Error',
+        description: 'Failed to update profile',
+        variant: 'destructive',
+      })
+    } else {
+      toast({
+        title: 'Success',
+        description: 'Profile updated successfully',
+      })
+      setProfile({ ...profile, full_name: profileName, phone: profilePhone })
+    }
+
+    setSavingProfile(false)
   }
 
   async function handleSaveCompany() {
@@ -288,20 +327,49 @@ export default function SettingsPage() {
             Your personal account details
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Email</p>
-              <p className="font-medium">{profile?.email || 'Not set'}</p>
+            <div className="space-y-2">
+              <Label>Email</Label>
+              <Input
+                value={profile?.email || ''}
+                disabled
+                className="bg-muted"
+              />
+              <p className="text-xs text-muted-foreground">Email cannot be changed</p>
             </div>
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Full Name</p>
-              <p className="font-medium">{profile?.full_name || 'Not set'}</p>
+            <div className="space-y-2">
+              <Label htmlFor="profile-name">Full Name</Label>
+              <Input
+                id="profile-name"
+                value={profileName}
+                onChange={(e) => setProfileName(e.target.value)}
+                placeholder="Enter your full name"
+              />
             </div>
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Phone</p>
-              <p className="font-medium">{profile?.phone || 'Not set'}</p>
+            <div className="space-y-2">
+              <Label htmlFor="profile-phone">Phone Number</Label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="profile-phone"
+                  value={profilePhone}
+                  onChange={(e) => setProfilePhone(e.target.value)}
+                  placeholder="+971 50 123 4567"
+                  className="pl-10"
+                />
+              </div>
             </div>
+          </div>
+          <div className="flex justify-end pt-2">
+            <Button onClick={handleSaveProfile} disabled={savingProfile}>
+              {savingProfile ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="mr-2 h-4 w-4" />
+              )}
+              Save Profile
+            </Button>
           </div>
         </CardContent>
       </Card>

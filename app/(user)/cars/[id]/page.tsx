@@ -8,7 +8,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
+import { DesktopBookingBar } from '@/components/desktop-booking-bar'
 import { createClient } from '@/lib/supabase/server'
 import { format, addDays, isSameDay, startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, endOfWeek } from 'date-fns'
 
@@ -69,79 +69,48 @@ function isDateBooked(date: Date, bookings: Array<{pickup_date: string, return_d
 
 function AvailabilityCalendar({ bookings }: { bookings: Array<{pickup_date: string, return_date: string, status: string}> }) {
   const today = new Date()
-  const monthStart = startOfMonth(today)
-  const monthEnd = endOfMonth(today)
-  const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 })
-  const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 })
   
-  const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd })
-  const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  // Generate next 30 days
+  const next30Days = Array.from({ length: 30 }, (_, i) => addDays(today, i))
   
   return (
     <div className="rounded-xl border border-border bg-card p-4">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold">{format(today, 'MMMM yyyy')}</h3>
-        <div className="flex items-center gap-4 text-xs">
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-sm text-muted-foreground">Next 30 days</p>
+        <div className="flex items-center gap-3 text-xs">
           <div className="flex items-center gap-1.5">
-            <div className="h-3 w-3 rounded-full bg-green-500" />
+            <div className="h-2.5 w-2.5 rounded bg-green-500/20 border border-green-500" />
             <span className="text-muted-foreground">Available</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="h-3 w-3 rounded-full bg-accent" />
+            <div className="h-2.5 w-2.5 rounded bg-muted" />
             <span className="text-muted-foreground">Booked</span>
           </div>
         </div>
       </div>
       
-      <div className="grid grid-cols-7 gap-1 mb-2">
-        {weekDays.map(day => (
-          <div key={day} className="text-center text-xs font-medium text-muted-foreground py-2">
-            {day}
-          </div>
-        ))}
-      </div>
-      
-      <div className="grid grid-cols-7 gap-1">
-        {days.map((day, i) => {
-          const isCurrentMonth = day.getMonth() === today.getMonth()
+      {/* Compact 30-day row */}
+      <div className="flex gap-1 overflow-x-auto pb-2">
+        {next30Days.map((day, i) => {
           const isToday = isSameDay(day, today)
-          const isPast = day < today && !isToday
           const booked = isDateBooked(day, bookings)
           
           return (
             <div
               key={i}
               className={`
-                aspect-square flex items-center justify-center rounded-lg text-sm
-                ${!isCurrentMonth ? 'text-muted-foreground/30' : ''}
-                ${isPast ? 'text-muted-foreground/50' : ''}
-                ${isToday ? 'ring-2 ring-accent ring-offset-2 ring-offset-background font-semibold' : ''}
-                ${booked && !isPast ? 'bg-accent/20 text-accent font-medium' : ''}
-                ${!booked && !isPast && isCurrentMonth ? 'bg-green-500/10 text-green-600' : ''}
+                flex-shrink-0 w-8 h-8 rounded-lg flex flex-col items-center justify-center text-[10px] font-medium
+                ${isToday ? 'ring-2 ring-accent ring-offset-1 ring-offset-background' : ''}
+                ${booked ? 'bg-muted text-muted-foreground/50' : 'bg-green-500/10 text-green-600 border border-green-500/30'}
               `}
+              title={format(day, 'EEEE, MMM d')}
             >
-              {format(day, 'd')}
+              <span className="leading-none">{format(day, 'd')}</span>
+              <span className="leading-none text-[8px] opacity-70">{format(day, 'EEE').slice(0, 2)}</span>
             </div>
           )
         })}
       </div>
-      
-      {/* Upcoming Bookings */}
-      {bookings.length > 0 && (
-        <div className="mt-4 pt-4 border-t border-border">
-          <p className="text-sm font-medium mb-2">Upcoming Bookings</p>
-          <div className="space-y-2">
-            {bookings.slice(0, 3).map((booking, i) => (
-              <div key={i} className="flex items-center gap-2 text-xs">
-                <div className="h-2 w-2 rounded-full bg-accent" />
-                <span className="text-muted-foreground">
-                  {format(new Date(booking.pickup_date), 'MMM d')} - {format(new Date(booking.return_date), 'MMM d, yyyy')}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   )
 }
@@ -487,86 +456,11 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
           </div>
 
           {/* Booking Sidebar - Desktop */}
-          <div className="hidden lg:block">
-            <div className="sticky top-24 rounded-2xl border border-border bg-card p-6">
-              <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl font-bold text-accent">${vehicle.price_per_day}</span>
-                <span className="text-muted-foreground">/day</span>
-              </div>
-
-              <div className="space-y-4 mb-6">
-                <div>
-                  <label className="text-sm font-medium mb-1.5 block">Pick-up Date</label>
-                  <Button variant="outline" className="w-full justify-start h-11">
-                    <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
-                    Select date
-                  </Button>
-                </div>
-                <div>
-                  <label className="text-sm font-medium mb-1.5 block">Return Date</label>
-                  <Button variant="outline" className="w-full justify-start h-11">
-                    <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
-                    Select date
-                  </Button>
-                </div>
-              </div>
-
-              <Separator className="my-6" />
-
-              <div className="space-y-3 text-sm mb-6">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Daily rate</span>
-                  <span>${vehicle.price_per_day}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Insurance</span>
-                  <span className="text-green-600">Included</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Service fee</span>
-                  <span>$25</span>
-                </div>
-                {vehicle.deposit_amount > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Deposit (refundable)</span>
-                    <span>${vehicle.deposit_amount}</span>
-                  </div>
-                )}
-              </div>
-
-              <Separator className="my-6" />
-
-              <div className="flex justify-between text-lg font-bold mb-6">
-                <span>Total</span>
-                <span className="text-accent">${vehicle.price_per_day + 25}</span>
-              </div>
-
-              <Link href={`/cars/${vehicle.id}/book`}>
-                <Button className="w-full h-12 text-base" size="lg">
-                  Book Now
-                </Button>
-              </Link>
-
-              <p className="mt-4 text-center text-xs text-muted-foreground">
-                Free cancellation up to 24 hours before pickup
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Booking Footer */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 backdrop-blur-xl p-4 lg:hidden">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <span className="text-2xl font-bold text-accent">${vehicle.price_per_day}</span>
-            <span className="text-muted-foreground">/day</span>
-          </div>
-          <Link href={`/cars/${vehicle.id}/book`}>
-            <Button className="h-12 px-8" size="lg">
-              Book Now
-            </Button>
-          </Link>
+          <DesktopBookingBar 
+            vehicleId={vehicle.id}
+            pricePerDay={vehicle.price_per_day || 0}
+            depositAmount={vehicle.deposit_amount || 0}
+          />
         </div>
       </div>
     </div>

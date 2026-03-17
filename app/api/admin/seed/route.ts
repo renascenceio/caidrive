@@ -1,7 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
 
-const ADMIN_EMAIL = 'aslan@caidrive.com'
+const ADMIN_EMAILS = ['aslan@caidrive.com', 'aslan@renascene.io']
 
 // Sample vehicles data
 const SAMPLE_VEHICLES = [
@@ -172,7 +172,7 @@ export async function POST(request: Request) {
   
   // Verify admin user
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user || user.email !== ADMIN_EMAIL) {
+  if (!user || !ADMIN_EMAILS.includes(user.email || '')) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -306,7 +306,7 @@ export async function GET() {
   
   // Verify admin user
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user || user.email !== ADMIN_EMAIL) {
+  if (!user || !ADMIN_EMAILS.includes(user.email || '')) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
