@@ -100,8 +100,9 @@ function AvailabilityCalendar({ bookings }: { bookings: Array<{pickup_date: stri
               key={i}
               className={`
                 flex-shrink-0 w-8 h-8 rounded-lg flex flex-col items-center justify-center text-[10px] font-medium
-                ${isToday ? 'ring-2 ring-accent ring-offset-1 ring-offset-background' : ''}
                 ${booked ? 'bg-muted text-muted-foreground/50' : 'bg-green-500/10 text-green-600 border border-green-500/30'}
+                ${isToday && !booked ? 'bg-green-500 text-white border-green-500' : ''}
+                ${isToday && booked ? 'bg-muted-foreground text-white' : ''}
               `}
               title={format(day, 'EEEE, MMM d')}
             >
