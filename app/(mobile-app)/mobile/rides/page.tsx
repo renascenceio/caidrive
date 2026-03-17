@@ -66,10 +66,12 @@ const mockBookings: Booking[] = [
   }
 ]
 
+import { CalendarClock, Zap, CheckCircle } from 'lucide-react'
+
 const tabs = [
-  { id: 'upcoming', label: 'Upcoming' },
-  { id: 'active', label: 'Active' },
-  { id: 'completed', label: 'Completed' },
+  { id: 'upcoming', label: 'Upcoming', icon: CalendarClock },
+  { id: 'active', label: 'Active', icon: Zap },
+  { id: 'completed', label: 'Completed', icon: CheckCircle },
 ]
 
 export default function MobileRidesPage() {
@@ -134,27 +136,32 @@ export default function MobileRidesPage() {
           <h1 className="text-lg font-semibold">My rides</h1>
         </div>
         
-        {/* Tabs - Matching PDF */}
-        <div className="flex gap-1 px-4 pb-4">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={cn(
-                "flex-1 py-3 rounded-xl text-sm font-medium transition-colors",
-                activeTab === tab.id
-                  ? "bg-accent text-white"
-                  : "bg-card text-muted-foreground border border-border"
-              )}
-            >
-              {tab.label}
-            </button>
-          ))}
+        {/* Tabs - Matching Places style */}
+        <div className="flex gap-2 overflow-x-auto pb-4 px-4 scrollbar-hide">
+          {tabs.map((tab) => {
+            const Icon = tab.icon
+            const isActive = activeTab === tab.id
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={cn(
+                  "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors",
+                  isActive
+                    ? "bg-accent text-white"
+                    : "bg-secondary text-muted-foreground"
+                )}
+              >
+                <Icon className="h-4 w-4" />
+                {tab.label}
+              </button>
+            )
+          })}
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-5 space-y-4">
+      <div className="p-5 flex flex-col gap-4">
         {loading ? (
           Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="h-32 rounded-2xl bg-secondary animate-pulse" />

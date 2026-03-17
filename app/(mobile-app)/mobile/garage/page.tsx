@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
-import { Search, SlidersHorizontal, Star, Gauge, Zap, Heart, X, Check } from 'lucide-react'
+import { Search, SlidersHorizontal, Star, Gauge, Zap, Heart, X, Check, Sparkles, DollarSign } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Slider } from '@/components/ui/slider'
@@ -21,6 +21,23 @@ interface Vehicle {
   acceleration: number
   seats: number
   power: number
+}
+
+// Brand logos mapping
+const brandLogos: Record<string, string> = {
+  'Ferrari': 'https://www.carlogos.org/car-logos/ferrari-logo.png',
+  'BMW': 'https://www.carlogos.org/car-logos/bmw-logo.png',
+  'Bentley': 'https://www.carlogos.org/car-logos/bentley-logo.png',
+  'Porsche': 'https://www.carlogos.org/car-logos/porsche-logo.png',
+  'Mercedes': 'https://www.carlogos.org/car-logos/mercedes-benz-logo.png',
+  'Mercedes-Benz': 'https://www.carlogos.org/car-logos/mercedes-benz-logo.png',
+  'Lamborghini': 'https://www.carlogos.org/car-logos/lamborghini-logo.png',
+  'Rolls-Royce': 'https://www.carlogos.org/car-logos/rolls-royce-logo.png',
+  'McLaren': 'https://www.carlogos.org/car-logos/mclaren-logo.png',
+  'Aston Martin': 'https://www.carlogos.org/car-logos/aston-martin-logo.png',
+  'Audi': 'https://www.carlogos.org/car-logos/audi-logo.png',
+  'Bugatti': 'https://www.carlogos.org/car-logos/bugatti-logo.png',
+  'Maserati': 'https://www.carlogos.org/car-logos/maserati-logo.png',
 }
 
 const brands = ['Ferrari', 'Lamborghini', 'Porsche', 'BMW', 'Mercedes', 'Bentley', 'Rolls-Royce', 'McLaren']
@@ -113,43 +130,78 @@ export default function MobileGaragePage() {
                   )}
                 </Button>
               </SheetTrigger>
-              <SheetContent side="bottom" className="h-[80vh] rounded-t-3xl">
+              <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl bg-[#f5f5f7] border-0">
                 <SheetHeader className="mb-6">
                   <div className="flex items-center justify-between">
-                    <SheetTitle>Filters</SheetTitle>
+                    <SheetTitle className="text-xl font-bold mobile-text-dark">Filters</SheetTitle>
                     {hasFilters && (
-                      <button onClick={clearFilters} className="text-xs text-accent font-medium">
+                      <button onClick={clearFilters} className="text-sm text-[#dd3155] font-medium">
                         Clear all
                       </button>
                     )}
                   </div>
                 </SheetHeader>
 
-                <div className="space-y-8">
-                  {/* Brands */}
-                  <div>
-                    <h3 className="text-sm font-medium mb-3">Brands</h3>
-                    <div className="flex flex-wrap gap-2">
-                      {brands.map((brand) => (
-                        <button
-                          key={brand}
-                          onClick={() => toggleBrand(brand)}
-                          className={cn(
-                            "px-3 py-1.5 rounded-full text-sm font-medium transition-colors",
-                            selectedBrands.includes(brand)
-                              ? "bg-accent text-white"
-                              : "bg-secondary text-foreground"
-                          )}
-                        >
-                          {brand}
-                        </button>
-                      ))}
+                <div className="space-y-6 overflow-y-auto max-h-[calc(85vh-180px)] pb-4">
+                  {/* Brands Section */}
+                  <div className="bg-white rounded-2xl p-4 border border-[#e5e5e7]">
+                    <div className="flex items-center gap-2 mb-4">
+                      <Sparkles className="h-4 w-4 text-[#dd3155]" />
+                      <h3 className="text-sm font-semibold mobile-text-dark">Select Brands</h3>
+                    </div>
+                    <div className="grid grid-cols-4 gap-3">
+                      {brands.map((brand) => {
+                        const isSelected = selectedBrands.includes(brand)
+                        return (
+                          <button
+                            key={brand}
+                            onClick={() => toggleBrand(brand)}
+                            className={cn(
+                              "flex flex-col items-center gap-2 p-3 rounded-2xl transition-all",
+                              isSelected
+                                ? "bg-[#dd3155]/10 border-2 border-[#dd3155]"
+                                : "bg-[#f5f5f7] border-2 border-transparent hover:border-[#e5e5e7]"
+                            )}
+                          >
+                            <div className={cn(
+                              "w-12 h-12 rounded-xl flex items-center justify-center p-2",
+                              isSelected ? "bg-white" : "bg-white"
+                            )}>
+                              {brandLogos[brand] ? (
+                                <Image
+                                  src={brandLogos[brand]}
+                                  alt={brand}
+                                  width={32}
+                                  height={32}
+                                  className="object-contain"
+                                />
+                              ) : (
+                                <span className="text-lg font-bold mobile-text-dark">{brand.charAt(0)}</span>
+                              )}
+                            </div>
+                            <span className={cn(
+                              "text-[10px] font-medium text-center truncate w-full",
+                              isSelected ? "text-[#dd3155]" : "mobile-text-muted"
+                            )}>
+                              {brand}
+                            </span>
+                            {isSelected && (
+                              <div className="absolute top-1 right-1 w-4 h-4 bg-[#dd3155] rounded-full flex items-center justify-center">
+                                <Check className="h-2.5 w-2.5 text-white" />
+                              </div>
+                            )}
+                          </button>
+                        )
+                      })}
                     </div>
                   </div>
 
-                  {/* Price Range */}
-                  <div>
-                    <h3 className="text-sm font-medium mb-3">Price per day</h3>
+                  {/* Price Range Section */}
+                  <div className="bg-white rounded-2xl p-4 border border-[#e5e5e7]">
+                    <div className="flex items-center gap-2 mb-4">
+                      <DollarSign className="h-4 w-4 text-[#dd3155]" />
+                      <h3 className="text-sm font-semibold mobile-text-dark">Price Range</h3>
+                    </div>
                     <div className="px-2">
                       <Slider
                         value={priceRange}
@@ -159,19 +211,28 @@ export default function MobileGaragePage() {
                         step={100}
                         className="mb-4"
                       />
-                      <div className="flex justify-between text-sm text-muted-foreground">
-                        <span>AED {priceRange[0].toLocaleString()}</span>
-                        <span>AED {priceRange[1].toLocaleString()}</span>
+                      <div className="flex justify-between items-center">
+                        <div className="bg-[#f5f5f7] rounded-xl px-4 py-2">
+                          <span className="text-xs mobile-text-muted">Min</span>
+                          <p className="text-sm font-semibold mobile-text-dark">AED {priceRange[0].toLocaleString()}</p>
+                        </div>
+                        <div className="h-px w-4 bg-[#e5e5e7]" />
+                        <div className="bg-[#f5f5f7] rounded-xl px-4 py-2">
+                          <span className="text-xs mobile-text-muted">Max</span>
+                          <p className="text-sm font-semibold mobile-text-dark">AED {priceRange[1].toLocaleString()}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  {/* Apply Button */}
+                {/* Apply Button - Fixed at bottom */}
+                <div className="pt-4 border-t border-[#e5e5e7]">
                   <Button 
-                    className="w-full rounded-xl" 
+                    className="w-full rounded-2xl h-14 text-base font-semibold bg-[#161821] hover:bg-[#161821]/90" 
                     onClick={() => setFilterOpen(false)}
                   >
-                    Apply Filters
+                    Apply Filters {hasFilters && `(${selectedBrands.length + (priceRange[0] > 0 || priceRange[1] < 10000 ? 1 : 0)})`}
                   </Button>
                 </div>
               </SheetContent>
