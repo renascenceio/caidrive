@@ -45,7 +45,7 @@ export function BookingDetailsStep({
   const [showTerms, setShowTerms] = useState(false)
 
   return (
-    <div className="px-5 py-6 pb-36">
+    <div className="px-5 py-6 pb-40 min-h-[calc(100vh-72px)]">
       {/* Car Summary Card */}
       <div className="bg-white border border-border/30 rounded-2xl overflow-hidden mb-6">
         <div className="relative h-36">

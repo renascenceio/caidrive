@@ -65,7 +65,7 @@ export function PaymentStep({
   }
 
   return (
-    <div className="px-5 py-6 pb-36">
+    <div className="px-5 py-6 pb-40 min-h-[calc(100vh-72px)]">
       {/* Car Summary Card */}
       <div className="bg-white border border-border/30 rounded-2xl overflow-hidden mb-6">
         <div className="relative h-36">
@@ -286,7 +286,7 @@ export function PaymentStep({
             "w-full py-4 rounded-full font-semibold text-base transition-all shadow-lg",
             data.termsAccepted && !loading
               ? "bg-foreground text-background active:scale-[0.98]"
-              : "bg-foreground/30 text-background/50 cursor-not-allowed"
+              : "bg-muted-foreground text-background cursor-not-allowed"
           )}
         >
           {loading ? (
