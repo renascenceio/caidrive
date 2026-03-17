@@ -10,7 +10,7 @@ import {
   User, FileText, CreditCard, Bell, Star, Tag, HelpCircle, 
   FileCheck, Settings, LogOut, ChevronRight, Shield, Award
 } from 'lucide-react'
-import { signOut } from '@/mobile/auth/actions'
+import { signOut } from '@/app/auth/actions'
 
 interface Profile {
   id: string
