@@ -75,22 +75,22 @@ function CustomCalendar({
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-border/50 p-4">
+    <div className="bg-white rounded-2xl border border-[#e5e5e7] p-4">
       {/* Month Navigation */}
       <div className="flex items-center justify-between mb-4">
-        <button onClick={prevMonth} className="p-2 hover:bg-secondary rounded-lg">
-          <ChevronLeft className="h-5 w-5" />
+        <button onClick={prevMonth} className="p-2 hover:bg-[#f5f5f7] rounded-lg">
+          <ChevronLeft className="h-5 w-5 mobile-text-dark" />
         </button>
-        <span className="font-semibold">{MONTHS[month]} {year}</span>
-        <button onClick={nextMonth} className="p-2 hover:bg-secondary rounded-lg">
-          <ChevronRight className="h-5 w-5" />
+        <span className="font-semibold mobile-text-dark">{MONTHS[month]} {year}</span>
+        <button onClick={nextMonth} className="p-2 hover:bg-[#f5f5f7] rounded-lg">
+          <ChevronRight className="h-5 w-5 mobile-text-dark" />
         </button>
       </div>
       
       {/* Weekday Headers */}
       <div className="grid grid-cols-7 gap-1 mb-2">
         {WEEKDAYS.map(day => (
-          <div key={day} className="text-center text-xs text-muted-foreground py-2 font-medium">
+          <div key={day} className="text-center text-xs mobile-text-muted py-2 font-medium">
             {day}
           </div>
         ))}
@@ -107,9 +107,9 @@ function CustomCalendar({
                 className={cn(
                   "w-full h-full rounded-full flex items-center justify-center text-sm transition-all",
                   isDateSelected(day) 
-                    ? "bg-foreground text-background font-semibold" 
-                    : "hover:bg-secondary",
-                  isDateDisabled(day) && "text-muted-foreground/30 cursor-not-allowed hover:bg-transparent"
+                    ? "bg-[#161821] text-white font-semibold" 
+                    : "hover:bg-[#f5f5f7] mobile-text-dark",
+                  isDateDisabled(day) && "text-[#c7c7cc] cursor-not-allowed hover:bg-transparent"
                 )}
               >
                 {day}
@@ -138,34 +138,34 @@ export function DateTimeStep({ data, onChange, onNext }: DateTimeStepProps) {
     <div className="px-5 py-6 pb-40 min-h-[calc(100vh-72px)]">
       {/* Date Range */}
       <section className="mb-8">
-        <h2 className="font-semibold text-base mb-4">Date range</h2>
+        <h2 className="font-semibold text-base mb-4 mobile-text-dark">Date range</h2>
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <label className="text-sm text-muted-foreground mb-2 block">From</label>
+            <label className="text-sm mobile-text-muted mb-2 block">From</label>
             <button
               onClick={() => setActiveCalendar(activeCalendar === 'from' ? null : 'from')}
               className={cn(
                 "w-full flex items-center gap-3 px-4 py-3.5 bg-white rounded-xl border text-sm text-left",
-                activeCalendar === 'from' ? "border-foreground" : "border-border/50"
+                activeCalendar === 'from' ? "border-[#161821]" : "border-[#e5e5e7]"
               )}
             >
-              <CalendarIcon className="h-5 w-5 text-muted-foreground" />
-              <span className={data.startDate ? "text-foreground" : "text-muted-foreground"}>
+              <CalendarIcon className="h-5 w-5 mobile-text-muted" />
+              <span className={data.startDate ? "mobile-text-dark" : "mobile-text-muted"}>
                 {formatDisplayDate(data.startDate)}
               </span>
             </button>
           </div>
           <div>
-            <label className="text-sm text-muted-foreground mb-2 block">To</label>
+            <label className="text-sm mobile-text-muted mb-2 block">To</label>
             <button
               onClick={() => setActiveCalendar(activeCalendar === 'to' ? null : 'to')}
               className={cn(
                 "w-full flex items-center gap-3 px-4 py-3.5 bg-white rounded-xl border text-sm text-left",
-                activeCalendar === 'to' ? "border-foreground" : "border-border/50"
+                activeCalendar === 'to' ? "border-[#161821]" : "border-[#e5e5e7]"
               )}
             >
-              <CalendarIcon className="h-5 w-5 text-muted-foreground" />
-              <span className={data.endDate ? "text-foreground" : "text-muted-foreground"}>
+              <CalendarIcon className="h-5 w-5 mobile-text-muted" />
+              <span className={data.endDate ? "mobile-text-dark" : "mobile-text-muted"}>
                 {formatDisplayDate(data.endDate)}
               </span>
             </button>
@@ -197,15 +197,15 @@ export function DateTimeStep({ data, onChange, onNext }: DateTimeStepProps) {
 
       {/* Select Time */}
       <section className="mb-8">
-        <h2 className="font-semibold text-base mb-4">Select time</h2>
+        <h2 className="font-semibold text-base mb-4 mobile-text-dark">Select time</h2>
         <div className="flex gap-3 mb-4">
           <button
             onClick={() => onChange({ pickupTime: '09:00 AM' })}
             className={cn(
               "flex-1 py-3 rounded-xl text-sm font-medium transition-colors",
               data.pickupTime.includes('AM') && parseInt(data.pickupTime) < 12
-                ? "bg-foreground text-background"
-                : "bg-white border border-border/50"
+                ? "bg-[#161821] text-white"
+                : "bg-white border border-[#e5e5e7] mobile-text-dark"
             )}
           >
             Morning
@@ -215,8 +215,8 @@ export function DateTimeStep({ data, onChange, onNext }: DateTimeStepProps) {
             className={cn(
               "flex-1 py-3 rounded-xl text-sm font-medium transition-colors",
               data.pickupTime.includes('PM')
-                ? "bg-foreground text-background"
-                : "bg-white border border-border/50"
+                ? "bg-[#161821] text-white"
+                : "bg-white border border-[#e5e5e7] mobile-text-dark"
             )}
           >
             Evening
@@ -230,8 +230,8 @@ export function DateTimeStep({ data, onChange, onNext }: DateTimeStepProps) {
               className={cn(
                 "px-4 py-2.5 rounded-xl text-sm transition-colors",
                 data.pickupTime === time
-                  ? "bg-foreground text-background"
-                  : "bg-white border border-border/50"
+                  ? "bg-[#161821] text-white"
+                  : "bg-white border border-[#e5e5e7] mobile-text-dark"
               )}
             >
               {time}
@@ -243,19 +243,19 @@ export function DateTimeStep({ data, onChange, onNext }: DateTimeStepProps) {
       {/* Details Summary */}
       {data.startDate && data.endDate && (
         <section className="mb-8">
-          <h2 className="font-semibold text-base mb-4">Details</h2>
-          <div className="bg-white rounded-xl border border-border/50 p-4 space-y-3">
+          <h2 className="font-semibold text-base mb-4 mobile-text-dark">Details</h2>
+          <div className="bg-white rounded-xl border border-[#e5e5e7] p-4 space-y-3">
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Selected dates</span>
-              <span>{formatDisplayDate(data.startDate)} - {formatDisplayDate(data.endDate)}</span>
+              <span className="mobile-text-muted">Selected dates</span>
+              <span className="mobile-text-dark">{formatDisplayDate(data.startDate)} - {formatDisplayDate(data.endDate)}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Number of Days</span>
-              <span>{Math.ceil((new Date(data.endDate).getTime() - new Date(data.startDate).getTime()) / (1000 * 60 * 60 * 24))} days</span>
+              <span className="mobile-text-muted">Number of Days</span>
+              <span className="mobile-text-dark">{Math.ceil((new Date(data.endDate).getTime() - new Date(data.startDate).getTime()) / (1000 * 60 * 60 * 24))} days</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Pickup time</span>
-              <span>{data.pickupTime}</span>
+              <span className="mobile-text-muted">Pickup time</span>
+              <span className="mobile-text-dark">{data.pickupTime}</span>
             </div>
           </div>
         </section>
@@ -263,11 +263,11 @@ export function DateTimeStep({ data, onChange, onNext }: DateTimeStepProps) {
 
       {/* Delivery Location */}
       <section className="mb-8">
-        <h2 className="font-semibold text-base mb-4">Delivery location</h2>
+        <h2 className="font-semibold text-base mb-4 mobile-text-dark">Delivery location</h2>
         
         {/* Map Placeholder */}
-        <div className="h-40 bg-secondary/50 rounded-xl mb-4 flex items-center justify-center">
-          <MapPin className="h-8 w-8 text-muted-foreground" />
+        <div className="h-40 bg-[#8e8e93] rounded-xl mb-4 flex items-center justify-center">
+          <MapPin className="h-8 w-8 text-[#c7c7cc]" />
         </div>
 
         {/* Delivery Options */}
@@ -277,21 +277,21 @@ export function DateTimeStep({ data, onChange, onNext }: DateTimeStepProps) {
             className={cn(
               "w-full flex items-center gap-4 p-4 rounded-xl border transition-colors text-left",
               data.deliveryLocation === 'pickup'
-                ? "border-foreground bg-white"
-                : "border-border/50 bg-white"
+                ? "border-[#161821] bg-white"
+                : "border-[#e5e5e7] bg-white"
             )}
           >
             <div className={cn(
               "w-5 h-5 rounded-full border-2 flex items-center justify-center",
               data.deliveryLocation === 'pickup'
-                ? "border-foreground bg-foreground"
-                : "border-muted-foreground"
+                ? "border-[#161821] bg-[#161821]"
+                : "border-[#8e8e93]"
             )}>
-              {data.deliveryLocation === 'pickup' && <Check className="h-3 w-3 text-background" />}
+              {data.deliveryLocation === 'pickup' && <Check className="h-3 w-3 text-white" />}
             </div>
             <div>
-              <p className="font-medium">Pickup at Office</p>
-              <p className="text-sm text-muted-foreground">Collect from our location</p>
+              <p className="font-medium mobile-text-dark">Pickup at Office</p>
+              <p className="text-sm mobile-text-muted">Collect from our location</p>
             </div>
           </button>
 
@@ -300,21 +300,21 @@ export function DateTimeStep({ data, onChange, onNext }: DateTimeStepProps) {
             className={cn(
               "w-full flex items-center gap-4 p-4 rounded-xl border transition-colors text-left",
               data.deliveryLocation === 'delivery'
-                ? "border-foreground bg-white"
-                : "border-border/50 bg-white"
+                ? "border-[#161821] bg-white"
+                : "border-[#e5e5e7] bg-white"
             )}
           >
             <div className={cn(
               "w-5 h-5 rounded-full border-2 flex items-center justify-center",
               data.deliveryLocation === 'delivery'
-                ? "border-foreground bg-foreground"
-                : "border-muted-foreground"
+                ? "border-[#161821] bg-[#161821]"
+                : "border-[#8e8e93]"
             )}>
-              {data.deliveryLocation === 'delivery' && <Check className="h-3 w-3 text-background" />}
+              {data.deliveryLocation === 'delivery' && <Check className="h-3 w-3 text-white" />}
             </div>
             <div>
-              <p className="font-medium">Deliver to Address</p>
-              <p className="text-sm text-muted-foreground">We bring the car to you</p>
+              <p className="font-medium mobile-text-dark">Deliver to Address</p>
+              <p className="text-sm mobile-text-muted">We bring the car to you</p>
             </div>
           </button>
         </div>
@@ -322,15 +322,15 @@ export function DateTimeStep({ data, onChange, onNext }: DateTimeStepProps) {
         {/* Address Input (if delivery selected) */}
         {data.deliveryLocation === 'delivery' && (
           <div className="mt-4">
-            <label className="text-sm text-muted-foreground mb-2 block">Delivery address</label>
+            <label className="text-sm mobile-text-muted mb-2 block">Delivery address</label>
             <div className="relative">
-              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+              <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 mobile-text-muted" />
               <input
                 type="text"
                 value={data.deliveryAddress}
                 onChange={(e) => onChange({ deliveryAddress: e.target.value })}
                 placeholder="1 E 2nd St, New York, NY 10003, USA"
-                className="w-full pl-12 pr-4 py-3.5 bg-white rounded-xl border border-border/50 text-sm"
+                className="w-full pl-12 pr-4 py-3.5 bg-white rounded-xl border border-[#e5e5e7] text-sm mobile-text-dark placeholder:text-[#8e8e93]"
               />
             </div>
           </div>
@@ -338,15 +338,15 @@ export function DateTimeStep({ data, onChange, onNext }: DateTimeStepProps) {
       </section>
 
       {/* Fixed Bottom Button - Floating above bottom nav */}
-      <div className="fixed bottom-[80px] left-0 right-0 px-5">
+      <div className="fixed bottom-16 left-0 right-0 px-5 pb-4 bg-[#f5f5f7]">
         <button
           onClick={onNext}
           disabled={!isValid}
           className={cn(
             "w-full py-4 rounded-full font-semibold text-base transition-all shadow-lg",
             isValid
-              ? "bg-foreground text-background"
-              : "bg-muted-foreground text-background cursor-not-allowed"
+              ? "bg-[#161821] text-white"
+              : "bg-[#8e8e93] text-white cursor-not-allowed"
           )}
         >
           Continue

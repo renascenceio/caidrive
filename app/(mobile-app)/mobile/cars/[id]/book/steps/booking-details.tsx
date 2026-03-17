@@ -47,7 +47,7 @@ export function BookingDetailsStep({
   return (
     <div className="px-5 py-6 pb-40 min-h-[calc(100vh-72px)]">
       {/* Car Summary Card */}
-      <div className="bg-white border border-border/30 rounded-2xl overflow-hidden mb-6">
+      <div className="bg-white border border-[#e5e5e7] rounded-2xl overflow-hidden mb-6">
         <div className="relative h-36">
           <Image
             src={vehicle.images?.[0] || "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=800"}
@@ -61,8 +61,8 @@ export function BookingDetailsStep({
           </div>
         </div>
         <div className="p-4">
-          <h2 className="text-lg font-semibold mb-2">{vehicle.brand} {vehicle.model}</h2>
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+          <h2 className="text-lg font-semibold mb-2 mobile-text-dark">{vehicle.brand} {vehicle.model}</h2>
+          <div className="flex items-center gap-4 text-xs mobile-text-muted">
             <span className="flex items-center gap-1">
               <Gauge className="h-3.5 w-3.5" />
               {vehicle.max_speed || 296} km/h
@@ -84,61 +84,61 @@ export function BookingDetailsStep({
       </div>
 
       {/* Location Card */}
-      <div className="bg-white border border-border/30 rounded-2xl overflow-hidden mb-6">
-        <div className="h-28 bg-secondary/50 relative">
+      <div className="bg-white border border-[#e5e5e7] rounded-2xl overflow-hidden mb-6">
+        <div className="h-28 bg-[#f5f5f7] relative">
           <div className="absolute inset-0 flex items-center justify-center">
-            <MapPin className="h-8 w-8 text-accent" />
+            <MapPin className="h-8 w-8 text-[#dd3155]" />
           </div>
         </div>
         <div className="p-4 flex items-center justify-between">
           <div>
-            <p className="text-xs text-muted-foreground mb-1">Delivery location</p>
-            <p className="text-sm font-medium">
+            <p className="text-xs mobile-text-muted mb-1">Delivery location</p>
+            <p className="text-sm font-medium mobile-text-dark">
               {data.deliveryLocation === 'delivery' 
                 ? data.deliveryAddress 
                 : '1 E 2nd St, New York, NY 10003, USA'}
             </p>
           </div>
           <button className="p-2">
-            <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            <ChevronRight className="h-5 w-5 mobile-text-muted" />
           </button>
         </div>
       </div>
 
       {/* Price Section */}
-      <div className="flex items-center justify-between bg-white border border-border/30 rounded-2xl p-4 mb-6">
+      <div className="flex items-center justify-between bg-white border border-[#e5e5e7] rounded-2xl p-4 mb-6">
         <div>
-          <p className="text-xs text-muted-foreground">Price</p>
-          <p className="text-lg font-bold">${vehicle.price_per_day.toLocaleString()}/day</p>
+          <p className="text-xs mobile-text-muted">Price</p>
+          <p className="text-lg font-bold mobile-text-dark">${vehicle.price_per_day.toLocaleString()}/day</p>
         </div>
-        <button className="text-sm text-accent font-medium flex items-center gap-1">
+        <button className="text-sm text-[#dd3155] font-medium flex items-center gap-1">
           View more <ChevronRight className="h-4 w-4" />
         </button>
       </div>
 
       {/* Booking Info Box */}
-      <div className="bg-white border border-border/30 rounded-2xl p-4 mb-6">
-        <p className="text-xs text-muted-foreground mb-4">
+      <div className="bg-white border border-[#e5e5e7] rounded-2xl p-4 mb-6">
+        <p className="text-xs mobile-text-muted mb-4">
           Make minimum payment, make the booking
         </p>
         
         <div className="grid grid-cols-2 gap-4 mb-4">
-          <button className="flex items-center gap-3 p-3 bg-secondary/30 rounded-xl">
-            <Calendar className="h-5 w-5 text-muted-foreground" />
+          <button className="flex items-center gap-3 p-3 bg-[#f5f5f7] rounded-xl">
+            <Calendar className="h-5 w-5 mobile-text-muted" />
             <div className="text-left">
-              <p className="text-xs text-muted-foreground">Booking Date</p>
-              <p className="text-sm font-medium">
+              <p className="text-xs mobile-text-muted">Booking Date</p>
+              <p className="text-sm font-medium mobile-text-dark">
                 {data.startDate 
                   ? new Date(data.startDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })
                   : 'Select date'}
               </p>
             </div>
           </button>
-          <button className="flex items-center gap-3 p-3 bg-secondary/30 rounded-xl">
-            <Calendar className="h-5 w-5 text-muted-foreground" />
+          <button className="flex items-center gap-3 p-3 bg-[#f5f5f7] rounded-xl">
+            <Calendar className="h-5 w-5 mobile-text-muted" />
             <div className="text-left">
-              <p className="text-xs text-muted-foreground">Return Date</p>
-              <p className="text-sm font-medium">
+              <p className="text-xs mobile-text-muted">Return Date</p>
+              <p className="text-sm font-medium mobile-text-dark">
                 {data.endDate 
                   ? new Date(data.endDate).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })
                   : 'Select date'}
@@ -148,64 +148,64 @@ export function BookingDetailsStep({
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <button className="flex items-center gap-3 p-3 bg-secondary/30 rounded-xl">
-            <FileText className="h-5 w-5 text-muted-foreground" />
+          <button className="flex items-center gap-3 p-3 bg-[#f5f5f7] rounded-xl">
+            <FileText className="h-5 w-5 mobile-text-muted" />
             <div className="text-left">
-              <p className="text-xs text-muted-foreground">Driving License</p>
-              <p className="text-sm font-medium truncate">{data.licenseNumber || 'Not provided'}</p>
+              <p className="text-xs mobile-text-muted">Driving License</p>
+              <p className="text-sm font-medium mobile-text-dark truncate">{data.licenseNumber || 'Not provided'}</p>
             </div>
           </button>
-          <button className="flex items-center gap-3 p-3 bg-secondary/30 rounded-xl">
-            <FileText className="h-5 w-5 text-muted-foreground" />
+          <button className="flex items-center gap-3 p-3 bg-[#f5f5f7] rounded-xl">
+            <FileText className="h-5 w-5 mobile-text-muted" />
             <div className="text-left">
-              <p className="text-xs text-muted-foreground">Passport</p>
-              <p className="text-sm font-medium truncate">{data.passportNumber || 'Not provided'}</p>
+              <p className="text-xs mobile-text-muted">Passport</p>
+              <p className="text-sm font-medium mobile-text-dark truncate">{data.passportNumber || 'Not provided'}</p>
             </div>
           </button>
         </div>
       </div>
 
       {/* Booking Summary */}
-      <div className="bg-white border border-border/30 rounded-2xl p-4 mb-6">
-        <h3 className="font-semibold mb-4">Booking Info</h3>
+      <div className="bg-white border border-[#e5e5e7] rounded-2xl p-4 mb-6">
+        <h3 className="font-semibold mb-4 mobile-text-dark">Booking Info</h3>
         <div className="space-y-3 text-sm">
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Booking Date</span>
-            <span>
+            <span className="mobile-text-muted">Booking Date</span>
+            <span className="mobile-text-dark">
               {data.startDate && data.endDate 
                 ? `${new Date(data.startDate).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })} - ${new Date(data.endDate).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })}`
                 : '-'}
             </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Number of Days</span>
-            <span>{days} days</span>
+            <span className="mobile-text-muted">Number of Days</span>
+            <span className="mobile-text-dark">{days} days</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Price per Day</span>
-            <span>${vehicle.price_per_day.toLocaleString()}/day</span>
+            <span className="mobile-text-muted">Price per Day</span>
+            <span className="mobile-text-dark">${vehicle.price_per_day.toLocaleString()}/day</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Subtotal</span>
-            <span>${subtotal.toLocaleString()}</span>
+            <span className="mobile-text-muted">Subtotal</span>
+            <span className="mobile-text-dark">${subtotal.toLocaleString()}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-muted-foreground">Deposit Amount</span>
-            <span>${deposit.toLocaleString()}</span>
+            <span className="mobile-text-muted">Deposit Amount</span>
+            <span className="mobile-text-dark">${deposit.toLocaleString()}</span>
           </div>
-          <div className="h-px bg-border my-2" />
+          <div className="h-px bg-[#e5e5e7] my-2" />
           <div className="flex justify-between font-bold text-base">
-            <span>Total Pay</span>
-            <span className="text-accent">${total.toLocaleString()}</span>
+            <span className="mobile-text-dark">Total Pay</span>
+            <span className="text-[#dd3155]">${total.toLocaleString()}</span>
           </div>
         </div>
       </div>
 
       {/* Fixed Bottom Button - Floating above bottom nav */}
-      <div className="fixed bottom-[80px] left-0 right-0 px-5">
+      <div className="fixed bottom-16 left-0 right-0 px-5 pb-4 bg-[#f5f5f7]">
         <button
           onClick={onNext}
-          className="w-full py-4 rounded-full font-semibold text-base bg-foreground text-background transition-all active:scale-[0.98] shadow-lg"
+          className="w-full py-4 rounded-full font-semibold text-base bg-[#161821] text-white transition-all active:scale-[0.98] shadow-lg"
         >
           Continue to Payment
         </button>
