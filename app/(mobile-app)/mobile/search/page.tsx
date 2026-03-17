@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
-import { Search, ArrowLeft, X, Star, Gauge, Zap, Clock, TrendingUp } from 'lucide-react'
+import { Search, ArrowLeft, X, Star, Clock, SlidersHorizontal } from 'lucide-react'
 
 interface Vehicle {
   id: string
@@ -19,8 +19,21 @@ interface Vehicle {
   acceleration: number
 }
 
-const recentSearches = ['Ferrari', 'Lamborghini', 'Sports car', 'Luxury SUV']
-const popularBrands = ['Ferrari', 'Lamborghini', 'Porsche', 'BMW', 'Mercedes', 'Bentley']
+// Brand suggestions with logos - Matching PDF
+const brandSuggestions = [
+  { name: 'Ferrari', logo: 'https://www.carlogos.org/car-logos/ferrari-logo.png' },
+  { name: 'BMW', logo: 'https://www.carlogos.org/car-logos/bmw-logo.png' },
+  { name: 'Bentley', logo: 'https://www.carlogos.org/car-logos/bentley-logo.png' },
+  { name: 'Porsche', logo: 'https://www.carlogos.org/car-logos/porsche-logo.png' },
+  { name: 'Audi', logo: 'https://www.carlogos.org/car-logos/audi-logo.png' },
+]
+
+// Recent searches - Matching PDF
+const recentSearches = [
+  { name: 'Ferrari', logo: 'https://www.carlogos.org/car-logos/ferrari-logo.png' },
+  { name: 'Bentley', logo: 'https://www.carlogos.org/car-logos/bentley-logo.png' },
+  { name: 'BMW', logo: 'https://www.carlogos.org/car-logos/bmw-logo.png' },
+]
 
 export default function MobileSearchPage() {
   const router = useRouter()
@@ -56,42 +69,52 @@ export default function MobileSearchPage() {
   }, [search])
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Search Header */}
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border/50 px-4 py-3 safe-area-top">
-        <div className="flex items-center gap-3">
+    <div className="min-h-screen bg-background pb-24">
+      {/* Header - Matching PDF */}
+      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/50">
+        <div className="flex items-center gap-3 px-4 py-3">
           <button onClick={() => router.back()} className="p-2 -ml-2">
             <ArrowLeft className="h-5 w-5" />
           </button>
-          
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <h1 className="text-lg font-semibold">Search car</h1>
+        </div>
+        
+        {/* Search Input */}
+        <div className="px-4 pb-4">
+          <div className="relative flex items-center">
+            <Search className="absolute left-4 h-5 w-5 text-muted-foreground" />
             <input
               type="text"
-              placeholder="Search cars..."
+              placeholder="Search your car"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               autoFocus
               className={cn(
-                "w-full pl-10 pr-10 py-2.5 rounded-xl text-sm",
-                "bg-secondary/50 border border-border/50",
+                "w-full pl-12 pr-12 py-4 rounded-2xl text-base",
+                "bg-card border border-border",
                 "focus:outline-none focus:border-accent/50"
               )}
             />
-            {search && (
+            {search ? (
               <button 
                 onClick={() => setSearch('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2"
+                className="absolute right-4"
               >
-                <X className="h-4 w-4 text-muted-foreground" />
+                <X className="h-5 w-5 text-muted-foreground" />
+              </button>
+            ) : (
+              <button 
+                onClick={() => router.push('/mobile/search/filters')}
+                className="absolute right-4"
+              >
+                <SlidersHorizontal className="h-5 w-5 text-muted-foreground" />
               </button>
             )}
           </div>
         </div>
-      </header>
+      </div>
 
-      {/* Content */}
-      <div className="p-4">
+      <div className="px-5 py-6">
         {showResults ? (
           // Search Results
           <div className="space-y-3">
@@ -108,7 +131,7 @@ export default function MobileSearchPage() {
             ) : (
               results.map((car) => (
                 <Link key={car.id} href={`/mobile/cars/${car.id}`}>
-                  <div className="flex items-center gap-4 p-3 rounded-2xl bg-card border border-border/30 hover:border-border transition-colors">
+                  <div className="flex items-center gap-4 p-3 rounded-2xl bg-card border border-border hover:border-accent/30 transition-colors">
                     <div className="relative w-20 h-14 rounded-xl overflow-hidden flex-shrink-0">
                       <Image
                         src={car.images?.[0] || 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400'}
@@ -126,7 +149,7 @@ export default function MobileSearchPage() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-bold text-accent">AED {car.price_per_day?.toLocaleString() || '1,500'}</p>
+                      <p className="text-sm font-bold text-accent">${car.price_per_day?.toLocaleString() || '1,500'}</p>
                       <p className="text-xs text-muted-foreground">/day</p>
                     </div>
                   </div>
@@ -135,41 +158,54 @@ export default function MobileSearchPage() {
             )}
           </div>
         ) : (
-          // Initial State
+          // Initial State - Matching PDF exactly
           <div className="space-y-8">
-            {/* Recent Searches */}
+            {/* Suggestions */}
             <section>
-              <div className="flex items-center gap-2 mb-3">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-                <h2 className="font-semibold text-sm">Recent Searches</h2>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {recentSearches.map((term) => (
+              <h2 className="font-semibold mb-4">Suggestion</h2>
+              <div className="space-y-3">
+                {brandSuggestions.map((brand) => (
                   <button
-                    key={term}
-                    onClick={() => setSearch(term)}
-                    className="px-3 py-1.5 bg-secondary rounded-full text-sm"
+                    key={brand.name}
+                    onClick={() => setSearch(brand.name)}
+                    className="flex items-center gap-4 w-full p-3 rounded-2xl hover:bg-secondary/50 transition-colors"
                   >
-                    {term}
+                    <div className="w-12 h-12 rounded-xl bg-card border border-border flex items-center justify-center p-2">
+                      <Image
+                        src={brand.logo}
+                        alt={brand.name}
+                        width={32}
+                        height={32}
+                        className="object-contain"
+                      />
+                    </div>
+                    <span className="font-medium">{brand.name}</span>
                   </button>
                 ))}
               </div>
             </section>
 
-            {/* Popular Brands */}
+            {/* Recently Searches */}
             <section>
-              <div className="flex items-center gap-2 mb-3">
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
-                <h2 className="font-semibold text-sm">Popular Brands</h2>
-              </div>
-              <div className="grid grid-cols-3 gap-3">
-                {popularBrands.map((brand) => (
+              <h2 className="font-semibold mb-4">Recently searches</h2>
+              <div className="space-y-3">
+                {recentSearches.map((brand) => (
                   <button
-                    key={brand}
-                    onClick={() => setSearch(brand)}
-                    className="p-4 bg-card rounded-2xl border border-border/30 hover:border-border transition-colors text-center"
+                    key={brand.name}
+                    onClick={() => setSearch(brand.name)}
+                    className="flex items-center gap-4 w-full p-3 rounded-2xl hover:bg-secondary/50 transition-colors"
                   >
-                    <span className="font-medium text-sm">{brand}</span>
+                    <div className="w-12 h-12 rounded-xl bg-card border border-border flex items-center justify-center p-2">
+                      <Image
+                        src={brand.logo}
+                        alt={brand.name}
+                        width={32}
+                        height={32}
+                        className="object-contain"
+                      />
+                    </div>
+                    <span className="font-medium">{brand.name}</span>
+                    <Clock className="h-4 w-4 text-muted-foreground ml-auto" />
                   </button>
                 ))}
               </div>

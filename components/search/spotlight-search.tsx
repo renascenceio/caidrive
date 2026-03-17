@@ -188,7 +188,7 @@ export function SpotlightSearch({ className }: SpotlightSearchProps) {
             <Search className="h-5 w-5" />
           </div>
           
-          <span className="flex-1 text-left text-muted-foreground text-lg">
+          <span className="flex-1 text-left text-muted-foreground text-sm sm:text-base md:text-lg truncate">
             Search any car, anywhere...
           </span>
           

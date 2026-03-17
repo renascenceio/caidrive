@@ -3,9 +3,14 @@
 import { useState, useEffect, use } from "react"
 import { useRouter } from "next/navigation"
 import Image from "next/image"
+import Link from "next/link"
 import { createClient } from "@/lib/supabase/client"
 import { cn } from "@/lib/utils"
-import { ArrowLeft, Calendar, Clock, MapPin, Shield, CreditCard, Check, ChevronRight } from "lucide-react"
+import { 
+  ArrowLeft, Star, Gauge, Zap, Users, Power, 
+  MapPin, ChevronRight, CreditCard, Wallet, Apple, 
+  Bitcoin, DollarSign, Check
+} from "lucide-react"
 
 interface Vehicle {
   id: string
@@ -14,25 +19,27 @@ interface Vehicle {
   price_per_day: number
   images: string[]
   deposit_amount: number
+  rating: number
+  max_speed: number
+  acceleration: number
+  seats: number
+  horsepower: number
 }
 
-export default function BookingPage({ params }: { params: Promise<{ id: string }> }) {
+export default function BookingDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params)
   const router = useRouter()
   const [vehicle, setVehicle] = useState<Vehicle | null>(null)
-  const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
+  const [termsAccepted, setTermsAccepted] = useState(false)
   
   const [bookingData, setBookingData] = useState({
-    pickupDate: "",
-    pickupTime: "10:00",
-    returnDate: "",
-    returnTime: "10:00",
-    pickupLocation: "delivery",
-    pickupAddress: "",
-    deliveryNotes: "",
-    insurance: "basic",
-    paymentMethod: "card"
+    pickupDate: "2024-04-02",
+    returnDate: "2024-04-04",
+    drivingLicense: "AA456767",
+    passport: "AA 4567 NH",
+    paymentMethod: "paypal",
+    deliveryLocation: "1 E 2nd St, New York, NY 10003, USA"
   })
 
   useEffect(() => {
@@ -50,7 +57,6 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
   }, [id])
 
   const calculateDays = () => {
-    if (!bookingData.pickupDate || !bookingData.returnDate) return 1
     const pickup = new Date(bookingData.pickupDate)
     const returnDate = new Date(bookingData.returnDate)
     const diff = Math.ceil((returnDate.getTime() - pickup.getTime()) / (1000 * 60 * 60 * 24))
@@ -58,13 +64,17 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
   }
 
   const days = calculateDays()
-  const rentalPrice = (vehicle?.price_per_day || 0) * days
-  const insurancePrice = bookingData.insurance === "premium" ? 150 * days : bookingData.insurance === "full" ? 300 * days : 0
-  const deliveryFee = bookingData.pickupLocation === "delivery" ? 100 : 0
-  const totalPrice = rentalPrice + insurancePrice + deliveryFee
-  const depositAmount = vehicle?.deposit_amount || 3000
+  const pricePerDay = vehicle?.price_per_day || 1678
+  const discountPercent = 5
+  const bonusDiscount = 78
+  const bookingAmount = pricePerDay * days
+  const discountAmount = Math.round(bookingAmount * (discountPercent / 100))
+  const depositAmount = vehicle?.deposit_amount || 78
+  const totalPay = bookingAmount - discountAmount - bonusDiscount + depositAmount
 
   const handleConfirmBooking = async () => {
+    if (!termsAccepted) return
+    
     setLoading(true)
     
     const supabase = createClient()
@@ -80,15 +90,13 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
       .insert({
         user_id: user.id,
         vehicle_id: id,
-        company_id: vehicle?.company_id,
-        start_date: `${bookingData.pickupDate}T${bookingData.pickupTime}:00`,
-        end_date: `${bookingData.returnDate}T${bookingData.returnTime}:00`,
-        pickup_location: bookingData.pickupAddress || 'Office Pickup',
-        dropoff_location: bookingData.pickupAddress || 'Office Return',
-        total_amount: totalPrice,
+        start_date: bookingData.pickupDate,
+        end_date: bookingData.returnDate,
+        pickup_location: bookingData.deliveryLocation,
+        dropoff_location: bookingData.deliveryLocation,
+        total_amount: totalPay,
         deposit_amount: depositAmount,
         status: 'pending',
-        insurance_type: bookingData.insurance,
         payment_method: bookingData.paymentMethod
       })
       .select()
@@ -112,368 +120,262 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
+    <div className="min-h-screen bg-background pb-32">
       {/* Header */}
-      <div className="flex items-center gap-4 p-4 border-b border-border">
-        <button 
-          onClick={() => step > 1 ? setStep(step - 1) : router.back()}
-          className="p-2 rounded-full hover:bg-secondary"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </button>
-        <h1 className="text-lg font-semibold">
-          {step === 1 ? "Select Dates" : step === 2 ? "Delivery & Insurance" : "Payment"}
-        </h1>
+      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/50">
+        <div className="flex items-center gap-4 px-4 py-3">
+          <button 
+            onClick={() => router.back()}
+            className="p-2 -ml-2"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+          <h1 className="text-lg font-semibold">Booking Details</h1>
+        </div>
       </div>
 
-      {/* Progress */}
-      <div className="flex items-center gap-2 px-6 py-4">
-        {[1, 2, 3].map((s) => (
+      <div className="px-5 py-6 space-y-6">
+        {/* Car Summary Card - Matching PDF */}
+        <div className="bg-card border border-border rounded-3xl overflow-hidden">
+          <div className="relative h-40">
+            <Image
+              src={vehicle.images?.[0] || "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=800"}
+              alt={vehicle.model}
+              fill
+              className="object-cover"
+            />
+            <div className="absolute top-3 left-3 flex items-center gap-1 px-2 py-1 rounded-lg bg-black/50 backdrop-blur-md">
+              <Star className="h-3 w-3 fill-amber-400 text-amber-400" />
+              <span className="text-xs font-medium text-white">{vehicle.rating?.toFixed(1) || '4.7'}</span>
+            </div>
+          </div>
+          <div className="p-4">
+            <h2 className="text-lg font-semibold mb-2">{vehicle.brand} {vehicle.model}</h2>
+            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <Gauge className="h-3.5 w-3.5" />
+                {vehicle.max_speed || 296} km/h
+              </span>
+              <span className="flex items-center gap-1">
+                <Zap className="h-3.5 w-3.5" />
+                {vehicle.acceleration || 2.7} sec
+              </span>
+              <span className="flex items-center gap-1">
+                <Users className="h-3.5 w-3.5" />
+                {vehicle.seats || 5} seats
+              </span>
+              <span className="flex items-center gap-1">
+                <Power className="h-3.5 w-3.5" />
+                {vehicle.horsepower || 510} bhp
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Map & Delivery Location */}
+        <div className="bg-card border border-border rounded-2xl overflow-hidden">
+          <div className="h-32 bg-secondary/50 relative">
+            {/* Placeholder map */}
+            <div className="absolute inset-0 bg-gradient-to-br from-secondary to-secondary/50 flex items-center justify-center">
+              <MapPin className="h-8 w-8 text-accent" />
+            </div>
+          </div>
+          <div className="p-4">
+            <p className="text-xs text-muted-foreground mb-1">Delivery location</p>
+            <p className="text-sm font-medium">{bookingData.deliveryLocation}</p>
+          </div>
+        </div>
+
+        {/* Price & View More */}
+        <div className="flex items-center justify-between bg-card border border-border rounded-2xl p-4">
+          <div>
+            <p className="text-xs text-muted-foreground">Price</p>
+            <p className="text-lg font-bold">${pricePerDay.toLocaleString()}/day</p>
+          </div>
+          <button className="text-sm text-accent font-medium flex items-center gap-1">
+            View more <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Booking Details - Date & Documents */}
+        <div className="bg-card border border-border rounded-2xl p-4 space-y-4">
+          <p className="text-xs text-muted-foreground">Make minimum payment, make the booking</p>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Booking Date</p>
+              <p className="text-sm font-medium">02 Apr, 2024</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Return Date</p>
+              <p className="text-sm font-medium">04 Apr, 2024</p>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Driving License</p>
+              <p className="text-sm font-medium">{bookingData.drivingLicense}</p>
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground mb-1">Passport</p>
+              <p className="text-sm font-medium">{bookingData.passport}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Payment Method - Matching PDF exactly */}
+        <div className="bg-card border border-border rounded-2xl p-4">
+          <h3 className="font-semibold mb-4">Payment Method</h3>
+          <div className="space-y-2">
+            <PaymentOption 
+              id="paypal" 
+              name="PayPal" 
+              icon={<div className="w-6 h-6 bg-blue-600 rounded flex items-center justify-center text-white text-xs font-bold">P</div>}
+              selected={bookingData.paymentMethod === "paypal"}
+              onSelect={() => setBookingData({...bookingData, paymentMethod: "paypal"})}
+            />
+            <PaymentOption 
+              id="card" 
+              name="Credit/Debit Card" 
+              icon={<CreditCard className="h-5 w-5 text-muted-foreground" />}
+              selected={bookingData.paymentMethod === "card"}
+              onSelect={() => setBookingData({...bookingData, paymentMethod: "card"})}
+            />
+            <PaymentOption 
+              id="apple" 
+              name="Apple Pay" 
+              icon={<Apple className="h-5 w-5" />}
+              selected={bookingData.paymentMethod === "apple"}
+              onSelect={() => setBookingData({...bookingData, paymentMethod: "apple"})}
+            />
+            <PaymentOption 
+              id="samsung" 
+              name="Samsung Pay" 
+              icon={<div className="w-6 h-6 bg-blue-800 rounded flex items-center justify-center text-white text-xs font-bold">S</div>}
+              selected={bookingData.paymentMethod === "samsung"}
+              onSelect={() => setBookingData({...bookingData, paymentMethod: "samsung"})}
+            />
+            <PaymentOption 
+              id="cash" 
+              name="Cash" 
+              icon={<DollarSign className="h-5 w-5 text-green-600" />}
+              selected={bookingData.paymentMethod === "cash"}
+              onSelect={() => setBookingData({...bookingData, paymentMethod: "cash"})}
+            />
+            <PaymentOption 
+              id="crypto" 
+              name="Crypto" 
+              icon={<Bitcoin className="h-5 w-5 text-orange-500" />}
+              selected={bookingData.paymentMethod === "crypto"}
+              onSelect={() => setBookingData({...bookingData, paymentMethod: "crypto"})}
+            />
+          </div>
+        </div>
+
+        {/* Booking Info Summary - Matching PDF */}
+        <div className="bg-card border border-border rounded-2xl p-4">
+          <h3 className="font-semibold mb-4">Booking Info</h3>
+          <div className="space-y-3 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Booking Date</span>
+              <span>2 Apr 2024 - 4 Apr 2024</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Number of Days</span>
+              <span>{days} days</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Price per Day</span>
+              <span>${pricePerDay.toLocaleString()}/day</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Discount</span>
+              <span className="text-green-600">{discountPercent}%</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Bonus Discount</span>
+              <span className="text-green-600">${bonusDiscount}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Booking Amount</span>
+              <span>${bookingAmount.toLocaleString()}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Deposit Amount</span>
+              <span>${depositAmount}</span>
+            </div>
+            <div className="h-px bg-border my-2" />
+            <div className="flex justify-between font-bold text-base">
+              <span>Total Pay</span>
+              <span className="text-accent">${totalPay.toLocaleString()}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Terms & Conditions Checkbox */}
+        <label className="flex items-center gap-3 cursor-pointer">
           <div 
-            key={s}
             className={cn(
-              "flex-1 h-1 rounded-full transition-colors",
-              s <= step ? "bg-accent" : "bg-secondary"
+              "w-5 h-5 rounded border-2 flex items-center justify-center transition-colors",
+              termsAccepted ? "bg-accent border-accent" : "border-muted-foreground"
             )}
-          />
-        ))}
-      </div>
-
-      {/* Vehicle Summary */}
-      <div className="flex items-center gap-4 px-6 py-4 bg-secondary/30 mx-4 rounded-2xl mb-4">
-        <div className="relative h-16 w-24 rounded-xl overflow-hidden">
-          <Image
-            src={vehicle.images?.[0] || "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=400"}
-            alt={vehicle.model}
-            fill
-            className="object-cover"
-          />
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground uppercase">{vehicle.brand}</p>
-          <p className="font-semibold">{vehicle.model}</p>
-          <p className="text-sm text-accent font-medium">AED {vehicle.price_per_day}/day</p>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="flex-1 px-4 overflow-auto">
-        {step === 1 && (
-          <div className="space-y-6">
-            {/* Pickup Date & Time */}
-            <div className="bg-card rounded-2xl p-4 border border-border">
-              <h3 className="font-semibold mb-4 flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-accent" />
-                Pick-up
-              </h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs text-muted-foreground">Date</label>
-                  <input
-                    type="date"
-                    value={bookingData.pickupDate}
-                    onChange={(e) => setBookingData({ ...bookingData, pickupDate: e.target.value })}
-                    min={new Date().toISOString().split('T')[0]}
-                    className="w-full px-3 py-2.5 rounded-xl bg-secondary/50 border border-border text-sm"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs text-muted-foreground">Time</label>
-                  <select
-                    value={bookingData.pickupTime}
-                    onChange={(e) => setBookingData({ ...bookingData, pickupTime: e.target.value })}
-                    className="w-full px-3 py-2.5 rounded-xl bg-secondary/50 border border-border text-sm"
-                  >
-                    {Array.from({ length: 13 }, (_, i) => i + 8).map(hour => (
-                      <option key={hour} value={`${hour.toString().padStart(2, '0')}:00`}>
-                        {hour > 12 ? `${hour - 12}:00 PM` : `${hour}:00 AM`}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Return Date & Time */}
-            <div className="bg-card rounded-2xl p-4 border border-border">
-              <h3 className="font-semibold mb-4 flex items-center gap-2">
-                <Calendar className="h-5 w-5 text-accent" />
-                Return
-              </h3>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-xs text-muted-foreground">Date</label>
-                  <input
-                    type="date"
-                    value={bookingData.returnDate}
-                    onChange={(e) => setBookingData({ ...bookingData, returnDate: e.target.value })}
-                    min={bookingData.pickupDate || new Date().toISOString().split('T')[0]}
-                    className="w-full px-3 py-2.5 rounded-xl bg-secondary/50 border border-border text-sm"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-xs text-muted-foreground">Time</label>
-                  <select
-                    value={bookingData.returnTime}
-                    onChange={(e) => setBookingData({ ...bookingData, returnTime: e.target.value })}
-                    className="w-full px-3 py-2.5 rounded-xl bg-secondary/50 border border-border text-sm"
-                  >
-                    {Array.from({ length: 13 }, (_, i) => i + 8).map(hour => (
-                      <option key={hour} value={`${hour.toString().padStart(2, '0')}:00`}>
-                        {hour > 12 ? `${hour - 12}:00 PM` : `${hour}:00 AM`}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-
-            {/* Duration Summary */}
-            {bookingData.pickupDate && bookingData.returnDate && (
-              <div className="bg-accent/10 rounded-2xl p-4 border border-accent/20">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm">Rental Duration</span>
-                  <span className="font-semibold">{days} {days === 1 ? 'day' : 'days'}</span>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {step === 2 && (
-          <div className="space-y-6">
-            {/* Pickup Location */}
-            <div className="bg-card rounded-2xl p-4 border border-border">
-              <h3 className="font-semibold mb-4 flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-accent" />
-                Delivery Option
-              </h3>
-              <div className="space-y-3">
-                <label className={cn(
-                  "flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-colors",
-                  bookingData.pickupLocation === "delivery" ? "border-accent bg-accent/5" : "border-border"
-                )}>
-                  <input
-                    type="radio"
-                    name="pickup"
-                    checked={bookingData.pickupLocation === "delivery"}
-                    onChange={() => setBookingData({ ...bookingData, pickupLocation: "delivery" })}
-                    className="sr-only"
-                  />
-                  <div className={cn(
-                    "h-5 w-5 rounded-full border-2 flex items-center justify-center",
-                    bookingData.pickupLocation === "delivery" ? "border-accent" : "border-muted-foreground"
-                  )}>
-                    {bookingData.pickupLocation === "delivery" && (
-                      <div className="h-2.5 w-2.5 rounded-full bg-accent" />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium">Delivery to my location</p>
-                    <p className="text-sm text-muted-foreground">+AED 100</p>
-                  </div>
-                </label>
-
-                <label className={cn(
-                  "flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-colors",
-                  bookingData.pickupLocation === "office" ? "border-accent bg-accent/5" : "border-border"
-                )}>
-                  <input
-                    type="radio"
-                    name="pickup"
-                    checked={bookingData.pickupLocation === "office"}
-                    onChange={() => setBookingData({ ...bookingData, pickupLocation: "office" })}
-                    className="sr-only"
-                  />
-                  <div className={cn(
-                    "h-5 w-5 rounded-full border-2 flex items-center justify-center",
-                    bookingData.pickupLocation === "office" ? "border-accent" : "border-muted-foreground"
-                  )}>
-                    {bookingData.pickupLocation === "office" && (
-                      <div className="h-2.5 w-2.5 rounded-full bg-accent" />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium">Pick up from office</p>
-                    <p className="text-sm text-muted-foreground">Free</p>
-                  </div>
-                </label>
-              </div>
-
-              {bookingData.pickupLocation === "delivery" && (
-                <div className="mt-4 space-y-2">
-                  <label className="text-xs text-muted-foreground">Delivery Address</label>
-                  <input
-                    type="text"
-                    value={bookingData.pickupAddress}
-                    onChange={(e) => setBookingData({ ...bookingData, pickupAddress: e.target.value })}
-                    placeholder="Enter your address"
-                    className="w-full px-4 py-3 rounded-xl bg-secondary/50 border border-border text-sm"
-                  />
-                </div>
-              )}
-            </div>
-
-            {/* Insurance */}
-            <div className="bg-card rounded-2xl p-4 border border-border">
-              <h3 className="font-semibold mb-4 flex items-center gap-2">
-                <Shield className="h-5 w-5 text-accent" />
-                Insurance
-              </h3>
-              <div className="space-y-3">
-                {[
-                  { id: "basic", name: "Basic", desc: "Standard coverage included", price: 0 },
-                  { id: "premium", name: "Premium", desc: "Reduced excess, 24/7 support", price: 150 },
-                  { id: "full", name: "Full Coverage", desc: "Zero excess, VIP support", price: 300 }
-                ].map(opt => (
-                  <label key={opt.id} className={cn(
-                    "flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-colors",
-                    bookingData.insurance === opt.id ? "border-accent bg-accent/5" : "border-border"
-                  )}>
-                    <input
-                      type="radio"
-                      name="insurance"
-                      checked={bookingData.insurance === opt.id}
-                      onChange={() => setBookingData({ ...bookingData, insurance: opt.id })}
-                      className="sr-only"
-                    />
-                    <div className={cn(
-                      "h-5 w-5 rounded-full border-2 flex items-center justify-center",
-                      bookingData.insurance === opt.id ? "border-accent" : "border-muted-foreground"
-                    )}>
-                      {bookingData.insurance === opt.id && (
-                        <div className="h-2.5 w-2.5 rounded-full bg-accent" />
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <p className="font-medium">{opt.name}</p>
-                      <p className="text-sm text-muted-foreground">{opt.desc}</p>
-                    </div>
-                    <span className="font-medium">
-                      {opt.price === 0 ? "Included" : `+AED ${opt.price}/day`}
-                    </span>
-                  </label>
-                ))}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {step === 3 && (
-          <div className="space-y-6">
-            {/* Payment Method */}
-            <div className="bg-card rounded-2xl p-4 border border-border">
-              <h3 className="font-semibold mb-4 flex items-center gap-2">
-                <CreditCard className="h-5 w-5 text-accent" />
-                Payment Method
-              </h3>
-              <div className="space-y-3">
-                {[
-                  { id: "card", name: "Credit/Debit Card", icon: "💳" },
-                  { id: "apple", name: "Apple Pay", icon: "" },
-                  { id: "cash", name: "Cash on Delivery", icon: "💵" }
-                ].map(method => (
-                  <label key={method.id} className={cn(
-                    "flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-colors",
-                    bookingData.paymentMethod === method.id ? "border-accent bg-accent/5" : "border-border"
-                  )}>
-                    <input
-                      type="radio"
-                      name="payment"
-                      checked={bookingData.paymentMethod === method.id}
-                      onChange={() => setBookingData({ ...bookingData, paymentMethod: method.id })}
-                      className="sr-only"
-                    />
-                    <div className={cn(
-                      "h-5 w-5 rounded-full border-2 flex items-center justify-center",
-                      bookingData.paymentMethod === method.id ? "border-accent" : "border-muted-foreground"
-                    )}>
-                      {bookingData.paymentMethod === method.id && (
-                        <div className="h-2.5 w-2.5 rounded-full bg-accent" />
-                      )}
-                    </div>
-                    <span className="text-xl">{method.icon}</span>
-                    <span className="font-medium">{method.name}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Order Summary */}
-            <div className="bg-card rounded-2xl p-4 border border-border">
-              <h3 className="font-semibold mb-4">Order Summary</h3>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Rental ({days} {days === 1 ? 'day' : 'days'})</span>
-                  <span>AED {rentalPrice.toLocaleString()}</span>
-                </div>
-                {insurancePrice > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Insurance</span>
-                    <span>AED {insurancePrice.toLocaleString()}</span>
-                  </div>
-                )}
-                {deliveryFee > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Delivery</span>
-                    <span>AED {deliveryFee.toLocaleString()}</span>
-                  </div>
-                )}
-                <div className="h-px bg-border my-2" />
-                <div className="flex justify-between font-semibold text-base">
-                  <span>Total</span>
-                  <span className="text-accent">AED {totalPrice.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between text-muted-foreground">
-                  <span>Security Deposit (refundable)</span>
-                  <span>AED {depositAmount.toLocaleString()}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Bottom Action */}
-      <div className="p-4 border-t border-border bg-card">
-        {step < 3 ? (
-          <button
-            onClick={() => setStep(step + 1)}
-            disabled={step === 1 && (!bookingData.pickupDate || !bookingData.returnDate)}
-            className={cn(
-              "w-full py-4 rounded-xl font-semibold",
-              "bg-accent text-white",
-              "disabled:opacity-50 disabled:cursor-not-allowed",
-              "flex items-center justify-center gap-2",
-              "transition-all active:scale-[0.98]"
-            )}
+            onClick={() => setTermsAccepted(!termsAccepted)}
           >
-            <span>Continue</span>
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        ) : (
-          <button
-            onClick={handleConfirmBooking}
-            disabled={loading}
-            className={cn(
-              "w-full py-4 rounded-xl font-semibold",
-              "bg-accent text-white",
-              "disabled:opacity-50 disabled:cursor-not-allowed",
-              "flex items-center justify-center gap-2",
-              "transition-all active:scale-[0.98]"
-            )}
-          >
-            {loading ? (
-              <span>Processing...</span>
-            ) : (
-              <>
-                <Check className="h-5 w-5" />
-                <span>Confirm Booking</span>
-              </>
-            )}
-          </button>
-        )}
+            {termsAccepted && <Check className="h-3 w-3 text-white" />}
+          </div>
+          <span className="text-sm">
+            I agree with{' '}
+            <Link href="/mobile/terms" className="text-accent underline">Terms & Conditions</Link>.
+          </span>
+        </label>
+      </div>
+
+      {/* Fixed Bottom Button - Matching PDF */}
+      <div className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-xl border-t border-border p-4 pb-8">
+        <button
+          onClick={handleConfirmBooking}
+          disabled={!termsAccepted || loading}
+          className={cn(
+            "w-full py-4 rounded-2xl font-semibold text-base",
+            "bg-accent text-white",
+            "disabled:opacity-50 disabled:cursor-not-allowed",
+            "transition-all active:scale-[0.98]"
+          )}
+        >
+          {loading ? "Processing..." : "Proceed to Pay"}
+        </button>
       </div>
     </div>
+  )
+}
+
+function PaymentOption({ 
+  id, 
+  name, 
+  icon, 
+  selected, 
+  onSelect 
+}: { 
+  id: string
+  name: string
+  icon: React.ReactNode
+  selected: boolean
+  onSelect: () => void
+}) {
+  return (
+    <button
+      onClick={onSelect}
+      className={cn(
+        "w-full flex items-center gap-4 p-3 rounded-xl border transition-colors",
+        selected ? "border-accent bg-accent/5" : "border-border"
+      )}
+    >
+      <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center">
+        {icon}
+      </div>
+      <span className="flex-1 text-left font-medium">{name}</span>
+      <ChevronRight className="h-5 w-5 text-muted-foreground" />
+    </button>
   )
 }
