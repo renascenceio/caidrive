@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
-import { Calendar, ChevronDown, ChevronLeft, ChevronRight, Upload, Camera, X } from 'lucide-react'
+import { Calendar, ChevronDown, ChevronLeft, ChevronRight, Upload, Camera, X, CheckCircle2 } from 'lucide-react'
 import type { BookingData } from '../page'
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 
@@ -174,9 +174,18 @@ export function PassportStep({ data, onChange, onNext }: PassportStepProps) {
     }
   }
 
+  // Check if we have pre-filled data (saved from previous booking)
+  const hasSavedData = !!(data.passportNumber && data.passportFirstName)
+
   return (
     <div className="px-5 py-6 pb-40 min-h-[calc(100vh-72px)]">
-      <h2 className="font-semibold text-base mb-6">Driving License details</h2>
+      {hasSavedData && (
+        <div className="flex items-center gap-2 p-3 mb-4 bg-green-50 border border-green-200 rounded-xl">
+          <CheckCircle2 className="h-4 w-4 text-green-600 flex-shrink-0" />
+          <p className="text-xs text-green-700">Your passport details from a previous booking have been pre-filled.</p>
+        </div>
+      )}
+      <h2 className="font-semibold text-base mb-6">Passport details</h2>
       <p className="text-sm text-muted-foreground mb-6">
         We need your passport information to verify your identity
       </p>
