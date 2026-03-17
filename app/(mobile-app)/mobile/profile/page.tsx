@@ -8,9 +8,10 @@ import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import { 
   User, FileText, Lock, Star, HelpCircle, MessageCircle,
-  Shield, Info, Users, LogOut, ChevronRight, Plus, Award, Route, Gift, Palette
+  Shield, Info, Users, LogOut, ChevronRight, Plus, Award, Route, Gift, 
+  Palette, Sun, Moon, Monitor, Check
 } from 'lucide-react'
-import { MobileThemeToggle } from '@/components/mobile-theme-toggle'
+import { useTheme } from 'next-themes'
 import { signOut } from '@/app/auth/actions'
 
 interface Profile {
@@ -24,10 +25,23 @@ interface Profile {
   bonus_km: number
 }
 
+const themeOptions = [
+  { id: 'light', label: 'Light', icon: Sun },
+  { id: 'dark', label: 'Dark', icon: Moon },
+  { id: 'system', label: 'Auto', icon: Monitor },
+]
+
 export default function MobileProfilePage() {
   const router = useRouter()
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [showThemeDropdown, setShowThemeDropdown] = useState(false)
+  const { theme, setTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     async function fetchProfile() {
@@ -117,20 +131,61 @@ export default function MobileProfilePage() {
         </div>
       </div>
 
-      {/* Appearance Section */}
+      {/* Appearance Section - Dropdown */}
       <div className="px-5 mb-6">
-        <div className="flex items-center gap-4 px-4 py-4 bg-card rounded-2xl border border-border">
+        <button 
+          onClick={() => setShowThemeDropdown(!showThemeDropdown)}
+          className="w-full flex items-center gap-4 px-4 py-4 bg-card rounded-2xl border border-border hover:bg-secondary/50 transition-colors"
+        >
           <div className="h-10 w-10 rounded-xl bg-secondary flex items-center justify-center">
             <Palette className="h-5 w-5 text-muted-foreground" />
           </div>
-          <div className="flex-1">
+          <div className="flex-1 text-left">
             <span className="font-medium">Appearance</span>
-            <p className="text-xs text-muted-foreground">Switch between light and dark mode</p>
+            <p className="text-xs text-muted-foreground">
+              {mounted ? (theme === 'system' ? 'Auto' : theme === 'dark' ? 'Dark' : 'Light') : 'Loading...'}
+            </p>
           </div>
-        </div>
-        <div className="mt-3 flex justify-center">
-          <MobileThemeToggle />
-        </div>
+          <ChevronRight className={cn(
+            "h-5 w-5 text-muted-foreground transition-transform",
+            showThemeDropdown && "rotate-90"
+          )} />
+        </button>
+        
+        {/* Theme Options Dropdown */}
+        {showThemeDropdown && (
+          <div className="mt-2 bg-card rounded-2xl border border-border overflow-hidden">
+            {themeOptions.map((option) => {
+              const Icon = option.icon
+              const isSelected = theme === option.id
+              return (
+                <button
+                  key={option.id}
+                  onClick={() => {
+                    setTheme(option.id)
+                    setShowThemeDropdown(false)
+                  }}
+                  className={cn(
+                    "w-full flex items-center gap-4 px-4 py-3 transition-colors",
+                    "border-b border-border last:border-b-0",
+                    isSelected ? "bg-accent/10" : "hover:bg-secondary/50"
+                  )}
+                >
+                  <div className={cn(
+                    "h-9 w-9 rounded-xl flex items-center justify-center",
+                    isSelected ? "bg-accent/20" : "bg-secondary"
+                  )}>
+                    <Icon className={cn("h-4 w-4", isSelected ? "text-accent" : "text-muted-foreground")} />
+                  </div>
+                  <span className={cn("flex-1 text-left font-medium", isSelected && "text-accent")}>
+                    {option.label}
+                  </span>
+                  {isSelected && <Check className="h-5 w-5 text-accent" />}
+                </button>
+              )
+            })}
+          </div>
+        )}
       </div>
 
       {/* Menu Items - Matching PDF exactly */}
