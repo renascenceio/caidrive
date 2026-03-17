@@ -18,14 +18,14 @@ export default function MobileAppLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname()
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-[#f5f5f7]">
       {/* Main Content - with bottom padding for nav */}
-      <main className="flex-1 pb-20 overflow-auto">
+      <main className="flex-1 pb-16 overflow-auto">
         {children}
       </main>
 
-      {/* Bottom Navigation - Fixed */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 backdrop-blur-xl safe-area-bottom">
+      {/* Bottom Navigation - Fixed with explicit colors for Safari */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-[#e5e5e7] bg-[#f5f5f7] safe-area-bottom">
         <div className="flex items-center justify-around h-16 max-w-lg mx-auto">
           {navItems.map((item) => {
             const isActive = pathname === item.href || 
@@ -40,8 +40,8 @@ export default function MobileAppLayout({ children }: { children: ReactNode }) {
                   "flex flex-col items-center justify-center w-16 h-full gap-0.5",
                   "transition-colors duration-200",
                   isActive 
-                    ? "text-accent" 
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "text-[#dd3155]" 
+                    : "text-[#8e8e93] hover:text-[#161821]"
                 )}
               >
                 <Icon className={cn("h-5 w-5", isActive && "stroke-[2.5]")} />

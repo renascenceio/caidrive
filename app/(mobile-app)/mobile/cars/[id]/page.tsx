@@ -151,22 +151,22 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
             onClick={() => router.back()}
             className="p-2.5 bg-white/90 backdrop-blur-md rounded-full shadow-sm"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-5 w-5 text-[#161821]" />
           </button>
           <div className="flex items-center gap-2">
             <button 
               onClick={() => {/* Share functionality */}}
               className="p-2.5 bg-white/90 backdrop-blur-md rounded-full shadow-sm"
             >
-              <Share2 className="h-5 w-5" />
+              <Share2 className="h-5 w-5 text-[#161821]" />
             </button>
             <button 
               onClick={() => setWishlisted(!wishlisted)}
               className="p-2.5 bg-white/90 backdrop-blur-md rounded-full shadow-sm"
             >
               <Heart className={cn(
-                "h-5 w-5 transition-all",
-                wishlisted ? "fill-accent text-accent" : ""
+                "h-5 w-5 transition-all text-[#161821]",
+                wishlisted ? "fill-[#dd3155] text-[#dd3155]" : ""
               )} />
             </button>
           </div>
@@ -235,14 +235,14 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
             </div>
           )}
           <div>
-            <h1 className="text-2xl font-bold">{vehicle.brand}</h1>
+            <h1 className="text-2xl font-bold text-[#161821]">{vehicle.brand}</h1>
             <Link 
               href={`/mobile/cars/${id}/reviews`}
               className="flex items-center gap-1 text-sm"
             >
-              <Star className="h-4 w-4 fill-foreground" />
-              <span className="font-medium">{vehicle.rating?.toFixed(1) || '4.7'}</span>
-              <span className="text-muted-foreground ml-1">View reviews ({vehicle.review_count || 34})</span>
+              <Star className="h-4 w-4 fill-[#161821] text-[#161821]" />
+              <span className="font-medium text-[#161821]">{vehicle.rating?.toFixed(1) || '4.7'}</span>
+              <span className="text-[#8e8e93] ml-1">View reviews ({vehicle.review_count || 34})</span>
             </Link>
           </div>
         </div>
@@ -281,63 +281,63 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
 
         {/* Quick Stats - 3 Boxes */}
         <div className="grid grid-cols-3 gap-3">
-          <div className="bg-white rounded-2xl p-4 text-center border border-border/30">
-            <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-secondary/50 flex items-center justify-center">
-              <Gauge className="h-5 w-5" />
+          <div className="bg-white rounded-2xl p-4 text-center border border-[#e5e5e7]">
+            <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-[#f5f5f7] flex items-center justify-center">
+              <Gauge className="h-5 w-5 text-[#161821]" />
             </div>
-            <p className="text-lg font-bold">{vehicle.max_speed || 296} km/h</p>
-            <p className="text-xs text-muted-foreground">Max speed</p>
+            <p className="text-lg font-bold text-[#161821]">{vehicle.max_speed || 296} km/h</p>
+            <p className="text-xs text-[#8e8e93]">Max speed</p>
           </div>
-          <div className="bg-white rounded-2xl p-4 text-center border border-border/30">
-            <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-secondary/50 flex items-center justify-center">
-              <Zap className="h-5 w-5" />
+          <div className="bg-white rounded-2xl p-4 text-center border border-[#e5e5e7]">
+            <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-[#f5f5f7] flex items-center justify-center">
+              <Zap className="h-5 w-5 text-[#161821]" />
             </div>
-            <p className="text-lg font-bold">{vehicle.acceleration || 2.7} sec</p>
-            <p className="text-xs text-muted-foreground">Acceleration</p>
+            <p className="text-lg font-bold text-[#161821]">{vehicle.acceleration || 2.7} sec</p>
+            <p className="text-xs text-[#8e8e93]">Acceleration</p>
           </div>
-          <div className="bg-white rounded-2xl p-4 text-center border border-border/30">
-            <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-secondary/50 flex items-center justify-center">
-              <Power className="h-5 w-5" />
+          <div className="bg-white rounded-2xl p-4 text-center border border-[#e5e5e7]">
+            <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-[#f5f5f7] flex items-center justify-center">
+              <Power className="h-5 w-5 text-[#161821]" />
             </div>
-            <p className="text-lg font-bold">{vehicle.horsepower || vehicle.power || 510} bhp</p>
-            <p className="text-xs text-muted-foreground">Power</p>
+            <p className="text-lg font-bold text-[#161821]">{vehicle.horsepower || vehicle.power || 510} bhp</p>
+            <p className="text-xs text-[#8e8e93]">Power</p>
           </div>
         </div>
 
         {/* Description */}
         <div>
-          <h2 className="font-semibold text-base mb-3">Description</h2>
-          <p className="text-sm text-muted-foreground leading-relaxed">
+          <h2 className="font-semibold text-base mb-3 text-[#161821]">Description</h2>
+          <p className="text-sm text-[#8e8e93] leading-relaxed">
             {vehicle.description || 'Lorem ipsum dolor sit amet consectetur. Consectetur lorem fusce euismod viverra egestas fermentum. Arcu sollicitudin tincidunt pellentesque integer diam. Id amet ac congue leo hendrerit. Cras pellentesque orci at posuere.'}
           </p>
         </div>
 
         {/* About Booking - White Card */}
-        <div className="bg-white rounded-2xl p-5 border border-border/30">
-          <h2 className="font-semibold text-base mb-4">About Booking</h2>
+        <div className="bg-white rounded-2xl p-5 border border-[#e5e5e7]">
+          <h2 className="font-semibold text-base mb-4 text-[#161821]">About Booking</h2>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Deposit Amount</span>
-              <span className="text-sm font-medium text-right">
+              <span className="text-sm text-[#8e8e93]">Deposit Amount</span>
+              <span className="text-sm font-medium text-[#161821] text-right">
                 {vehicle.deposit_amount 
                   ? `$${vehicle.deposit_amount.toLocaleString()}` 
                   : '50%'}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Price per Day</span>
-              <span className="text-sm font-medium">${vehicle.price_per_day?.toLocaleString() || '1,256'}/day</span>
+              <span className="text-sm text-[#8e8e93]">Price per Day</span>
+              <span className="text-sm font-medium text-[#161821]">${vehicle.price_per_day?.toLocaleString() || '1,256'}/day</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">Mileage Limit</span>
-              <span className="text-sm font-medium">{vehicle.mileage_limit || 10} km</span>
+              <span className="text-sm text-[#8e8e93]">Mileage Limit</span>
+              <span className="text-sm font-medium text-[#161821]">{vehicle.mileage_limit || 10} km</span>
             </div>
           </div>
         </div>
 
         {/* Availability Calendar - 30 Days */}
-        <div className="bg-white rounded-2xl p-5 border border-border/30">
-          <h2 className="font-semibold text-base mb-4">Availability (Next 30 Days)</h2>
+        <div className="bg-white rounded-2xl p-5 border border-[#e5e5e7]">
+          <h2 className="font-semibold text-base mb-4 text-[#161821]">Availability (Next 30 Days)</h2>
           {availabilityLoading ? (
             <div className="grid grid-cols-7 gap-1">
               {Array.from({ length: 30 }).map((_, i) => (
@@ -349,7 +349,7 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
               {/* Weekday Headers */}
               <div className="grid grid-cols-7 gap-1 mb-2">
                 {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
-                  <div key={day} className="text-center text-[10px] text-muted-foreground font-medium py-1">
+                  <div key={day} className="text-center text-[10px] text-[#8e8e93] font-medium py-1">
                     {day}
                   </div>
                 ))}
@@ -378,8 +378,9 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
                         "aspect-square rounded-lg flex items-center justify-center text-xs font-medium transition-all",
                         day.available 
                           ? "bg-green-50 text-green-700 border border-green-200" 
-                          : "bg-muted/50 text-muted-foreground/50",
-                        isToday && "ring-2 ring-accent ring-offset-1"
+                          : "bg-[#f0f0f2] text-[#c7c7cc]",
+                        isToday && day.available && "bg-green-500 text-white border-green-500",
+                        isToday && !day.available && "bg-[#8e8e93] text-white"
                       )}
                     >
                       {dayNum}
@@ -392,11 +393,11 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
               <div className="flex items-center justify-center gap-4 mt-4 text-xs">
                 <div className="flex items-center gap-1.5">
                   <div className="w-3 h-3 rounded bg-green-50 border border-green-200" />
-                  <span className="text-muted-foreground">Available</span>
+                  <span className="text-[#8e8e93]">Available</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <div className="w-3 h-3 rounded bg-muted/50" />
-                  <span className="text-muted-foreground">Booked</span>
+                  <div className="w-3 h-3 rounded bg-[#f0f0f2]" />
+                  <span className="text-[#8e8e93]">Booked</span>
                 </div>
               </div>
             </>
@@ -405,7 +406,7 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
 
         {/* Technical Specification - Two columns, no image */}
         <div>
-          <h2 className="font-semibold text-base mb-4">Technical specification</h2>
+          <h2 className="font-semibold text-base mb-4 text-[#161821]">Technical specification</h2>
           
           <div className="grid grid-cols-2 gap-4">
             <SpecItem icon={<Power className="h-5 w-5" />} label="Power" value={`${vehicle.horsepower || vehicle.power || 440} bhp`} />
@@ -459,20 +460,20 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
         {/* Reviews Section */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-base">Reviews</h2>
+            <h2 className="font-semibold text-base text-[#161821]">Reviews</h2>
             <div className="flex items-center gap-1">
-              <Star className="h-4 w-4 fill-foreground" />
-              <span className="font-semibold">{vehicle.rating?.toFixed(1) || '4.7'}</span>
-              <span className="text-sm text-muted-foreground ml-1">{vehicle.review_count || 34} reviews</span>
+              <Star className="h-4 w-4 fill-[#161821] text-[#161821]" />
+              <span className="font-semibold text-[#161821]">{vehicle.rating?.toFixed(1) || '4.7'}</span>
+              <span className="text-sm text-[#8e8e93] ml-1">{vehicle.review_count || 34} reviews</span>
             </div>
           </div>
           
           {/* Review Cards */}
           <div className="flex gap-4 overflow-x-auto pb-2 -mx-5 px-5 snap-x">
             {[1, 2].map((_, idx) => (
-              <div key={idx} className="min-w-[280px] bg-white rounded-2xl p-4 border border-border/30 snap-start">
+              <div key={idx} className="min-w-[280px] bg-white rounded-2xl p-4 border border-[#e5e5e7] snap-start">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center overflow-hidden">
+                  <div className="w-10 h-10 rounded-full bg-[#f5f5f7] flex items-center justify-center overflow-hidden">
                     <Image
                       src={`https://randomuser.me/api/portraits/${idx % 2 === 0 ? 'men' : 'women'}/${idx + 1}.jpg`}
                       alt="Reviewer"
@@ -482,15 +483,15 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
                     />
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium text-sm">{idx === 0 ? 'John Doe' : 'Jane Smith'}</p>
+                    <p className="font-medium text-sm text-[#161821]">{idx === 0 ? 'John Doe' : 'Jane Smith'}</p>
                     <div className="flex items-center gap-1">
-                      <Star className="h-3 w-3 fill-foreground" />
-                      <span className="text-xs">{idx === 0 ? '5' : '4'}</span>
-                      <span className="text-xs text-muted-foreground ml-1">October {idx + 2}, 2023</span>
+                      <Star className="h-3 w-3 fill-[#161821] text-[#161821]" />
+                      <span className="text-xs text-[#161821]">{idx === 0 ? '5' : '4'}</span>
+                      <span className="text-xs text-[#8e8e93] ml-1">October {idx + 2}, 2023</span>
                     </div>
                   </div>
                 </div>
-                <p className="text-sm text-muted-foreground line-clamp-3">
+                <p className="text-sm text-[#8e8e93] line-clamp-3">
                   Lorem ipsum dolor sit amet consectetur. Consectetur lorem fusce euismod viverra egestas fermentum. Arcu sollicitudin tincidunt pellentesque integer diam.
                 </p>
               </div>
@@ -499,18 +500,18 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
         </div>
       </div>
 
-      {/* Fixed Bottom Bar - Directly touching bottom nav, no gap */}
-      <div className="fixed bottom-[71px] left-0 right-0 bg-[#f5f5f7] px-5 py-3">
+      {/* Fixed Bottom Bar - Directly above bottom nav */}
+      <div className="fixed bottom-16 left-0 right-0 bg-[#f5f5f7] px-5 py-3 border-b border-[#e5e5e7]">
         <div className="flex items-center justify-between">
           <div>
             {vehicle.original_price && (
-              <p className="text-sm text-muted-foreground line-through">${vehicle.original_price.toLocaleString()}/day</p>
+              <p className="text-sm text-[#8e8e93] line-through">${vehicle.original_price.toLocaleString()}/day</p>
             )}
-            <p className="text-xl font-bold">${vehicle.price_per_day?.toLocaleString() || '1,899'}/day</p>
+            <p className="text-xl font-bold text-[#161821]">${vehicle.price_per_day?.toLocaleString() || '1,899'}/day</p>
           </div>
           
           <Link href={`/mobile/cars/${id}/book`} className="flex-1 ml-4">
-            <button className="w-full py-4 bg-foreground text-background font-semibold rounded-full flex items-center justify-center gap-2">
+            <button className="w-full py-4 bg-[#161821] text-white font-semibold rounded-full flex items-center justify-center gap-2">
               Book Now
               <ChevronRight className="h-5 w-5" />
             </button>
@@ -523,13 +524,13 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
 
 function SpecItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="flex items-center gap-3 bg-white rounded-xl p-3 border border-border/30">
-      <div className="w-9 h-9 rounded-lg bg-secondary/50 flex items-center justify-center flex-shrink-0">
+    <div className="flex items-center gap-3 bg-white rounded-xl p-3 border border-[#e5e5e7]">
+      <div className="w-9 h-9 rounded-lg bg-[#f5f5f7] flex items-center justify-center flex-shrink-0 text-[#161821]">
         {icon}
       </div>
       <div className="min-w-0">
-        <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{label}</p>
-        <p className="font-semibold text-sm truncate">{value}</p>
+        <p className="text-[10px] text-[#8e8e93] uppercase tracking-wide">{label}</p>
+        <p className="font-semibold text-sm truncate text-[#161821]">{value}</p>
       </div>
     </div>
   )
@@ -538,14 +539,14 @@ function SpecItem({ icon, label, value }: { icon: React.ReactNode; label: string
 function FeatureBox({ icon, label, sublabel, active = true }: { icon: React.ReactNode; label: string; sublabel: string; active?: boolean }) {
   return (
     <div className={cn(
-      "bg-white rounded-2xl p-4 text-center border border-border/30",
+      "bg-white rounded-2xl p-4 text-center border border-[#e5e5e7]",
       !active && "opacity-50"
     )}>
-      <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-secondary/50 flex items-center justify-center">
+      <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-[#f5f5f7] flex items-center justify-center text-[#161821]">
         {icon}
       </div>
-      <p className="text-sm font-medium">{label}</p>
-      <p className="text-xs text-muted-foreground">{sublabel}</p>
+      <p className="text-sm font-medium text-[#161821]">{label}</p>
+      <p className="text-xs text-[#8e8e93]">{sublabel}</p>
     </div>
   )
 }
