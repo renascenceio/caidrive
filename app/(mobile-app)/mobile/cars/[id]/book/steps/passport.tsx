@@ -302,6 +302,16 @@ export function PassportStep({ data, onChange, onNext }: PassportStepProps) {
         </div>
       </div>
 
+      {/* Calendar Modal */}
+      {showCalendar && (
+        <CustomCalendar
+          selectedDate={data.passportExpiry}
+          onSelect={(date) => onChange({ passportExpiry: date })}
+          onClose={() => setShowCalendar(false)}
+          minDate={new Date().toISOString().split('T')[0]}
+        />
+      )}
+
       {/* Country Picker Modal */}
       {showCountryPicker && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-end">
