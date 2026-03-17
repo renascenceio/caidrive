@@ -71,8 +71,8 @@ export function Header({
     const supabase = createClient()
     await supabase.auth.signOut()
     setSheetOpen(false)
-    router.push('/')
-    router.refresh()
+    setUser(null)
+    window.location.href = '/'
   }
 
   return (
