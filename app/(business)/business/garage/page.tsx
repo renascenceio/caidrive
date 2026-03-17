@@ -169,6 +169,7 @@ export default function GaragePage() {
   const [sortBy, setSortBy] = useState<string>('brand')
   const [deleteId, setDeleteId] = useState<string | null>(null)
   const [companyId, setCompanyId] = useState<string | null>(null)
+  const [noCompany, setNoCompany] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -186,15 +187,15 @@ export default function GaragePage() {
       return
     }
 
-    // Get user's company
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('company_id')
-      .eq('id', user.id)
+    // Get company where user is the owner
+    const { data: company } = await supabase
+      .from('companies')
+      .select('id')
+      .eq('owner_id', user.id)
       .single()
 
-    if (profile?.company_id) {
-      setCompanyId(profile.company_id)
+    if (company?.id) {
+      setCompanyId(company.id)
       
       // Fetch vehicles for this company with booking counts
       const { data: vehiclesData, error } = await supabase
@@ -203,7 +204,7 @@ export default function GaragePage() {
           *,
           bookings:bookings(count)
         `)
-        .eq('company_id', profile.company_id)
+        .eq('company_id', company.id)
         .order('brand', { ascending: true })
 
       if (!error && vehiclesData) {
@@ -214,6 +215,8 @@ export default function GaragePage() {
         }))
         setVehicles(vehiclesWithCounts)
       }
+    } else {
+      setNoCompany(true)
     }
     
     setLoading(false)
@@ -340,6 +343,23 @@ export default function GaragePage() {
       <div className="flex items-center justify-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
+    )
+  }
+
+  if (noCompany) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center py-12">
+          <Car className="h-12 w-12 text-muted-foreground/50" />
+          <p className="mt-4 text-lg font-medium">No Company Found</p>
+          <p className="text-sm text-muted-foreground text-center max-w-md">
+            You need to create a company first before you can add vehicles to your garage.
+          </p>
+          <Link href="/business/onboarding">
+            <Button className="mt-4">Register Your Business</Button>
+          </Link>
+        </CardContent>
+      </Card>
     )
   }
 

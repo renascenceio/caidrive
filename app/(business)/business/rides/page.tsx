@@ -280,6 +280,7 @@ export default function RidesPage() {
   const [drivers, setDrivers] = useState<Driver[]>([])
   const [loading, setLoading] = useState(true)
   const [companyId, setCompanyId] = useState<string | null>(null)
+  const [noCompany, setNoCompany] = useState(false)
 
   // Fetch company ID
   useEffect(() => {
@@ -288,14 +289,18 @@ export default function RidesPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('company_id')
-        .eq('id', user.id)
+      // Get company where user is the owner
+      const { data: company } = await supabase
+        .from('companies')
+        .select('id')
+        .eq('owner_id', user.id)
         .single()
 
-      if (profile?.company_id) {
-        setCompanyId(profile.company_id)
+      if (company?.id) {
+        setCompanyId(company.id)
+      } else {
+        setNoCompany(true)
+        setLoading(false)
       }
     }
     fetchCompany()
@@ -443,6 +448,14 @@ export default function RidesPage() {
         <div className="flex items-center justify-center py-20">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
+      ) : noCompany ? (
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-12">
+            <Car className="h-12 w-12 text-muted-foreground/50" />
+            <p className="mt-4 text-lg font-medium">No Company Found</p>
+            <p className="text-sm text-muted-foreground">Create a company first to manage rides</p>
+          </CardContent>
+        </Card>
       ) : (
         <Tabs defaultValue="upcoming" className="space-y-6">
           <TabsList>

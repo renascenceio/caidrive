@@ -156,6 +156,7 @@ export default function AvailabilityPage() {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
   const [companyId, setCompanyId] = useState<string | null>(null)
+  const [noCompany, setNoCompany] = useState(false)
   
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
@@ -172,14 +173,18 @@ export default function AvailabilityPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('company_id')
-        .eq('id', user.id)
+      // Get company where user is the owner
+      const { data: company } = await supabase
+        .from('companies')
+        .select('id')
+        .eq('owner_id', user.id)
         .single()
 
-      if (profile?.company_id) {
-        setCompanyId(profile.company_id)
+      if (company?.id) {
+        setCompanyId(company.id)
+      } else {
+        setNoCompany(true)
+        setLoading(false)
       }
     }
     fetchCompany()
@@ -327,6 +332,12 @@ export default function AvailabilityPage() {
           {loading ? (
             <div className="flex items-center justify-center py-20">
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : noCompany ? (
+            <div className="flex flex-col items-center justify-center py-20">
+              <Car className="h-12 w-12 text-muted-foreground/50" />
+              <p className="mt-4 text-lg font-medium">No Company Found</p>
+              <p className="text-sm text-muted-foreground">Create a company first to manage availability</p>
             </div>
           ) : totalVehicles === 0 ? (
             <div className="flex flex-col items-center justify-center py-20">
