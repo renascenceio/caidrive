@@ -154,7 +154,7 @@ export default function MobileRidesPage() {
       </div>
 
       {/* Content */}
-      <div className="p-5 space-y-4">
+      <div className="p-5 flex flex-col gap-4">
         {loading ? (
           Array.from({ length: 3 }).map((_, i) => (
             <div key={i} className="h-32 rounded-2xl bg-secondary animate-pulse" />
