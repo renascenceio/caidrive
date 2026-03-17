@@ -53,12 +53,23 @@ export default function MobileHomePage() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      {/* Header - CAI Branding */}
+      {/* Header - CaiDrive Branding */}
       <header className="px-5 pt-12 pb-6">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center">
-            <span className="text-white font-bold text-sm">CAI</span>
-          </div>
+          <Image
+            src="/logo-black.png"
+            alt="CaiDrive"
+            width={44}
+            height={44}
+            className="dark:hidden"
+          />
+          <Image
+            src="/logo-white.png"
+            alt="CaiDrive"
+            width={44}
+            height={44}
+            className="hidden dark:block"
+          />
           <div>
             <h1 className="text-xl font-bold">The Best Platform for</h1>
             <h1 className="text-xl font-bold text-accent">Car Rental</h1>
