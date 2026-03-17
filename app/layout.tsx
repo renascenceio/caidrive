@@ -50,8 +50,11 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  colorScheme: 'light',
-  themeColor: '#ffffff',
+  colorScheme: 'light dark',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#ffffff' },
+    { media: '(prefers-color-scheme: dark)', color: '#161821' },
+  ],
 }
 
 export default function RootLayout({
@@ -64,8 +67,8 @@ export default function RootLayout({
       <body className={`${spaceGrotesk.variable} font-sans antialiased min-h-screen bg-background`}>
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
-          enableSystem={false}
+          defaultTheme="system"
+          enableSystem={true}
           disableTransitionOnChange
         >
           <LanguageProvider>

@@ -71,15 +71,18 @@ export default function MobileHomePage() {
             className="hidden dark:block"
           />
           <div>
-            <h1 className="text-base font-bold text-accent">Keeper of the Keys</h1>
+            <h1 className="text-lg font-bold">
+              <span className="text-foreground">Keeper of</span>{' '}
+              <span className="text-accent">the Keys</span>
+            </h1>
           </div>
         </div>
 
-        {/* Search Bar - Matching PDF */}
+        {/* Search Bar - Glass effect */}
         <Link href="/mobile/search" className="block">
           <div className={cn(
             "flex items-center gap-3 px-4 py-4 rounded-2xl",
-            "bg-card border border-border shadow-sm"
+            "bg-card/80 backdrop-blur-xl border border-border/50 shadow-sm"
           )}>
             <Search className="h-5 w-5 text-muted-foreground" />
             <span className="text-base text-muted-foreground">Search any car</span>
@@ -105,7 +108,7 @@ export default function MobileHomePage() {
                 href={`/mobile/garage?brand=${brand.name}`}
                 className="flex flex-col items-center gap-2 flex-shrink-0"
               >
-                <div className="w-16 h-16 rounded-2xl bg-card border border-border flex items-center justify-center p-2 shadow-sm">
+                <div className="w-16 h-16 rounded-2xl bg-card/80 backdrop-blur-xl border border-border/50 flex items-center justify-center p-2 shadow-sm hover:shadow-md transition-shadow">
                   <Image
                     src={brand.logo}
                     alt={brand.name}

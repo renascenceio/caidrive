@@ -203,9 +203,8 @@
 }
 
 @layer base {
-  /* Force light color scheme for Safari iOS */
   :root {
-    color-scheme: light only;
+    color-scheme: light dark;
   }
   
   * {
@@ -213,7 +212,6 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
-    color-scheme: light only;
     -webkit-text-fill-color: inherit;
   }
   
@@ -236,28 +234,23 @@
   }
 }
 
-/* Safari iOS text color fix - force dark text on light backgrounds */
+/* Safari iOS text color fix */
 @supports (-webkit-touch-callout: none) {
-  /* iOS Safari specific - prevent dark mode override */
-  html, body {
-    color-scheme: light only !important;
-  }
-  
   /* Force text colors on iOS Safari */
   h1, h2, h3, h4, h5, h6, p, span, div, a, button, label {
     -webkit-text-fill-color: currentColor;
   }
 }
 
-/* Mobile text utility classes with explicit colors */
+/* Mobile text utility classes - theme aware */
 .mobile-text-dark {
-  color: #161821 !important;
-  -webkit-text-fill-color: #161821 !important;
+  color: hsl(var(--foreground)) !important;
+  -webkit-text-fill-color: hsl(var(--foreground)) !important;
 }
 
 .mobile-text-muted {
-  color: #8e8e93 !important;
-  -webkit-text-fill-color: #8e8e93 !important;
+  color: hsl(var(--muted-foreground)) !important;
+  -webkit-text-fill-color: hsl(var(--muted-foreground)) !important;
 }
 
 .mobile-text-white {

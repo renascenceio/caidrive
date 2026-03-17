@@ -8,8 +8,9 @@ import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import { 
   User, FileText, Lock, Star, HelpCircle, MessageCircle,
-  Shield, Info, Users, LogOut, ChevronRight, Plus, Award, Route, Gift
+  Shield, Info, Users, LogOut, ChevronRight, Plus, Award, Route, Gift, Palette
 } from 'lucide-react'
+import { MobileThemeToggle } from '@/components/mobile-theme-toggle'
 import { signOut } from '@/app/auth/actions'
 
 interface Profile {
@@ -113,6 +114,22 @@ export default function MobileProfilePage() {
             <p className="text-sm font-bold">{profile?.bonus_km || '500'} km</p>
             <p className="text-xs text-muted-foreground">Bonus</p>
           </div>
+        </div>
+      </div>
+
+      {/* Appearance Section */}
+      <div className="px-5 mb-6">
+        <div className="flex items-center gap-4 px-4 py-4 bg-card rounded-2xl border border-border">
+          <div className="h-10 w-10 rounded-xl bg-secondary flex items-center justify-center">
+            <Palette className="h-5 w-5 text-muted-foreground" />
+          </div>
+          <div className="flex-1">
+            <span className="font-medium">Appearance</span>
+            <p className="text-xs text-muted-foreground">Switch between light and dark mode</p>
+          </div>
+        </div>
+        <div className="mt-3 flex justify-center">
+          <MobileThemeToggle />
         </div>
       </div>
 
