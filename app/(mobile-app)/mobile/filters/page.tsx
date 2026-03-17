@@ -69,15 +69,15 @@ function CustomCalendar({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-5">
-      <div className="w-full max-w-sm bg-white rounded-2xl p-4">
+      <div className="w-full max-w-sm bg-card rounded-2xl p-4 border border-border">
         {/* Month Navigation */}
         <div className="flex items-center justify-between mb-4">
           <button onClick={prevMonth} className="p-2 hover:bg-secondary rounded-lg">
-            <ChevronLeft className="h-5 w-5" />
+            <ChevronLeft className="h-5 w-5 text-foreground" />
           </button>
-          <span className="font-semibold">{MONTHS[month]} {year}</span>
+          <span className="font-semibold text-foreground">{MONTHS[month]} {year}</span>
           <button onClick={nextMonth} className="p-2 hover:bg-secondary rounded-lg">
-            <ChevronRight className="h-5 w-5" />
+            <ChevronRight className="h-5 w-5 text-foreground" />
           </button>
         </div>
         
@@ -101,8 +101,8 @@ function CustomCalendar({
                   className={cn(
                     "w-full h-full rounded-full flex items-center justify-center text-sm transition-all",
                     isDateSelected(day) 
-                      ? "bg-foreground text-background font-semibold" 
-                      : "hover:bg-secondary",
+                      ? "bg-accent text-white font-semibold" 
+                      : "hover:bg-secondary text-foreground",
                     isDateDisabled(day) && "text-muted-foreground/30 cursor-not-allowed hover:bg-transparent"
                   )}
                 >
@@ -230,14 +230,14 @@ function FiltersContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7]">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="sticky top-0 z-50 bg-[#f5f5f7] border-b border-border/30">
+      <div className="sticky top-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border/50">
         <div className="flex items-center justify-between px-5 py-4">
           <button onClick={() => router.back()} className="p-1 -ml-1">
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-5 w-5 text-foreground" />
           </button>
-          <h1 className="text-lg font-semibold">Filters</h1>
+          <h1 className="text-lg font-semibold text-foreground">Filters</h1>
           <button 
             onClick={clearAll}
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -250,13 +250,13 @@ function FiltersContent() {
       <div className="px-6 py-6 pb-40 space-y-8">
         {/* Brands Section */}
         <section>
-          <h2 className="font-semibold text-base mb-4">Brands</h2>
+          <h2 className="font-semibold text-base mb-4 text-foreground">Brands</h2>
           
           {/* Brand Dropdown */}
           <div className="relative mb-4">
             <button
               onClick={() => setShowBrandDropdown(!showBrandDropdown)}
-              className="w-full flex items-center justify-between px-4 py-3.5 bg-white rounded-xl border border-border/50"
+              className="w-full flex items-center justify-between px-4 py-3.5 bg-card rounded-xl border border-border"
             >
               <span className="text-muted-foreground">Select brand</span>
               <ChevronDown className={cn(
@@ -266,14 +266,14 @@ function FiltersContent() {
             </button>
             
             {showBrandDropdown && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl border border-border/50 shadow-lg max-h-64 overflow-y-auto z-10">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-card rounded-xl border border-border shadow-lg max-h-64 overflow-y-auto z-10">
                 {availableBrands
                   .filter(brand => !selectedBrands.includes(brand))
                   .map(brand => (
                     <button
                       key={brand}
                       onClick={() => addBrand(brand)}
-                      className="w-full px-4 py-3 text-left hover:bg-secondary/50 transition-colors first:rounded-t-xl last:rounded-b-xl"
+                      className="w-full px-4 py-3 text-left text-foreground hover:bg-secondary/50 transition-colors first:rounded-t-xl last:rounded-b-xl"
                     >
                       {brand}
                     </button>
@@ -289,9 +289,9 @@ function FiltersContent() {
                 <button
                   key={brand}
                   onClick={() => removeBrand(brand)}
-                  className="flex items-center gap-2 px-4 py-2 bg-white rounded-xl border border-border/50"
+                  className="flex items-center gap-2 px-4 py-2 bg-card rounded-xl border border-border"
                 >
-                  <span className="text-sm">{brand}</span>
+                  <span className="text-sm text-foreground">{brand}</span>
                   <X className="h-4 w-4 text-muted-foreground" />
                 </button>
               ))}
@@ -301,7 +301,7 @@ function FiltersContent() {
 
         {/* Price Range Section */}
         <section>
-          <h2 className="font-semibold text-base mb-4">Price range</h2>
+          <h2 className="font-semibold text-base mb-4 text-foreground">Price range</h2>
           
           {/* Histogram Visualization */}
           <div className="relative h-24 mb-6">
@@ -351,7 +351,7 @@ function FiltersContent() {
                       setPriceRange({ ...priceRange, min: newMin })
                     }
                   }}
-                  className="absolute w-full h-1 appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-foreground [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:shadow-md"
+                  className="absolute w-full h-1 appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:bg-card [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-foreground [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:shadow-md"
                 />
                 
                 {/* Max Handle */}
@@ -366,7 +366,7 @@ function FiltersContent() {
                       setPriceRange({ ...priceRange, max: newMax })
                     }
                   }}
-                  className="absolute w-full h-1 appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-foreground [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:shadow-md"
+                  className="absolute w-full h-1 appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:bg-card [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-foreground [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:shadow-md"
                 />
               </div>
             </div>
@@ -382,7 +382,7 @@ function FiltersContent() {
                   type="number"
                   value={priceRange.min}
                   onChange={(e) => setPriceRange({ ...priceRange, min: parseInt(e.target.value) || 0 })}
-                  className="w-full pl-8 pr-4 py-3.5 bg-white rounded-xl border border-border/50 text-center font-medium"
+                  className="w-full pl-8 pr-4 py-3.5 bg-card rounded-xl border border-border text-center font-medium text-foreground"
                 />
               </div>
             </div>
@@ -394,7 +394,7 @@ function FiltersContent() {
                   type="number"
                   value={priceRange.max}
                   onChange={(e) => setPriceRange({ ...priceRange, max: parseInt(e.target.value) || 0 })}
-                  className="w-full pl-8 pr-4 py-3.5 bg-white rounded-xl border border-border/50 text-center font-medium"
+                  className="w-full pl-8 pr-4 py-3.5 bg-card rounded-xl border border-border text-center font-medium text-foreground"
                 />
               </div>
             </div>
@@ -403,13 +403,13 @@ function FiltersContent() {
 
         {/* Date Range Section */}
         <section>
-          <h2 className="font-semibold text-base mb-4">Date range</h2>
+          <h2 className="font-semibold text-base mb-4 text-foreground">Date range</h2>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-muted-foreground mb-2">From</p>
               <button
                 onClick={() => setShowFromCalendar(true)}
-                className="w-full flex items-center gap-3 px-4 py-3.5 bg-white rounded-xl border border-border/50 text-left"
+                className="w-full flex items-center gap-3 px-4 py-3.5 bg-card rounded-xl border border-border text-left"
               >
                 <Calendar className="h-5 w-5 text-muted-foreground flex-shrink-0" />
                 <span className={cn(
@@ -427,7 +427,7 @@ function FiltersContent() {
               <p className="text-sm text-muted-foreground mb-2">To</p>
               <button
                 onClick={() => setShowToCalendar(true)}
-                className="w-full flex items-center gap-3 px-4 py-3.5 bg-white rounded-xl border border-border/50 text-left"
+                className="w-full flex items-center gap-3 px-4 py-3.5 bg-card rounded-xl border border-border text-left"
               >
                 <Calendar className="h-5 w-5 text-muted-foreground flex-shrink-0" />
                 <span className={cn(
@@ -446,14 +446,14 @@ function FiltersContent() {
 
         {/* Availability Section */}
         <section>
-          <h2 className="font-semibold text-base mb-4">Availability</h2>
+          <h2 className="font-semibold text-base mb-4 text-foreground">Availability</h2>
           <div className="flex gap-3">
             <button
               onClick={() => setAvailability('all')}
               className={cn(
                 "flex-1 py-3.5 rounded-xl font-medium text-sm transition-colors",
                 availability === 'all'
-                  ? "bg-white border border-border/50"
+                  ? "bg-card border border-border text-foreground"
                   : "bg-transparent text-muted-foreground"
               )}
             >
@@ -464,7 +464,7 @@ function FiltersContent() {
               className={cn(
                 "flex-1 py-3.5 rounded-xl font-medium text-sm transition-colors",
                 availability === 'available'
-                  ? "bg-white border border-border/50"
+                  ? "bg-card border border-border text-foreground"
                   : "bg-transparent text-muted-foreground"
               )}
             >
@@ -475,16 +475,16 @@ function FiltersContent() {
 
         {/* Discounted Section */}
         <section>
-          <h2 className="font-semibold text-base mb-4">Discounted</h2>
-          <div className="flex items-center gap-1 bg-white rounded-xl border border-border/50 p-1">
-            {[null, 5, 10, 15, 25].map((value, idx) => (
+          <h2 className="font-semibold text-base mb-4 text-foreground">Discounted</h2>
+          <div className="flex items-center gap-1 bg-card rounded-xl border border-border p-1">
+            {[null, 5, 10, 15, 25].map((value) => (
               <button
                 key={value ?? 'none'}
                 onClick={() => setDiscount(value)}
                 className={cn(
                   "flex-1 py-3 rounded-lg font-medium text-sm transition-colors",
                   discount === value
-                    ? "bg-white shadow-sm border border-border/30"
+                    ? "bg-secondary shadow-sm border border-border/30 text-foreground"
                     : "text-muted-foreground"
                 )}
               >
@@ -515,10 +515,10 @@ function FiltersContent() {
       )}
 
       {/* Fixed Apply Button - Above bottom nav */}
-      <div className="fixed bottom-20 left-0 right-0 bg-[#f5f5f7] border-t border-border/30 px-6 py-4">
+      <div className="fixed bottom-20 left-0 right-0 bg-background/95 backdrop-blur-xl border-t border-border/50 px-6 py-4">
         <button
           onClick={applyFilters}
-          className="w-full py-4 bg-foreground text-background font-semibold rounded-full transition-all active:scale-[0.98]"
+          className="w-full py-4 rounded-2xl bg-accent text-white font-semibold text-base"
         >
           Apply Filters
         </button>
@@ -527,11 +527,11 @@ function FiltersContent() {
   )
 }
 
-export default function MobileFiltersPage() {
+export default function FiltersPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Loading filters...</div>
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent" />
       </div>
     }>
       <FiltersContent />
