@@ -128,7 +128,7 @@ function PlaceCard({ place }: { place: Place }) {
   const Icon = categoryIcons[place.category] || MapPin
 
   return (
-    <Link href={`/app/places/${place.id}`}>
+    <Link href={`/mobile/places/${place.id}`}>
       <div className="relative rounded-3xl overflow-hidden group">
         <div className="relative h-44">
           <Image

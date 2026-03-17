@@ -71,7 +71,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
     const { data: { user } } = await supabase.auth.getUser()
     
     if (!user) {
-      router.push("/app/login")
+      router.push("/mobile/login")
       return
     }
 
@@ -100,7 +100,7 @@ export default function BookingPage({ params }: { params: Promise<{ id: string }
       return
     }
 
-    router.push(`/app/booking/confirmation/${booking.id}`)
+    router.push(`/mobile/booking/confirmation/${booking.id}`)
   }
 
   if (!vehicle) {

@@ -225,7 +225,7 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
         <div className="mt-6">
           <div className="flex items-center justify-between mb-3">
             <h2 className="font-semibold">Reviews</h2>
-            <Link href={`/app/cars/${id}/reviews`} className="text-xs text-accent font-medium">
+            <Link href={`/mobile/cars/${id}/reviews`} className="text-xs text-accent font-medium">
               See all
             </Link>
           </div>

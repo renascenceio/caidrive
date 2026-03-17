@@ -93,7 +93,7 @@ export default function RideDetailPage({ params }: { params: Promise<{ id: strin
       .eq('id', id)
     
     setShowCancelModal(false)
-    router.push('/app/rides')
+    router.push('/mobile/rides')
   }
 
   if (!booking) {

@@ -107,7 +107,7 @@ export default function MobileSearchPage() {
               </div>
             ) : (
               results.map((car) => (
-                <Link key={car.id} href={`/app/cars/${car.id}`}>
+                <Link key={car.id} href={`/mobile/cars/${car.id}`}>
                   <div className="flex items-center gap-4 p-3 rounded-2xl bg-card border border-border/30 hover:border-border transition-colors">
                     <div className="relative w-20 h-14 rounded-xl overflow-hidden flex-shrink-0">
                       <Image

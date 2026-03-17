@@ -33,7 +33,7 @@ export default function WishlistPage() {
       const { data: { user } } = await supabase.auth.getUser()
       
       if (!user) {
-        router.push("/app/login")
+        router.push("/mobile/login")
         return
       }
 
@@ -96,7 +96,7 @@ export default function WishlistPage() {
               Save your favorite cars to book them later
             </p>
             <Link
-              href="/app/garage"
+              href="/mobile/garage"
               className="px-6 py-3 rounded-xl bg-accent text-white font-medium"
             >
               Browse Cars
@@ -109,7 +109,7 @@ export default function WishlistPage() {
                 key={item.id}
                 className="bg-card rounded-2xl border border-border overflow-hidden"
               >
-                <Link href={`/app/cars/${item.vehicle.id}`}>
+                <Link href={`/mobile/cars/${item.vehicle.id}`}>
                   <div className="relative h-40">
                     <Image
                       src={item.vehicle.images?.[0] || "https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=800"}
@@ -157,7 +157,7 @@ export default function WishlistPage() {
                       <span className="text-sm text-muted-foreground">/day</span>
                     </div>
                     <Link
-                      href={`/app/cars/${item.vehicle.id}/book`}
+                      href={`/mobile/cars/${item.vehicle.id}/book`}
                       className="px-4 py-2 rounded-xl bg-accent text-white text-sm font-medium"
                     >
                       Book Now

@@ -20,7 +20,7 @@ export default function SettingsPage() {
   const handleLogout = async () => {
     const supabase = createClient()
     await supabase.auth.signOut()
-    router.push("/app/login")
+    router.push("/mobile/login")
   }
 
   const SettingToggle = ({ 
@@ -156,7 +156,7 @@ export default function SettingsPage() {
           </h2>
           <div className="bg-card rounded-2xl border border-border overflow-hidden">
             <button 
-              onClick={() => router.push("/app/settings/change-password")}
+              onClick={() => router.push("/mobile/settings/change-password")}
               className="w-full flex items-center justify-between p-4"
             >
               <div className="flex items-center gap-3">

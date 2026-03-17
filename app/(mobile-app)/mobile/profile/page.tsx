@@ -10,7 +10,7 @@ import {
   User, FileText, CreditCard, Bell, Star, Tag, HelpCircle, 
   FileCheck, Settings, LogOut, ChevronRight, Shield, Award
 } from 'lucide-react'
-import { signOut } from '@/app/auth/actions'
+import { signOut } from '@/mobile/auth/actions'
 
 interface Profile {
   id: string
@@ -24,18 +24,18 @@ interface Profile {
 }
 
 const menuItems = [
-  { href: '/app/profile/edit', icon: User, label: 'Edit Profile' },
-  { href: '/app/profile/documents', icon: FileText, label: 'My Documents' },
-  { href: '/app/profile/payment-methods', icon: CreditCard, label: 'Payment Methods' },
-  { href: '/app/wishlist', icon: Star, label: 'My Wishlist' },
-  { href: '/app/notifications', icon: Bell, label: 'Notifications', badge: 3 },
-  { href: '/app/profile/discounts', icon: Tag, label: 'Discounts & Offers' },
+  { href: '/mobile/profile/edit', icon: User, label: 'Edit Profile' },
+  { href: '/mobile/profile/documents', icon: FileText, label: 'My Documents' },
+  { href: '/mobile/profile/payment-methods', icon: CreditCard, label: 'Payment Methods' },
+  { href: '/mobile/wishlist', icon: Star, label: 'My Wishlist' },
+  { href: '/mobile/notifications', icon: Bell, label: 'Notifications', badge: 3 },
+  { href: '/mobile/profile/discounts', icon: Tag, label: 'Discounts & Offers' },
 ]
 
 const supportItems = [
-  { href: '/app/support', icon: HelpCircle, label: 'Help & Support' },
-  { href: '/app/terms', icon: FileCheck, label: 'Terms & Conditions' },
-  { href: '/app/settings', icon: Settings, label: 'Settings' },
+  { href: '/mobile/support', icon: HelpCircle, label: 'Help & Support' },
+  { href: '/mobile/terms', icon: FileCheck, label: 'Terms & Conditions' },
+  { href: '/mobile/settings', icon: Settings, label: 'Settings' },
 ]
 
 export default function MobileProfilePage() {

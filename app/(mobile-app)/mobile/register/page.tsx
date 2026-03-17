@@ -67,7 +67,7 @@ export default function UserRegisterPage() {
         role: 'user'
       })
       
-      router.push("/app/onboarding")
+      router.push("/mobile/onboarding")
     }
   }
 
@@ -326,7 +326,7 @@ export default function UserRegisterPage() {
         {/* Login Link */}
         <p className="text-center mt-8 text-muted-foreground">
           Already have an account?{" "}
-          <Link href="/app/login" className="text-accent font-semibold">
+          <Link href="/mobile/login" className="text-accent font-semibold">
             Sign In
           </Link>
         </p>

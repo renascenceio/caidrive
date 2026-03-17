@@ -32,14 +32,14 @@ export default function UserLoginPage() {
       return
     }
     
-    router.push("/app")
+    router.push("/mobile")
   }
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header */}
       <div className="flex items-center gap-4 p-4">
-        <Link href="/app" className="p-2 rounded-full hover:bg-secondary">
+        <Link href="/mobile" className="p-2 rounded-full hover:bg-secondary">
           <ArrowLeft className="h-5 w-5" />
         </Link>
         <h1 className="text-lg font-semibold">Sign In</h1>
@@ -100,7 +100,7 @@ export default function UserLoginPage() {
 
           {/* Forgot Password */}
           <div className="flex justify-end">
-            <Link href="/app/forgot-password" className="text-sm text-accent font-medium">
+            <Link href="/mobile/forgot-password" className="text-sm text-accent font-medium">
               Forgot Password?
             </Link>
           </div>
@@ -153,7 +153,7 @@ export default function UserLoginPage() {
         {/* Register Link */}
         <p className="text-center mt-8 text-muted-foreground">
           Don&apos;t have an account?{" "}
-          <Link href="/app/register" className="text-accent font-semibold">
+          <Link href="/mobile/register" className="text-accent font-semibold">
             Sign Up
           </Link>
         </p>

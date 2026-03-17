@@ -225,7 +225,7 @@ function VehicleCard({ car }: { car: Vehicle }) {
   const [wishlisted, setWishlisted] = useState(false)
 
   return (
-    <Link href={`/app/cars/${car.id}`}>
+    <Link href={`/mobile/cars/${car.id}`}>
       <div className="relative rounded-3xl overflow-hidden group">
         {/* Image */}
         <div className="relative h-56">

@@ -34,7 +34,7 @@ export default function DocumentsPage() {
       const { data: { user } } = await supabase.auth.getUser()
       
       if (!user) {
-        router.push("/app/login")
+        router.push("/mobile/login")
         return
       }
 

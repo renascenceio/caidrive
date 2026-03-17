@@ -74,7 +74,7 @@ export default function MobileHomePage() {
             <h1 className="text-lg font-semibold">{userName}</h1>
           </div>
           <div className="flex items-center gap-2">
-            <Link href="/app/notifications" className="relative p-2 rounded-full hover:bg-secondary">
+            <Link href="/mobile/notifications" className="relative p-2 rounded-full hover:bg-secondary">
               <Bell className="h-5 w-5" />
               <span className="absolute top-1 right-1 h-2 w-2 bg-accent rounded-full" />
             </Link>
@@ -83,7 +83,7 @@ export default function MobileHomePage() {
 
         {/* Search Bar */}
         <div className="px-4 pb-3">
-          <Link href="/app/search" className="block">
+          <Link href="/mobile/search" className="block">
             <div className={cn(
               "flex items-center gap-3 px-4 py-3 rounded-2xl",
               "bg-secondary/50 border border-border/50"
@@ -101,7 +101,7 @@ export default function MobileHomePage() {
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">Featured</h2>
-            <Link href="/app/garage" className="text-xs text-accent font-medium flex items-center gap-1">
+            <Link href="/mobile/garage" className="text-xs text-accent font-medium flex items-center gap-1">
               See all <ChevronRight className="h-3 w-3" />
             </Link>
           </div>
@@ -142,7 +142,7 @@ export default function MobileHomePage() {
         <section>
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">Popular Cars</h2>
-            <Link href="/app/garage" className="text-xs text-accent font-medium flex items-center gap-1">
+            <Link href="/mobile/garage" className="text-xs text-accent font-medium flex items-center gap-1">
               See all <ChevronRight className="h-3 w-3" />
             </Link>
           </div>
@@ -167,7 +167,7 @@ export default function MobileHomePage() {
             <h3 className="text-xl font-bold text-white mb-2">20% Off First Ride</h3>
             <p className="text-xs text-white/70 mb-4">Use code FIRST20 at checkout</p>
             <Link 
-              href="/app/garage"
+              href="/mobile/garage"
               className="inline-flex items-center gap-2 px-4 py-2 bg-white text-accent font-medium text-sm rounded-xl"
             >
               Book Now
@@ -184,7 +184,7 @@ export default function MobileHomePage() {
 
 function FeaturedCarCard({ car }: { car: Vehicle }) {
   return (
-    <Link href={`/app/cars/${car.id}`} className="flex-shrink-0 w-72 snap-start">
+    <Link href={`/mobile/cars/${car.id}`} className="flex-shrink-0 w-72 snap-start">
       <div className="relative h-48 rounded-3xl overflow-hidden group">
         <Image
           src={car.images?.[0] || 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=800'}
@@ -234,7 +234,7 @@ function FeaturedCarCard({ car }: { car: Vehicle }) {
 
 function PopularCarCard({ car }: { car: Vehicle }) {
   return (
-    <Link href={`/app/cars/${car.id}`}>
+    <Link href={`/mobile/cars/${car.id}`}>
       <div className="flex items-center gap-4 p-3 rounded-2xl bg-card border border-border/30 hover:border-border transition-colors">
         <div className="relative w-24 h-16 rounded-xl overflow-hidden flex-shrink-0">
           <Image

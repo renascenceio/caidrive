@@ -32,7 +32,7 @@ export default function EditProfilePage() {
       const { data: { user } } = await supabase.auth.getUser()
       
       if (!user) {
-        router.push("/app/login")
+        router.push("/mobile/login")
         return
       }
 

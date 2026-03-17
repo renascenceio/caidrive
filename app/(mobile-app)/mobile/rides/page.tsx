@@ -122,7 +122,7 @@ function BookingCard({ booking }: { booking: Booking }) {
   }
 
   return (
-    <Link href={`/app/rides/${booking.id}`}>
+    <Link href={`/mobile/rides/${booking.id}`}>
       <div className="p-4 bg-card rounded-2xl border border-border/50 hover:border-border transition-colors">
         <div className="flex gap-4">
           {/* Car Image */}
@@ -198,7 +198,7 @@ function EmptyState({ tab }: { tab: string }) {
       <p className="text-sm text-muted-foreground mb-4">{messages[tab].description}</p>
       {tab === 'upcoming' && (
         <Link 
-          href="/app/garage"
+          href="/mobile/garage"
           className="px-4 py-2 bg-accent text-white rounded-xl text-sm font-medium"
         >
           Browse Cars
