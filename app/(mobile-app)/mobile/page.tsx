@@ -71,8 +71,7 @@ export default function MobileHomePage() {
             className="hidden dark:block"
           />
           <div>
-            <h1 className="text-xl font-bold">The Best Platform for</h1>
-            <h1 className="text-xl font-bold text-accent">Car Rental</h1>
+            <h1 className="text-base font-bold text-accent">Keeper of the Keys</h1>
           </div>
         </div>
 
