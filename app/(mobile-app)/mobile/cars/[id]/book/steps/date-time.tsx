@@ -135,7 +135,7 @@ export function DateTimeStep({ data, onChange, onNext }: DateTimeStepProps) {
   }
 
   return (
-    <div className="px-5 py-6 pb-36">
+    <div className="px-5 py-6 pb-40 min-h-[calc(100vh-72px)]">
       {/* Date Range */}
       <section className="mb-8">
         <h2 className="font-semibold text-base mb-4">Date range</h2>
@@ -346,7 +346,7 @@ export function DateTimeStep({ data, onChange, onNext }: DateTimeStepProps) {
             "w-full py-4 rounded-full font-semibold text-base transition-all shadow-lg",
             isValid
               ? "bg-foreground text-background"
-              : "bg-foreground/30 text-background/50 cursor-not-allowed"
+              : "bg-muted-foreground text-background cursor-not-allowed"
           )}
         >
           Continue

@@ -414,8 +414,8 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
         </div>
       </div>
 
-      {/* Fixed Bottom Bar - Directly touching bottom nav */}
-      <div className="fixed bottom-[72px] left-0 right-0 bg-white border-t border-border/30 px-5 py-3">
+      {/* Fixed Bottom Bar - Directly touching bottom nav, no gap */}
+      <div className="fixed bottom-[71px] left-0 right-0 bg-[#f5f5f7] px-5 py-3">
         <div className="flex items-center justify-between">
           <div>
             {vehicle.original_price && (

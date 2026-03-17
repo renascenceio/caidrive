@@ -175,7 +175,7 @@ export function PassportStep({ data, onChange, onNext }: PassportStepProps) {
   }
 
   return (
-    <div className="px-5 py-6 pb-36">
+    <div className="px-5 py-6 pb-40 min-h-[calc(100vh-72px)]">
       <h2 className="font-semibold text-base mb-6">Driving License details</h2>
       <p className="text-sm text-muted-foreground mb-6">
         We need your passport information to verify your identity
@@ -353,7 +353,7 @@ export function PassportStep({ data, onChange, onNext }: PassportStepProps) {
             "w-full py-4 rounded-full font-semibold text-base transition-all shadow-lg",
             isValid
               ? "bg-foreground text-background"
-              : "bg-foreground/30 text-background/50 cursor-not-allowed"
+              : "bg-muted-foreground text-background cursor-not-allowed"
           )}
         >
           Continue
