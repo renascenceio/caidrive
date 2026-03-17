@@ -192,7 +192,7 @@ export default function BookingConfirmationPage({ params }: { params: Promise<{ 
           <span>Download Receipt</span>
         </button>
         <Link 
-          href="/app"
+          href="/mobile"
           className={cn(
             "w-full py-4 rounded-xl font-semibold",
             "bg-accent text-white",

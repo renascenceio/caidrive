@@ -41,12 +41,12 @@ export default function OnboardingPage() {
     if (currentSlide < slides.length - 1) {
       setCurrentSlide(currentSlide + 1)
     } else {
-      router.push("/app")
+      router.push("/mobile/login")
     }
   }
 
   const handleSkip = () => {
-    router.push("/app")
+    router.push("/mobile/login")
   }
 
   const slide = slides[currentSlide]

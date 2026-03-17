@@ -7,8 +7,8 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import { 
-  User, FileText, CreditCard, Bell, Star, Tag, HelpCircle, 
-  FileCheck, Settings, LogOut, ChevronRight, Shield, Award, Wallet, Trophy
+  User, FileText, Lock, Star, HelpCircle, MessageCircle,
+  Shield, Info, Users, LogOut, ChevronRight, Plus, Award, Route, Gift
 } from 'lucide-react'
 import { signOut } from '@/app/auth/actions'
 
@@ -18,27 +18,10 @@ interface Profile {
   email: string
   phone: string
   avatar_url: string
-  level: number
+  level: string
   total_km_traveled: number
   bonus_km: number
 }
-
-const menuItems = [
-  { href: '/mobile/profile/edit', icon: User, label: 'Edit Profile' },
-  { href: '/mobile/wallet', icon: Wallet, label: 'My Wallet', highlight: true },
-  { href: '/mobile/loyalty', icon: Trophy, label: 'Loyalty Program', highlight: true },
-  { href: '/mobile/profile/documents', icon: FileText, label: 'My Documents' },
-  { href: '/mobile/profile/payment-methods', icon: CreditCard, label: 'Payment Methods' },
-  { href: '/mobile/wishlist', icon: Star, label: 'My Wishlist' },
-  { href: '/mobile/notifications', icon: Bell, label: 'Notifications', badge: 3 },
-  { href: '/mobile/profile/discounts', icon: Tag, label: 'Discounts & Offers' },
-]
-
-const supportItems = [
-  { href: '/mobile/support', icon: HelpCircle, label: 'Help & Support' },
-  { href: '/mobile/terms', icon: FileCheck, label: 'Terms & Conditions' },
-  { href: '/mobile/settings', icon: Settings, label: 'Settings' },
-]
 
 export default function MobileProfilePage() {
   const router = useRouter()
@@ -51,7 +34,7 @@ export default function MobileProfilePage() {
       const { data: { user } } = await supabase.auth.getUser()
       
       if (!user) {
-        router.push('/auth/login')
+        router.push('/mobile/login')
         return
       }
 
@@ -70,138 +53,107 @@ export default function MobileProfilePage() {
 
   const handleSignOut = async () => {
     await signOut()
-    router.push('/auth/login')
+    router.push('/mobile/login')
   }
 
   if (loading) {
     return (
       <div className="min-h-screen bg-background p-4 space-y-4">
-        <div className="h-32 rounded-3xl bg-secondary animate-pulse" />
+        <div className="h-48 rounded-3xl bg-secondary animate-pulse" />
         <div className="h-64 rounded-3xl bg-secondary animate-pulse" />
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="px-4 py-6">
-        <h1 className="text-xl font-semibold mb-4">Profile</h1>
+    <div className="min-h-screen bg-background pb-24">
+      {/* Profile Header - Matching PDF */}
+      <div className="px-5 pt-12 pb-6">
+        {/* Avatar with add button */}
+        <div className="flex flex-col items-center mb-6">
+          <div className="relative mb-4">
+            <div className="h-24 w-24 rounded-full bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-700 dark:to-neutral-800 flex items-center justify-center overflow-hidden">
+              {profile?.avatar_url ? (
+                <Image
+                  src={profile.avatar_url}
+                  alt={profile.full_name || 'Profile'}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <User className="h-12 w-12 text-muted-foreground" />
+              )}
+            </div>
+            <Link 
+              href="/mobile/profile/edit"
+              className="absolute -bottom-1 -right-1 h-8 w-8 bg-accent rounded-full flex items-center justify-center border-4 border-background"
+            >
+              <Plus className="h-4 w-4 text-white" />
+            </Link>
+          </div>
+          
+          <h1 className="text-xl font-bold">{profile?.full_name || 'Alexis Enache'}</h1>
+          <p className="text-sm text-muted-foreground">{profile?.email || 'email@email.com'}</p>
+        </div>
+
+        {/* Stats Row - Matching PDF exactly */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="text-center p-4 bg-card rounded-2xl border border-border">
+            <Award className="h-6 w-6 mx-auto text-accent mb-2" />
+            <p className="text-sm font-bold">{profile?.level || 'Beginner'}</p>
+            <p className="text-xs text-muted-foreground">Level</p>
+          </div>
+          <div className="text-center p-4 bg-card rounded-2xl border border-border">
+            <Route className="h-6 w-6 mx-auto text-accent mb-2" />
+            <p className="text-sm font-bold">{profile?.total_km_traveled?.toLocaleString() || '1,000'} km</p>
+            <p className="text-xs text-muted-foreground">Total Traveled</p>
+          </div>
+          <div className="text-center p-4 bg-card rounded-2xl border border-border">
+            <Gift className="h-6 w-6 mx-auto text-accent mb-2" />
+            <p className="text-sm font-bold">{profile?.bonus_km || '500'} km</p>
+            <p className="text-xs text-muted-foreground">Bonus</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Menu Items - Matching PDF exactly */}
+      <div className="px-5 space-y-2">
+        <MenuItem href="/mobile/profile/edit" icon={User} label="Edit profile" />
+        <MenuItem href="/mobile/profile/change-password" icon={Lock} label="Change password" />
+        <MenuItem href="/mobile/reviews" icon={Star} label="My Reviews" />
+        <MenuItem href="/mobile/faq" icon={HelpCircle} label="FAQ" />
+        <MenuItem href="/mobile/contact" icon={MessageCircle} label="Contact Us" />
+        <MenuItem href="/mobile/legal" icon={Shield} label="Legal" />
+        <MenuItem href="/mobile/profile/documents" icon={FileText} label="Documents" />
+        <MenuItem href="/mobile/about" icon={Info} label="About Us" />
+        <MenuItem href="/mobile/invite" icon={Users} label="Invite a Friends" />
         
-        {/* Profile Card */}
-        <div className="p-5 bg-card rounded-3xl border border-border/50">
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-neutral-200 to-neutral-300 dark:from-neutral-700 dark:to-neutral-800 flex items-center justify-center overflow-hidden">
-                {profile?.avatar_url ? (
-                  <Image
-                    src={profile.avatar_url}
-                    alt={profile.full_name || 'Profile'}
-                    fill
-                    className="object-cover"
-                  />
-                ) : (
-                  <User className="h-8 w-8 text-muted-foreground" />
-                )}
-              </div>
-              <div className="absolute -bottom-1 -right-1 h-6 w-6 bg-accent rounded-lg flex items-center justify-center">
-                <Award className="h-3.5 w-3.5 text-white" />
-              </div>
-            </div>
-            
-            <div className="flex-1">
-              <h2 className="font-semibold text-lg">{profile?.full_name || 'Guest User'}</h2>
-              <p className="text-sm text-muted-foreground">{profile?.email}</p>
-              <div className="flex items-center gap-2 mt-1">
-                <Shield className="h-3 w-3 text-accent" />
-                <span className="text-xs font-medium text-accent">Level {profile?.level || 1} Member</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 gap-3 mt-4">
-            <div className="p-3 bg-secondary/50 rounded-xl text-center">
-              <p className="text-xl font-bold">{profile?.total_km_traveled?.toLocaleString() || '0'}</p>
-              <p className="text-xs text-muted-foreground">km traveled</p>
-            </div>
-            <div className="p-3 bg-accent/10 rounded-xl text-center">
-              <p className="text-xl font-bold text-accent">{profile?.bonus_km || '0'}</p>
-              <p className="text-xs text-muted-foreground">bonus km</p>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Menu Items */}
-      <div className="px-4 space-y-4">
-        {/* Account Section */}
-        <div className="bg-card rounded-2xl border border-border/50 overflow-hidden">
-          {menuItems.map((item, idx) => {
-            const Icon = item.icon
-            return (
-              <Link 
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "flex items-center gap-4 px-4 py-3.5 hover:bg-secondary/50 transition-colors",
-                  idx !== menuItems.length - 1 && "border-b border-border/30"
-                )}
-              >
-                <div className="h-9 w-9 rounded-xl bg-secondary flex items-center justify-center">
-                  <Icon className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <span className="flex-1 font-medium text-sm">{item.label}</span>
-                {item.badge && (
-                  <span className="h-5 min-w-5 px-1.5 bg-accent text-white text-xs font-bold rounded-full flex items-center justify-center">
-                    {item.badge}
-                  </span>
-                )}
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              </Link>
-            )
-          })}
-        </div>
-
-        {/* Support Section */}
-        <div className="bg-card rounded-2xl border border-border/50 overflow-hidden">
-          {supportItems.map((item, idx) => {
-            const Icon = item.icon
-            return (
-              <Link 
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "flex items-center gap-4 px-4 py-3.5 hover:bg-secondary/50 transition-colors",
-                  idx !== supportItems.length - 1 && "border-b border-border/30"
-                )}
-              >
-                <div className="h-9 w-9 rounded-xl bg-secondary flex items-center justify-center">
-                  <Icon className="h-4 w-4 text-muted-foreground" />
-                </div>
-                <span className="flex-1 font-medium text-sm">{item.label}</span>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              </Link>
-            )
-          })}
-        </div>
-
         {/* Sign Out */}
         <button
           onClick={handleSignOut}
-          className="w-full flex items-center gap-4 px-4 py-3.5 bg-card rounded-2xl border border-border/50 hover:bg-secondary/50 transition-colors"
+          className="w-full flex items-center gap-4 px-4 py-4 bg-card rounded-2xl border border-border hover:bg-secondary/50 transition-colors"
         >
-          <div className="h-9 w-9 rounded-xl bg-red-500/10 flex items-center justify-center">
-            <LogOut className="h-4 w-4 text-red-500" />
+          <div className="h-10 w-10 rounded-xl bg-red-500/10 flex items-center justify-center">
+            <LogOut className="h-5 w-5 text-red-500" />
           </div>
-          <span className="flex-1 font-medium text-sm text-red-500 text-left">Sign Out</span>
+          <span className="flex-1 font-medium text-left text-red-500">Log Out</span>
         </button>
-
-        {/* Version */}
-        <p className="text-center text-xs text-muted-foreground py-4">
-          CAI Drive v1.0.0
-        </p>
       </div>
     </div>
+  )
+}
+
+function MenuItem({ href, icon: Icon, label }: { href: string; icon: any; label: string }) {
+  return (
+    <Link 
+      href={href}
+      className="flex items-center gap-4 px-4 py-4 bg-card rounded-2xl border border-border hover:bg-secondary/50 transition-colors"
+    >
+      <div className="h-10 w-10 rounded-xl bg-secondary flex items-center justify-center">
+        <Icon className="h-5 w-5 text-muted-foreground" />
+      </div>
+      <span className="flex-1 font-medium">{label}</span>
+      <ChevronRight className="h-5 w-5 text-muted-foreground" />
+    </Link>
   )
 }
