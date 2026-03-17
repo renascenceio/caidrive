@@ -11,7 +11,7 @@ import {
   AlertTriangle, Shield, Database, RefreshCw 
 } from 'lucide-react'
 
-const ADMIN_EMAILS = ['aslan@caidrive.com', 'aslan@renascene.io']
+const ADMIN_EMAIL = 'aslan@caidrive.com'
 
 export default function AdminPage() {
   const router = useRouter()
@@ -34,7 +34,7 @@ export default function AdminPage() {
     const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     
-    if (!user || !ADMIN_EMAILS.includes(user.email || '')) {
+    if (!user || user.email !== ADMIN_EMAIL) {
       router.push('/business')
       return
     }
