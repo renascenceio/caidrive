@@ -234,12 +234,7 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
         <div className="flex items-center gap-3">
           <button
             onClick={toggleSound}
-            className={cn(
-              "p-3.5 rounded-xl border transition-all",
-              soundEnabled 
-                ? "bg-foreground text-background border-foreground" 
-                : "bg-white text-muted-foreground border-border/50"
-            )}
+            className="w-12 h-12 rounded-full bg-foreground text-background flex items-center justify-center transition-all"
           >
             {soundEnabled ? (
               <Volume2 className="h-5 w-5" />
@@ -419,8 +414,8 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
         </div>
       </div>
 
-      {/* Fixed Bottom Bar - Above bottom nav */}
-      <div className="fixed bottom-20 left-0 right-0 bg-white border-t border-border/30 px-5 py-3">
+      {/* Fixed Bottom Bar - Directly touching bottom nav */}
+      <div className="fixed bottom-[72px] left-0 right-0 bg-white border-t border-border/30 px-5 py-3">
         <div className="flex items-center justify-between">
           <div>
             {vehicle.original_price && (
