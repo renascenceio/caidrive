@@ -1,44 +1,40 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
-import { Car, ChevronLeft, ChevronRight, Calendar, Check, X } from 'lucide-react'
+import { Car, ChevronLeft, ChevronRight, Calendar, Loader2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Switch } from '@/components/ui/switch'
 import { cn } from '@/lib/utils'
+import { createClient } from '@/lib/supabase/client'
 
-// Mock data grouped by brand
-const mockVehicles = {
-  'Ferrari': [
-    { id: '1', model: 'SF90 Stradale', year: 2024, color: 'Rosso Corsa', plate: 'J92450', image: 'https://images.unsplash.com/photo-1592198084033-aade902d1aae?w=200', available: true },
-    { id: '2', model: 'F8 Tributo', year: 2023, color: 'Giallo Modena', plate: 'K82341', image: 'https://images.unsplash.com/photo-1592198084033-aade902d1aae?w=200', available: true },
-  ],
-  'Lamborghini': [
-    { id: '3', model: 'Huracán EVO', year: 2024, color: 'Verde Mantis', plate: 'L73892', image: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=200', available: true },
-    { id: '4', model: 'Urus', year: 2024, color: 'Nero Noctis', plate: 'M64521', image: 'https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=200', available: false },
-  ],
-  'Porsche': [
-    { id: '5', model: '911 GT3 RS', year: 2024, color: 'GT Silver', plate: 'N55432', image: 'https://images.unsplash.com/photo-1614162692292-7ac56d7f373e?w=200', available: true },
-  ],
-  'Rolls-Royce': [
-    { id: '6', model: 'Ghost', year: 2024, color: 'Black Diamond', plate: 'P44321', image: 'https://images.unsplash.com/photo-1631295868223-63265b40d9e4?w=200', available: true },
-  ],
-  'Bentley': [
-    { id: '7', model: 'Continental GT', year: 2024, color: 'Beluga Black', plate: 'Q33210', image: 'https://images.unsplash.com/photo-1580274455191-1c62238fa333?w=200', available: true },
-  ],
-  'McLaren': [
-    { id: '8', model: '720S Spider', year: 2024, color: 'Papaya Spark', plate: 'R22109', image: 'https://images.unsplash.com/photo-1621135802920-133df287f89c?w=200', available: true },
-  ],
+interface Vehicle {
+  id: string
+  brand: string
+  model: string
+  year: number
+  color: string
+  license_plate: string
+  images: string[]
+  status: string
 }
 
-// Mock bookings data
-const mockBookings: Record<string, { start: number; end: number; customer: string; driver: string }[]> = {
-  '1': [{ start: 5, end: 8, customer: 'Ahmed Al Maktoum', driver: 'Mohammed' }],
-  '3': [{ start: 12, end: 15, customer: 'Sarah Johnson', driver: 'Ali' }],
-  '5': [{ start: 1, end: 3, customer: 'James Chen', driver: 'Hassan' }, { start: 20, end: 25, customer: 'Elena Petrova', driver: 'Omar' }],
-  '6': [{ start: 10, end: 14, customer: 'Robert Williams', driver: 'Khalid' }],
+interface Booking {
+  id: string
+  vehicle_id: string
+  start_date: string
+  end_date: string
+  status: string
+  user_id: string
+  profiles?: {
+    full_name: string
+  }
+  driver_id?: string
+  drivers?: {
+    name: string
+  }
 }
 
 function getDaysInMonth(year: number, month: number) {
@@ -47,47 +43,80 @@ function getDaysInMonth(year: number, month: number) {
 
 function CalendarRow({ 
   vehicle, 
+  year,
+  month,
   days, 
   bookings,
   onToggleAvailability 
 }: { 
-  vehicle: typeof mockVehicles['Ferrari'][0]
+  vehicle: Vehicle
+  year: number
+  month: number
   days: number[]
-  bookings: { start: number; end: number; customer: string; driver: string }[]
-  onToggleAvailability: (id: string) => void
+  bookings: Booking[]
+  onToggleAvailability: (id: string, currentStatus: string) => void
 }) {
-  const [hoveredBooking, setHoveredBooking] = useState<typeof bookings[0] | null>(null)
+  const [hoveredBooking, setHoveredBooking] = useState<Booking | null>(null)
+  
+  // Get bookings for this vehicle that overlap with this month
+  const vehicleBookings = bookings.filter(b => {
+    const start = new Date(b.start_date)
+    const end = new Date(b.end_date)
+    const monthStart = new Date(year, month, 1)
+    const monthEnd = new Date(year, month + 1, 0)
+    return start <= monthEnd && end >= monthStart
+  })
+
+  const getBookingForDay = (day: number) => {
+    const date = new Date(year, month, day)
+    return vehicleBookings.find(b => {
+      const start = new Date(b.start_date)
+      const end = new Date(b.end_date)
+      start.setHours(0, 0, 0, 0)
+      end.setHours(23, 59, 59, 999)
+      return date >= start && date <= end
+    })
+  }
   
   return (
     <div className="flex items-stretch border-b border-border">
       {/* Car Info */}
       <div className="flex w-64 shrink-0 items-center gap-3 border-r border-border p-3 bg-card">
         <div className="relative h-12 w-16 rounded-lg overflow-hidden bg-secondary">
-          <Image src={vehicle.image} alt={vehicle.model} fill className="object-cover" />
+          <Image 
+            src={vehicle.images?.[0] || '/placeholder-car.jpg'} 
+            alt={vehicle.model} 
+            fill 
+            className="object-cover" 
+          />
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium truncate">{vehicle.year} {vehicle.model}</p>
-          <p className="text-xs text-muted-foreground">{vehicle.color} · {vehicle.plate}</p>
+          <p className="text-xs text-muted-foreground">{vehicle.color} · {vehicle.license_plate}</p>
         </div>
         <Switch 
-          checked={vehicle.available} 
-          onCheckedChange={() => onToggleAvailability(vehicle.id)}
+          checked={vehicle.status === 'available'} 
+          onCheckedChange={() => onToggleAvailability(vehicle.id, vehicle.status)}
         />
       </div>
       
       {/* Calendar Days */}
       <div className="flex flex-1">
         {days.map((day) => {
-          const booking = bookings.find(b => day >= b.start && day <= b.end)
-          const isBooked = !!booking
-          const isStart = booking?.start === day
-          const isEnd = booking?.end === day
+          const booking = getBookingForDay(day)
+          const isBooked = !!booking && (booking.status === 'confirmed' || booking.status === 'pending' || booking.status === 'active')
+          
+          // Check if this is the start or end of the booking within this month
+          const bookingStart = booking ? new Date(booking.start_date) : null
+          const bookingEnd = booking ? new Date(booking.end_date) : null
+          const isStart = bookingStart && bookingStart.getDate() === day && bookingStart.getMonth() === month
+          const isEnd = bookingEnd && bookingEnd.getDate() === day && bookingEnd.getMonth() === month
           
           return (
             <div 
               key={day}
               className={cn(
-                "relative flex-1 min-w-[32px] h-12 border-r border-border/50 transition-colors",
+                "relative flex-1 min-w-[32px] h-12 border-r border-border/50 transition-colors cursor-pointer",
                 isBooked ? "bg-accent/20" : "bg-card hover:bg-secondary/50",
                 isStart && "rounded-l-md",
                 isEnd && "rounded-r-md"
@@ -98,11 +127,18 @@ function CalendarRow({
               {isStart && (
                 <div className="absolute inset-y-1 left-1 right-0 bg-accent/30 rounded-l-md" />
               )}
-              {hoveredBooking && isStart && (
-                <div className="absolute top-full left-0 z-50 mt-1 w-48 rounded-lg border border-border bg-popover p-3 shadow-lg">
-                  <p className="font-medium text-sm">{hoveredBooking.customer}</p>
-                  <p className="text-xs text-muted-foreground mt-1">Driver: {hoveredBooking.driver}</p>
-                  <p className="text-xs text-muted-foreground">Days {hoveredBooking.start} - {hoveredBooking.end}</p>
+              {hoveredBooking && hoveredBooking.id === booking?.id && isStart && (
+                <div className="absolute top-full left-0 z-50 mt-1 w-56 rounded-lg border border-border bg-popover p-3 shadow-lg">
+                  <p className="font-medium text-sm">{hoveredBooking.profiles?.full_name || 'Customer'}</p>
+                  {hoveredBooking.drivers?.name && (
+                    <p className="text-xs text-muted-foreground mt-1">Driver: {hoveredBooking.drivers.name}</p>
+                  )}
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {new Date(hoveredBooking.start_date).toLocaleDateString()} - {new Date(hoveredBooking.end_date).toLocaleDateString()}
+                  </p>
+                  <Badge variant="outline" className="mt-2 text-xs">
+                    {hoveredBooking.status}
+                  </Badge>
                 </div>
               )}
             </div>
@@ -116,7 +152,10 @@ function CalendarRow({
 export default function AvailabilityPage() {
   const [currentDate, setCurrentDate] = useState(new Date())
   const [viewMode, setViewMode] = useState<'month' | '3months'>('month')
-  const [vehicles, setVehicles] = useState(mockVehicles)
+  const [vehicles, setVehicles] = useState<Record<string, Vehicle[]>>({})
+  const [bookings, setBookings] = useState<Booking[]>([])
+  const [loading, setLoading] = useState(true)
+  const [companyId, setCompanyId] = useState<string | null>(null)
   
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
@@ -126,12 +165,113 @@ export default function AvailabilityPage() {
   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
                       'July', 'August', 'September', 'October', 'November', 'December']
 
-  const handleToggleAvailability = (id: string) => {
+  // Fetch company ID
+  useEffect(() => {
+    async function fetchCompany() {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('company_id')
+        .eq('id', user.id)
+        .single()
+
+      if (profile?.company_id) {
+        setCompanyId(profile.company_id)
+      }
+    }
+    fetchCompany()
+  }, [])
+
+  // Fetch vehicles and bookings when company ID is available
+  useEffect(() => {
+    if (!companyId) return
+
+    async function fetchData() {
+      setLoading(true)
+      const supabase = createClient()
+
+      // Fetch all vehicles for this company
+      const { data: vehicleData, error: vehicleError } = await supabase
+        .from('vehicles')
+        .select('*')
+        .eq('company_id', companyId)
+        .order('brand', { ascending: true })
+        .order('model', { ascending: true })
+
+      if (vehicleError) {
+        console.error('[v0] Error fetching vehicles:', vehicleError)
+      }
+
+      // Group vehicles by brand
+      const grouped: Record<string, Vehicle[]> = {}
+      vehicleData?.forEach(v => {
+        if (!grouped[v.brand]) {
+          grouped[v.brand] = []
+        }
+        grouped[v.brand].push(v)
+      })
+      setVehicles(grouped)
+
+      // Fetch all bookings for these vehicles for the current month view (+/- 1 month buffer)
+      const vehicleIds = vehicleData?.map(v => v.id) || []
+      if (vehicleIds.length > 0) {
+        const startOfRange = new Date(year, month - 1, 1).toISOString()
+        const endOfRange = new Date(year, month + 2, 0).toISOString()
+
+        const { data: bookingData, error: bookingError } = await supabase
+          .from('bookings')
+          .select(`
+            id,
+            vehicle_id,
+            start_date,
+            end_date,
+            status,
+            user_id,
+            profiles:user_id (full_name),
+            driver_id,
+            drivers:driver_id (name)
+          `)
+          .in('vehicle_id', vehicleIds)
+          .gte('end_date', startOfRange)
+          .lte('start_date', endOfRange)
+          .in('status', ['pending', 'confirmed', 'active'])
+
+        if (bookingError) {
+          console.error('[v0] Error fetching bookings:', bookingError)
+        }
+
+        setBookings(bookingData || [])
+      }
+
+      setLoading(false)
+    }
+
+    fetchData()
+  }, [companyId, year, month])
+
+  const handleToggleAvailability = async (vehicleId: string, currentStatus: string) => {
+    const newStatus = currentStatus === 'available' ? 'paused' : 'available'
+    const supabase = createClient()
+
+    const { error } = await supabase
+      .from('vehicles')
+      .update({ status: newStatus })
+      .eq('id', vehicleId)
+
+    if (error) {
+      console.error('[v0] Error updating vehicle status:', error)
+      return
+    }
+
+    // Update local state
     setVehicles(prev => {
       const updated = { ...prev }
       for (const brand in updated) {
         updated[brand] = updated[brand].map(v => 
-          v.id === id ? { ...v, available: !v.available } : v
+          v.id === vehicleId ? { ...v, status: newStatus } : v
         )
       }
       return updated
@@ -141,6 +281,8 @@ export default function AvailabilityPage() {
   const navigateMonth = (direction: number) => {
     setCurrentDate(prev => new Date(prev.getFullYear(), prev.getMonth() + direction, 1))
   }
+
+  const totalVehicles = Object.values(vehicles).flat().length
 
   return (
     <div className="space-y-6">
@@ -182,44 +324,76 @@ export default function AvailabilityPage() {
           </Button>
         </CardHeader>
         <CardContent className="p-0">
-          {/* Days Header */}
-          <div className="flex border-b border-border bg-secondary/50">
-            <div className="w-64 shrink-0 border-r border-border p-3">
-              <span className="text-sm font-medium">Vehicle</span>
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
             </div>
-            <div className="flex flex-1">
-              {days.map((day) => (
-                <div key={day} className="flex-1 min-w-[32px] p-2 text-center border-r border-border/50">
-                  <span className="text-xs font-medium">{day}</span>
-                </div>
-              ))}
+          ) : totalVehicles === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20">
+              <Car className="h-12 w-12 text-muted-foreground/50" />
+              <p className="mt-4 text-lg font-medium">No vehicles yet</p>
+              <p className="text-sm text-muted-foreground">Add vehicles to your garage to see them here</p>
             </div>
-          </div>
-          
-          {/* Vehicles by Brand */}
-          <div className="max-h-[600px] overflow-auto">
-            {Object.entries(vehicles).sort().map(([brand, cars]) => (
-              <div key={brand}>
-                {/* Brand Header */}
-                <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-border bg-secondary px-4 py-2">
-                  <Car className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm font-semibold">{brand}</span>
-                  <Badge variant="secondary" className="ml-auto">{cars.length} cars</Badge>
+          ) : (
+            <>
+              {/* Days Header */}
+              <div className="flex border-b border-border bg-secondary/50">
+                <div className="w-64 shrink-0 border-r border-border p-3">
+                  <span className="text-sm font-medium">Vehicle</span>
                 </div>
-                
-                {/* Cars */}
-                {cars.map((vehicle) => (
-                  <CalendarRow
-                    key={vehicle.id}
-                    vehicle={vehicle}
-                    days={days}
-                    bookings={mockBookings[vehicle.id] || []}
-                    onToggleAvailability={handleToggleAvailability}
-                  />
+                <div className="flex flex-1">
+                  {days.map((day) => {
+                    const date = new Date(year, month, day)
+                    const isToday = new Date().toDateString() === date.toDateString()
+                    const isWeekend = date.getDay() === 0 || date.getDay() === 6
+                    
+                    return (
+                      <div 
+                        key={day} 
+                        className={cn(
+                          "flex-1 min-w-[32px] p-2 text-center border-r border-border/50",
+                          isToday && "bg-accent/20",
+                          isWeekend && "bg-secondary/80"
+                        )}
+                      >
+                        <span className={cn(
+                          "text-xs font-medium",
+                          isToday && "text-accent font-bold"
+                        )}>{day}</span>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+              
+              {/* Vehicles by Brand */}
+              <div className="max-h-[600px] overflow-auto">
+                {Object.entries(vehicles).sort().map(([brand, cars]) => (
+                  <div key={brand}>
+                    {/* Brand Header */}
+                    <div className="sticky top-0 z-10 flex items-center gap-2 border-b border-border bg-secondary px-4 py-2">
+                      <Car className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm font-semibold">{brand}</span>
+                      <Badge variant="secondary" className="ml-auto">{cars.length} cars</Badge>
+                    </div>
+                    
+                    {/* Cars */}
+                    {cars.map((vehicle) => (
+                      <CalendarRow
+                        key={vehicle.id}
+                        vehicle={vehicle}
+                        year={year}
+                        month={month}
+                        days={days}
+                        bookings={bookings.filter(b => b.vehicle_id === vehicle.id)}
+                        onToggleAvailability={handleToggleAvailability}
+                      />
+                    ))}
+                  </div>
                 ))}
               </div>
-            ))}
-          </div>
+            </>
+          )}
         </CardContent>
       </Card>
 
@@ -234,12 +408,16 @@ export default function AvailabilityPage() {
           <span className="text-muted-foreground">Booked</span>
         </div>
         <div className="flex items-center gap-2">
+          <div className="h-4 w-8 rounded bg-accent/20 border-l-4 border-accent" />
+          <span className="text-muted-foreground">Today</span>
+        </div>
+        <div className="flex items-center gap-2">
           <Switch checked={true} disabled className="scale-75" />
           <span className="text-muted-foreground">Active</span>
         </div>
         <div className="flex items-center gap-2">
           <Switch checked={false} disabled className="scale-75" />
-          <span className="text-muted-foreground">Unavailable</span>
+          <span className="text-muted-foreground">Paused</span>
         </div>
       </div>
     </div>

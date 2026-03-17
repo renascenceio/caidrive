@@ -201,11 +201,11 @@ export function BookingDetailsStep({
         </div>
       </div>
 
-      {/* Fixed Bottom Button - Above bottom nav */}
-      <div className="fixed bottom-[72px] left-0 right-0 bg-[#f5f5f7] border-t border-border/30 px-5 py-4">
+      {/* Fixed Bottom Button - Floating above bottom nav */}
+      <div className="fixed bottom-[80px] left-0 right-0 px-5">
         <button
           onClick={onNext}
-          className="w-full py-4 rounded-full font-semibold text-base bg-foreground text-background transition-all active:scale-[0.98]"
+          className="w-full py-4 rounded-full font-semibold text-base bg-foreground text-background transition-all active:scale-[0.98] shadow-lg"
         >
           Continue to Payment
         </button>

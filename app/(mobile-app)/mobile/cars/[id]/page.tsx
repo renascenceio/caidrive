@@ -156,9 +156,9 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
         </div>
       </div>
 
-      {/* Image Gallery */}
-      <div className="relative bg-white pt-16 pb-6">
-        <div className="relative h-48 mx-4">
+      {/* Image Gallery - Full width, edge to edge */}
+      <div className="relative bg-white pt-16">
+        <div className="relative h-56 w-full">
           <Image
             src={images[selectedImageIndex]}
             alt={`${vehicle.brand} ${vehicle.model}`}
@@ -171,30 +171,30 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
             <>
               <button 
                 onClick={prevImage}
-                className="absolute left-0 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
+                className="absolute left-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 rounded-full text-foreground"
               >
-                <ChevronLeft className="h-6 w-6" />
+                <ChevronLeft className="h-5 w-5" />
               </button>
               <button 
                 onClick={nextImage}
-                className="absolute right-0 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-white/80 rounded-full text-foreground"
               >
-                <ChevronRight className="h-6 w-6" />
+                <ChevronRight className="h-5 w-5" />
               </button>
             </>
           )}
         </div>
         
-        {/* Image Dots */}
+        {/* Image Dots - Red accent color */}
         {images.length > 1 && (
-          <div className="flex items-center justify-center gap-1.5 mt-4">
+          <div className="flex items-center justify-center gap-1.5 py-4 bg-[#f5f5f7]">
             {images.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setSelectedImageIndex(idx)}
                 className={cn(
-                  "w-1.5 h-1.5 rounded-full transition-all",
-                  idx === selectedImageIndex ? "bg-foreground w-4" : "bg-foreground/30"
+                  "h-1.5 rounded-full transition-all",
+                  idx === selectedImageIndex ? "bg-accent w-4" : "bg-accent/30 w-1.5"
                 )}
               />
             ))}
