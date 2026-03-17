@@ -5,10 +5,19 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
-import { Search, SlidersHorizontal, Star, Gauge, Zap, Heart, X, Check, Sparkles, DollarSign } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { Slider } from '@/components/ui/slider'
+import { Search, Star, ChevronRight, Gauge, Zap, Heart } from 'lucide-react'
+
+// Brand logos - matching home page
+const topBrands = [
+  { name: 'Ferrari', logo: 'https://www.carlogos.org/car-logos/ferrari-logo.png' },
+  { name: 'BMW', logo: 'https://www.carlogos.org/car-logos/bmw-logo.png' },
+  { name: 'Bentley', logo: 'https://www.carlogos.org/car-logos/bentley-logo.png' },
+  { name: 'Porsche', logo: 'https://www.carlogos.org/car-logos/porsche-logo.png' },
+  { name: 'Lamborghini', logo: 'https://www.carlogos.org/car-logos/lamborghini-logo.png' },
+  { name: 'Mercedes', logo: 'https://www.carlogos.org/car-logos/mercedes-benz-logo.png' },
+  { name: 'Rolls-Royce', logo: 'https://www.carlogos.org/car-logos/rolls-royce-logo.png' },
+  { name: 'McLaren', logo: 'https://www.carlogos.org/car-logos/mclaren-logo.png' },
+]
 
 interface Vehicle {
   id: string
@@ -20,35 +29,13 @@ interface Vehicle {
   max_speed: number
   acceleration: number
   seats: number
-  power: number
+  horsepower: number
 }
-
-// Brand logos mapping
-const brandLogos: Record<string, string> = {
-  'Ferrari': 'https://www.carlogos.org/car-logos/ferrari-logo.png',
-  'BMW': 'https://www.carlogos.org/car-logos/bmw-logo.png',
-  'Bentley': 'https://www.carlogos.org/car-logos/bentley-logo.png',
-  'Porsche': 'https://www.carlogos.org/car-logos/porsche-logo.png',
-  'Mercedes': 'https://www.carlogos.org/car-logos/mercedes-benz-logo.png',
-  'Mercedes-Benz': 'https://www.carlogos.org/car-logos/mercedes-benz-logo.png',
-  'Lamborghini': 'https://www.carlogos.org/car-logos/lamborghini-logo.png',
-  'Rolls-Royce': 'https://www.carlogos.org/car-logos/rolls-royce-logo.png',
-  'McLaren': 'https://www.carlogos.org/car-logos/mclaren-logo.png',
-  'Aston Martin': 'https://www.carlogos.org/car-logos/aston-martin-logo.png',
-  'Audi': 'https://www.carlogos.org/car-logos/audi-logo.png',
-  'Bugatti': 'https://www.carlogos.org/car-logos/bugatti-logo.png',
-  'Maserati': 'https://www.carlogos.org/car-logos/maserati-logo.png',
-}
-
-const brands = ['Ferrari', 'Lamborghini', 'Porsche', 'BMW', 'Mercedes', 'Bentley', 'Rolls-Royce', 'McLaren']
 
 export default function MobileGaragePage() {
   const [vehicles, setVehicles] = useState<Vehicle[]>([])
   const [loading, setLoading] = useState(true)
-  const [search, setSearch] = useState('')
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([])
-  const [priceRange, setPriceRange] = useState([0, 10000])
-  const [filterOpen, setFilterOpen] = useState(false)
+  const [selectedBrand, setSelectedBrand] = useState<string | null>(null)
 
   useEffect(() => {
     async function fetchVehicles() {
@@ -59,18 +46,11 @@ export default function MobileGaragePage() {
         .select('*')
         .eq('status', 'available')
 
-      if (search) {
-        query = query.or(`brand.ilike.%${search}%,model.ilike.%${search}%`)
+      if (selectedBrand) {
+        query = query.eq('brand', selectedBrand)
       }
 
-      if (selectedBrands.length > 0) {
-        query = query.in('brand', selectedBrands)
-      }
-
-      query = query
-        .gte('price_per_day', priceRange[0])
-        .lte('price_per_day', priceRange[1])
-        .order('rating', { ascending: false })
+      query = query.order('rating', { ascending: false })
 
       const { data } = await query
       setVehicles(data || [])
@@ -78,205 +58,112 @@ export default function MobileGaragePage() {
     }
     
     fetchVehicles()
-  }, [search, selectedBrands, priceRange])
-
-  const toggleBrand = (brand: string) => {
-    setSelectedBrands(prev => 
-      prev.includes(brand) 
-        ? prev.filter(b => b !== brand)
-        : [...prev, brand]
-    )
-  }
-
-  const clearFilters = () => {
-    setSelectedBrands([])
-    setPriceRange([0, 10000])
-  }
-
-  const hasFilters = selectedBrands.length > 0 || priceRange[0] > 0 || priceRange[1] < 10000
+  }, [selectedBrand])
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border/50">
-        <div className="px-4 py-3">
-          <h1 className="text-xl font-semibold mb-3">Garage</h1>
-          
-          {/* Search & Filter */}
-          <div className="flex items-center gap-2">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input
-                type="text"
-                placeholder="Search cars..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className={cn(
-                  "w-full pl-10 pr-4 py-2.5 rounded-xl text-sm",
-                  "bg-secondary/50 border border-border/50",
-                  "focus:outline-none focus:border-accent/50"
-                )}
-              />
-            </div>
-            
-            <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
-              <SheetTrigger asChild>
-                <Button variant="outline" size="icon" className="relative rounded-xl h-10 w-10">
-                  <SlidersHorizontal className="h-4 w-4" />
-                  {hasFilters && (
-                    <span className="absolute -top-1 -right-1 h-4 w-4 bg-accent text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                      {selectedBrands.length || '!'}
-                    </span>
-                  )}
-                </Button>
-              </SheetTrigger>
-              <SheetContent side="bottom" className="h-[85vh] rounded-t-3xl bg-[#f5f5f7] border-0">
-                <SheetHeader className="mb-6">
-                  <div className="flex items-center justify-between">
-                    <SheetTitle className="text-xl font-bold mobile-text-dark">Filters</SheetTitle>
-                    {hasFilters && (
-                      <button onClick={clearFilters} className="text-sm text-[#dd3155] font-medium">
-                        Clear all
-                      </button>
-                    )}
-                  </div>
-                </SheetHeader>
+    <div className="min-h-screen bg-background pb-24">
+      {/* Header - Matching Home Page */}
+      <header className="px-5 pt-12 pb-6">
+        <h1 className="text-2xl font-bold mb-6">Garage</h1>
 
-                <div className="space-y-6 overflow-y-auto max-h-[calc(85vh-180px)] pb-4">
-                  {/* Brands Section */}
-                  <div className="bg-white rounded-2xl p-4 border border-[#e5e5e7]">
-                    <div className="flex items-center gap-2 mb-4">
-                      <Sparkles className="h-4 w-4 text-[#dd3155]" />
-                      <h3 className="text-sm font-semibold mobile-text-dark">Select Brands</h3>
-                    </div>
-                    <div className="grid grid-cols-4 gap-3">
-                      {brands.map((brand) => {
-                        const isSelected = selectedBrands.includes(brand)
-                        return (
-                          <button
-                            key={brand}
-                            onClick={() => toggleBrand(brand)}
-                            className={cn(
-                              "flex flex-col items-center gap-2 p-3 rounded-2xl transition-all",
-                              isSelected
-                                ? "bg-[#dd3155]/10 border-2 border-[#dd3155]"
-                                : "bg-[#f5f5f7] border-2 border-transparent hover:border-[#e5e5e7]"
-                            )}
-                          >
-                            <div className={cn(
-                              "w-12 h-12 rounded-xl flex items-center justify-center p-2",
-                              isSelected ? "bg-white" : "bg-white"
-                            )}>
-                              {brandLogos[brand] ? (
-                                <Image
-                                  src={brandLogos[brand]}
-                                  alt={brand}
-                                  width={32}
-                                  height={32}
-                                  className="object-contain"
-                                />
-                              ) : (
-                                <span className="text-lg font-bold mobile-text-dark">{brand.charAt(0)}</span>
-                              )}
-                            </div>
-                            <span className={cn(
-                              "text-[10px] font-medium text-center truncate w-full",
-                              isSelected ? "text-[#dd3155]" : "mobile-text-muted"
-                            )}>
-                              {brand}
-                            </span>
-                            {isSelected && (
-                              <div className="absolute top-1 right-1 w-4 h-4 bg-[#dd3155] rounded-full flex items-center justify-center">
-                                <Check className="h-2.5 w-2.5 text-white" />
-                              </div>
-                            )}
-                          </button>
-                        )
-                      })}
-                    </div>
-                  </div>
-
-                  {/* Price Range Section */}
-                  <div className="bg-white rounded-2xl p-4 border border-[#e5e5e7]">
-                    <div className="flex items-center gap-2 mb-4">
-                      <DollarSign className="h-4 w-4 text-[#dd3155]" />
-                      <h3 className="text-sm font-semibold mobile-text-dark">Price Range</h3>
-                    </div>
-                    <div className="px-2">
-                      <Slider
-                        value={priceRange}
-                        onValueChange={setPriceRange}
-                        min={0}
-                        max={10000}
-                        step={100}
-                        className="mb-4"
-                      />
-                      <div className="flex justify-between items-center">
-                        <div className="bg-[#f5f5f7] rounded-xl px-4 py-2">
-                          <span className="text-xs mobile-text-muted">Min</span>
-                          <p className="text-sm font-semibold mobile-text-dark">AED {priceRange[0].toLocaleString()}</p>
-                        </div>
-                        <div className="h-px w-4 bg-[#e5e5e7]" />
-                        <div className="bg-[#f5f5f7] rounded-xl px-4 py-2">
-                          <span className="text-xs mobile-text-muted">Max</span>
-                          <p className="text-sm font-semibold mobile-text-dark">AED {priceRange[1].toLocaleString()}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Apply Button - Fixed at bottom */}
-                <div className="pt-4 border-t border-[#e5e5e7]">
-                  <Button 
-                    className="w-full rounded-2xl h-14 text-base font-semibold bg-[#161821] hover:bg-[#161821]/90" 
-                    onClick={() => setFilterOpen(false)}
-                  >
-                    Apply Filters {hasFilters && `(${selectedBrands.length + (priceRange[0] > 0 || priceRange[1] < 10000 ? 1 : 0)})`}
-                  </Button>
-                </div>
-              </SheetContent>
-            </Sheet>
+        {/* Search Bar - Matching Home Page */}
+        <Link href="/mobile/search" className="block">
+          <div className={cn(
+            "flex items-center gap-3 px-4 py-4 rounded-2xl",
+            "bg-card border border-border shadow-sm"
+          )}>
+            <Search className="h-5 w-5 text-muted-foreground" />
+            <span className="text-base text-muted-foreground">Search any car</span>
           </div>
-        </div>
-
-        {/* Active Filters */}
-        {hasFilters && (
-          <div className="flex items-center gap-2 px-4 pb-3 overflow-x-auto scrollbar-hide">
-            {selectedBrands.map((brand) => (
-              <button
-                key={brand}
-                onClick={() => toggleBrand(brand)}
-                className="flex items-center gap-1 px-2 py-1 rounded-full bg-accent/10 text-accent text-xs font-medium"
-              >
-                {brand}
-                <X className="h-3 w-3" />
-              </button>
-            ))}
-            {(priceRange[0] > 0 || priceRange[1] < 10000) && (
-              <span className="px-2 py-1 rounded-full bg-secondary text-xs font-medium">
-                AED {priceRange[0].toLocaleString()} - {priceRange[1].toLocaleString()}
-              </span>
-            )}
-          </div>
-        )}
+        </Link>
       </header>
 
-      {/* Results */}
-      <div className="p-4">
-        <p className="text-sm text-muted-foreground mb-4">{vehicles.length} cars available</p>
-        
-        <div className="grid grid-cols-1 gap-4">
-          {loading ? (
-            Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="h-72 rounded-3xl bg-secondary animate-pulse" />
-            ))
-          ) : (
-            vehicles.map((car) => (
-              <VehicleCard key={car.id} car={car} />
-            ))
-          )}
-        </div>
+      {/* Content */}
+      <div className="px-5 space-y-8">
+        {/* Brands Section - Matching Home Page */}
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">Filter by Brand</h2>
+            {selectedBrand && (
+              <button 
+                onClick={() => setSelectedBrand(null)}
+                className="text-sm text-accent font-medium"
+              >
+                Clear filter
+              </button>
+            )}
+          </div>
+
+          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
+            {topBrands.map((brand) => (
+              <button 
+                key={brand.name}
+                onClick={() => setSelectedBrand(selectedBrand === brand.name ? null : brand.name)}
+                className={cn(
+                  "flex flex-col items-center gap-2 flex-shrink-0 transition-all",
+                  selectedBrand === brand.name && "scale-105"
+                )}
+              >
+                <div className={cn(
+                  "w-16 h-16 rounded-2xl bg-card border flex items-center justify-center p-2 shadow-sm transition-colors",
+                  selectedBrand === brand.name 
+                    ? "border-accent bg-accent/5" 
+                    : "border-border"
+                )}>
+                  <Image
+                    src={brand.logo}
+                    alt={brand.name}
+                    width={40}
+                    height={40}
+                    className="object-contain"
+                  />
+                </div>
+                <span className={cn(
+                  "text-xs",
+                  selectedBrand === brand.name 
+                    ? "text-accent font-medium" 
+                    : "text-muted-foreground"
+                )}>
+                  {brand.name}
+                </span>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* All Cars Section */}
+        <section>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold">
+              {selectedBrand ? `${selectedBrand} Cars` : 'All Cars'}
+            </h2>
+            <span className="text-sm text-muted-foreground">{vehicles.length} available</span>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4">
+            {loading ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="h-56 rounded-3xl bg-secondary animate-pulse" />
+              ))
+            ) : vehicles.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground">No cars found</p>
+                {selectedBrand && (
+                  <button 
+                    onClick={() => setSelectedBrand(null)}
+                    className="mt-2 text-accent font-medium"
+                  >
+                    Clear filter
+                  </button>
+                )}
+              </div>
+            ) : (
+              vehicles.map((car) => (
+                <VehicleCard key={car.id} car={car} />
+              ))
+            )}
+          </div>
+        </section>
       </div>
     </div>
   )
@@ -346,7 +233,7 @@ function VehicleCard({ car }: { car: Vehicle }) {
               <div className="flex items-center gap-2 text-xs text-white/70">
                 <span>{car.seats || 4} seats</span>
                 <span>•</span>
-                <span>{car.power || 500} bhp</span>
+                <span>{car.horsepower || 500} bhp</span>
               </div>
               <p className="text-lg font-bold text-white">
                 AED {car.price_per_day?.toLocaleString() || '1,500'}

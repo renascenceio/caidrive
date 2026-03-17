@@ -71,7 +71,10 @@ export default function MobileHomePage() {
             className="hidden dark:block"
           />
           <div>
-            <h1 className="text-base font-bold text-accent">Keeper of the Keys</h1>
+            <h1 className="text-lg font-bold">
+              <span className="text-foreground">Keeper of</span>{' '}
+              <span className="text-accent">the Keys</span>
+            </h1>
           </div>
         </div>
 
