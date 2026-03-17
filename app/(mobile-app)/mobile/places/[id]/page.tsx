@@ -177,14 +177,14 @@ export default function PlaceDetailPage() {
 
         {/* Discount Badge */}
         {place.discount_percent > 0 && (
-          <div className="absolute bottom-4 left-4 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#dd3155] text-white">
+          <div className="absolute bottom-12 left-4 flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#dd3155] text-white">
             <Percent className="h-4 w-4" />
             <span className="text-sm font-bold">{place.discount_percent}% OFF</span>
           </div>
         )}
 
         {/* Rating */}
-        <div className="absolute bottom-4 right-4 flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white/20 backdrop-blur-md">
+        <div className="absolute bottom-12 right-4 flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white/20 backdrop-blur-md">
           <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
           <span className="text-sm font-semibold text-white">{place.rating?.toFixed(1) || '4.5'}</span>
         </div>
