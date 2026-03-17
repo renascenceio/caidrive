@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, use } from 'react'
+import { useState, useEffect, use, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -8,7 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import { 
   ArrowLeft, Calendar, Clock, MapPin, ChevronRight, 
-  Car, FileText, CreditCard, Check, X
+  Car, FileText, CreditCard, Check, X, RotateCcw
 } from 'lucide-react'
 
 // Step components
@@ -82,6 +82,10 @@ export default function MobileBookingPage({ params }: { params: Promise<{ id: st
   const [currentStep, setCurrentStep] = useState(0)
   const [loading, setLoading] = useState(false)
   const [bookingId, setBookingId] = useState<string | null>(null)
+  const [hasSavedDetails, setHasSavedDetails] = useState(false)
+  const [showDraftPrompt, setShowDraftPrompt] = useState(false)
+  const [draftData, setDraftData] = useState<{ formData: BookingData; currentStep: number } | null>(null)
+  const lastSavedRef = useRef<string>('')
   
   const [bookingData, setBookingData] = useState<BookingData>({
     startDate: '',
@@ -121,8 +125,122 @@ export default function MobileBookingPage({ params }: { params: Promise<{ id: st
     fetchVehicle()
   }, [id])
 
+  // Load saved user details and check for drafts
+  useEffect(() => {
+    const loadUserData = async () => {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      // Check for existing draft
+      try {
+        const draftRes = await fetch(`/api/user/booking-drafts/${id}`)
+        if (draftRes.ok) {
+          const draftResult = await draftRes.json()
+          if (draftResult.hasDraft && draftResult.draft) {
+            setDraftData({
+              formData: draftResult.draft.formData,
+              currentStep: draftResult.draft.currentStep
+            })
+            setShowDraftPrompt(true)
+          }
+        }
+      } catch (e) {
+        console.error('Error loading draft:', e)
+      }
+
+      // Load saved user details
+      try {
+        const detailsRes = await fetch('/api/user/saved-details')
+        if (detailsRes.ok) {
+          const detailsResult = await detailsRes.json()
+          if (detailsResult.hasSavedDetails && detailsResult.details) {
+            setHasSavedDetails(true)
+            // Pre-fill the form with saved details
+            setBookingData(prev => ({
+              ...prev,
+              licenseFirstName: detailsResult.details.licenseFirstName || prev.licenseFirstName,
+              licenseSurname: detailsResult.details.licenseSurname || prev.licenseSurname,
+              licenseNumber: detailsResult.details.licenseNumber || prev.licenseNumber,
+              licenseAddress: detailsResult.details.licenseAddress || prev.licenseAddress,
+              licenseExpiry: detailsResult.details.licenseExpiry || prev.licenseExpiry,
+              licenseCountry: detailsResult.details.licenseCountry || prev.licenseCountry,
+              licenseImage: detailsResult.details.licenseImage || prev.licenseImage,
+              isInternational: detailsResult.details.isInternational || prev.isInternational,
+              passportFirstName: detailsResult.details.passportFirstName || prev.passportFirstName,
+              passportSurname: detailsResult.details.passportSurname || prev.passportSurname,
+              passportNumber: detailsResult.details.passportNumber || prev.passportNumber,
+              passportCountry: detailsResult.details.passportCountry || prev.passportCountry,
+              passportExpiry: detailsResult.details.passportExpiry || prev.passportExpiry,
+              passportImage: detailsResult.details.passportImage || prev.passportImage,
+              paymentMethod: detailsResult.details.preferredPaymentMethod || prev.paymentMethod,
+            }))
+          }
+        }
+      } catch (e) {
+        console.error('Error loading saved details:', e)
+      }
+    }
+    
+    loadUserData()
+  }, [id])
+
+  // Auto-save draft when booking data changes
+  const saveDraft = useCallback(async () => {
+    const supabase = createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return
+
+    const dataString = JSON.stringify({ bookingData, currentStep })
+    if (dataString === lastSavedRef.current) return // No changes
+    
+    try {
+      await fetch(`/api/user/booking-drafts/${id}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          formData: bookingData,
+          currentStep,
+        }),
+      })
+      lastSavedRef.current = dataString
+    } catch (e) {
+      console.error('Error saving draft:', e)
+    }
+  }, [bookingData, currentStep, id])
+
+  // Debounced auto-save
+  useEffect(() => {
+    // Don't save on confirmation step
+    if (currentStep >= STEPS.length - 1) return
+    
+    const timer = setTimeout(() => {
+      saveDraft()
+    }, 2000) // Save 2 seconds after last change
+
+    return () => clearTimeout(timer)
+  }, [bookingData, currentStep, saveDraft])
+
   const updateBookingData = (updates: Partial<BookingData>) => {
     setBookingData(prev => ({ ...prev, ...updates }))
+  }
+
+  const restoreDraft = () => {
+    if (draftData) {
+      setBookingData(draftData.formData)
+      setCurrentStep(draftData.currentStep)
+    }
+    setShowDraftPrompt(false)
+  }
+
+  const discardDraft = async () => {
+    setShowDraftPrompt(false)
+    // Delete the draft
+    try {
+      await fetch(`/api/user/booking-drafts/${id}`, { method: 'DELETE' })
+    } catch (e) {
+      console.error('Error deleting draft:', e)
+    }
   }
 
   const nextStep = () => {
@@ -196,6 +314,40 @@ export default function MobileBookingPage({ params }: { params: Promise<{ id: st
 
       if (!response.ok) {
         throw new Error(result.error || 'Failed to create booking')
+      }
+
+      // Save user details for future bookings
+      try {
+        await fetch('/api/user/saved-details', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            licenseFirstName: bookingData.licenseFirstName,
+            licenseSurname: bookingData.licenseSurname,
+            licenseNumber: bookingData.licenseNumber,
+            licenseAddress: bookingData.licenseAddress,
+            licenseExpiry: bookingData.licenseExpiry,
+            licenseCountry: bookingData.licenseCountry,
+            licenseImage: bookingData.licenseImage,
+            isInternational: bookingData.isInternational,
+            passportFirstName: bookingData.passportFirstName,
+            passportSurname: bookingData.passportSurname,
+            passportNumber: bookingData.passportNumber,
+            passportCountry: bookingData.passportCountry,
+            passportExpiry: bookingData.passportExpiry,
+            passportImage: bookingData.passportImage,
+            paymentMethod: bookingData.paymentMethod,
+          }),
+        })
+      } catch (e) {
+        console.error('Error saving user details:', e)
+      }
+
+      // Delete the draft after successful booking
+      try {
+        await fetch(`/api/user/booking-drafts/${id}`, { method: 'DELETE' })
+      } catch (e) {
+        console.error('Error deleting draft:', e)
       }
 
       setBookingId(result.booking.id)
@@ -298,6 +450,35 @@ export default function MobileBookingPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="min-h-screen bg-[#f5f5f7]">
+      {/* Draft Restore Prompt */}
+      {showDraftPrompt && (
+        <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-5">
+          <div className="w-full max-w-sm bg-white rounded-2xl p-6">
+            <div className="flex items-center justify-center w-12 h-12 bg-accent/10 rounded-full mx-auto mb-4">
+              <RotateCcw className="h-6 w-6 text-accent" />
+            </div>
+            <h3 className="text-lg font-semibold text-center mb-2">Resume Your Booking?</h3>
+            <p className="text-sm text-muted-foreground text-center mb-6">
+              You have an unfinished booking for this car. Would you like to continue where you left off?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={discardDraft}
+                className="flex-1 py-3 text-sm font-medium text-muted-foreground bg-secondary rounded-xl"
+              >
+                Start Fresh
+              </button>
+              <button
+                onClick={restoreDraft}
+                className="flex-1 py-3 text-sm font-medium text-white bg-foreground rounded-xl"
+              >
+                Continue
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="sticky top-0 z-50 bg-[#f5f5f7] border-b border-border/30">
         <div className="flex items-center gap-4 px-5 py-4">
