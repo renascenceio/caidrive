@@ -8,7 +8,7 @@ import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import { 
   User, FileText, CreditCard, Bell, Star, Tag, HelpCircle, 
-  FileCheck, Settings, LogOut, ChevronRight, Shield, Award
+  FileCheck, Settings, LogOut, ChevronRight, Shield, Award, Wallet, Trophy
 } from 'lucide-react'
 import { signOut } from '@/app/auth/actions'
 
@@ -25,6 +25,8 @@ interface Profile {
 
 const menuItems = [
   { href: '/mobile/profile/edit', icon: User, label: 'Edit Profile' },
+  { href: '/mobile/wallet', icon: Wallet, label: 'My Wallet', highlight: true },
+  { href: '/mobile/loyalty', icon: Trophy, label: 'Loyalty Program', highlight: true },
   { href: '/mobile/profile/documents', icon: FileText, label: 'My Documents' },
   { href: '/mobile/profile/payment-methods', icon: CreditCard, label: 'Payment Methods' },
   { href: '/mobile/wishlist', icon: Star, label: 'My Wishlist' },
