@@ -126,7 +126,7 @@ function FiltersContent() {
         </div>
       </div>
 
-      <div className="px-5 py-6 pb-32 space-y-8">
+      <div className="px-6 py-6 pb-40 space-y-8">
         {/* Brands Section */}
         <section>
           <h2 className="font-semibold text-base mb-4">Brands</h2>
@@ -183,40 +183,71 @@ function FiltersContent() {
           <h2 className="font-semibold text-base mb-4">Price range</h2>
           
           {/* Histogram Visualization */}
-          <div className="relative h-20 mb-4">
-            <div className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-0.5">
-              {priceHistogram.map((value, idx) => (
-                <div
-                  key={idx}
-                  className="flex-1 bg-foreground/20 rounded-t-sm transition-all"
-                  style={{
-                    height: `${(value / maxHistogramValue) * 100}%`,
-                    opacity: (idx / priceHistogram.length) >= (priceRange.min / 6490) && 
-                             (idx / priceHistogram.length) <= (priceRange.max / 6490) ? 1 : 0.3
-                  }}
-                />
-              ))}
+          <div className="relative h-24 mb-6">
+            <div className="absolute inset-x-0 bottom-6 flex items-end justify-between gap-0.5 h-16">
+              {priceHistogram.map((value, idx) => {
+                const barPosition = idx / priceHistogram.length
+                const minPosition = priceRange.min / 6490
+                const maxPosition = priceRange.max / 6490
+                const isInRange = barPosition >= minPosition && barPosition <= maxPosition
+                
+                return (
+                  <div
+                    key={idx}
+                    className={cn(
+                      "flex-1 rounded-t transition-all",
+                      isInRange ? "bg-foreground" : "bg-foreground/20"
+                    )}
+                    style={{
+                      height: `${(value / maxHistogramValue) * 100}%`,
+                    }}
+                  />
+                )
+              })}
             </div>
             
-            {/* Range Line */}
-            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground/20">
-              <div 
-                className="absolute h-0.5 bg-foreground"
-                style={{
-                  left: `${(priceRange.min / 6490) * 100}%`,
-                  right: `${100 - (priceRange.max / 6490) * 100}%`
-                }}
-              />
-              {/* Min Handle */}
-              <div 
-                className="absolute -translate-x-1/2 -translate-y-1/2 top-1/2 w-4 h-4 bg-white border-2 border-foreground rounded-full cursor-pointer"
-                style={{ left: `${(priceRange.min / 6490) * 100}%` }}
-              />
-              {/* Max Handle */}
-              <div 
-                className="absolute -translate-x-1/2 -translate-y-1/2 top-1/2 w-4 h-4 bg-white border-2 border-foreground rounded-full cursor-pointer"
-                style={{ left: `${(priceRange.max / 6490) * 100}%` }}
-              />
+            {/* Range Slider */}
+            <div className="absolute bottom-0 left-0 right-0">
+              <div className="relative h-1 bg-foreground/20 rounded-full">
+                {/* Active Range */}
+                <div 
+                  className="absolute h-1 bg-foreground rounded-full"
+                  style={{
+                    left: `${(priceRange.min / 6490) * 100}%`,
+                    right: `${100 - (priceRange.max / 6490) * 100}%`
+                  }}
+                />
+                
+                {/* Min Handle */}
+                <input
+                  type="range"
+                  min={0}
+                  max={6490}
+                  value={priceRange.min}
+                  onChange={(e) => {
+                    const newMin = parseInt(e.target.value)
+                    if (newMin < priceRange.max) {
+                      setPriceRange({ ...priceRange, min: newMin })
+                    }
+                  }}
+                  className="absolute w-full h-1 appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-foreground [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:shadow-md"
+                />
+                
+                {/* Max Handle */}
+                <input
+                  type="range"
+                  min={0}
+                  max={6490}
+                  value={priceRange.max}
+                  onChange={(e) => {
+                    const newMax = parseInt(e.target.value)
+                    if (newMax > priceRange.min) {
+                      setPriceRange({ ...priceRange, max: newMax })
+                    }
+                  }}
+                  className="absolute w-full h-1 appearance-none bg-transparent pointer-events-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-5 [&::-webkit-slider-thumb]:h-5 [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:border-2 [&::-webkit-slider-thumb]:border-foreground [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:cursor-pointer [&::-webkit-slider-thumb]:pointer-events-auto [&::-webkit-slider-thumb]:shadow-md"
+                />
+              </div>
             </div>
           </div>
           
@@ -333,11 +364,11 @@ function FiltersContent() {
         </section>
       </div>
 
-      {/* Fixed Apply Button */}
-      <div className="fixed bottom-0 left-0 right-0 bg-[#f5f5f7] border-t border-border/30 p-5 pb-8">
+      {/* Fixed Apply Button - Above bottom nav */}
+      <div className="fixed bottom-20 left-0 right-0 bg-[#f5f5f7] border-t border-border/30 px-6 py-4">
         <button
           onClick={applyFilters}
-          className="w-full py-4 bg-foreground text-background font-semibold rounded-2xl transition-all active:scale-[0.98]"
+          className="w-full py-4 bg-foreground text-background font-semibold rounded-full transition-all active:scale-[0.98]"
         >
           Apply Filters
         </button>

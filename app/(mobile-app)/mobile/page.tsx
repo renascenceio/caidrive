@@ -114,10 +114,10 @@ export default function MobileHomePage() {
         <section>
           <h2 className="text-lg font-semibold mb-4">Popular rides</h2>
 
-          <div className="space-y-4">
+          <div className="space-y-6">
             {loading ? (
               Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-48 rounded-3xl bg-secondary animate-pulse" />
+                <div key={i} className="h-56 rounded-3xl bg-secondary animate-pulse" />
               ))
             ) : (
               popularCars.map((car) => (
