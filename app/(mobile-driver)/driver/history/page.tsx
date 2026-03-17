@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
-import { Calendar, MapPin, User, Car, ChevronRight } from 'lucide-react'
+import { Calendar, MapPin, User, Car, ChevronRight, CheckCircle2, XCircle } from 'lucide-react'
 
 interface Ride {
   id: string
@@ -87,15 +87,15 @@ export default function DriverHistoryPage() {
       return_date: '2024-09-20T18:00:00',
       pickup_location: { address: '500 5th Ave, New York, NY 10036' },
       return_location: { address: '500 5th Ave, New York, NY 10036' },
-      status: 'confirmed',
+      status: 'completed',
       customer: { full_name: 'John Smith' },
       vehicle: {
-        brand: 'Ferrari',
-        model: 'F8 Tributo',
-        color: 'Red',
-        year: 2019,
-        license_plate: 'J92450',
-        images: ['https://images.unsplash.com/photo-1592198084033-aade902d1aae?w=600']
+        brand: 'Lamborghini',
+        model: 'Huracan',
+        color: 'Yellow',
+        year: 2023,
+        license_plate: 'LMB001',
+        images: ['https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=600']
       }
     }
   ]
@@ -110,12 +110,12 @@ export default function DriverHistoryPage() {
       </header>
 
       {/* Tabs */}
-      <div className="px-5 mb-4">
-        <div className="flex p-1 bg-secondary rounded-xl">
+      <div className="px-5 mb-6">
+        <div className="flex p-1.5 bg-secondary/50 rounded-2xl backdrop-blur-sm">
           <button
             onClick={() => setTab('upcoming')}
             className={cn(
-              "flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all",
+              "flex-1 py-3 text-sm font-semibold rounded-xl transition-all",
               tab === 'upcoming' 
                 ? "bg-background text-foreground shadow-sm" 
                 : "text-muted-foreground hover:text-foreground"
@@ -126,7 +126,7 @@ export default function DriverHistoryPage() {
           <button
             onClick={() => setTab('previous')}
             className={cn(
-              "flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all",
+              "flex-1 py-3 text-sm font-semibold rounded-xl transition-all",
               tab === 'previous' 
                 ? "bg-background text-foreground shadow-sm" 
                 : "text-muted-foreground hover:text-foreground"
@@ -138,7 +138,7 @@ export default function DriverHistoryPage() {
       </div>
 
       {/* Rides List */}
-      <div className="px-5 pb-24 space-y-3">
+      <div className="px-5 pb-24 space-y-5">
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin h-8 w-8 border-2 border-muted-foreground/20 border-t-accent rounded-full" />
@@ -156,36 +156,66 @@ export default function DriverHistoryPage() {
         ) : (
           displayRides.map((ride) => (
             <Link key={ride.id} href={`/driver/rides/${ride.id}`}>
-              <div className="bg-card rounded-2xl overflow-hidden border border-border/50 hover:border-border transition-colors">
-                <div className="flex gap-4 p-4">
-                  {/* Car Image */}
-                  <div className="relative h-24 w-32 rounded-xl bg-secondary overflow-hidden flex-shrink-0">
-                    <Image
-                      src={ride.vehicle?.images?.[0] || 'https://images.unsplash.com/photo-1592198084033-aade902d1aae?w=600'}
-                      alt={`${ride.vehicle?.brand} ${ride.vehicle?.model}`}
-                      fill
-                      className="object-contain p-2"
-                    />
+              <div className="relative rounded-3xl overflow-hidden group">
+                {/* Car Image */}
+                <div className="relative h-44">
+                  <Image
+                    src={ride.vehicle?.images?.[0] || 'https://images.unsplash.com/photo-1592198084033-aade902d1aae?w=600'}
+                    alt={`${ride.vehicle?.brand} ${ride.vehicle?.model}`}
+                    fill
+                    className="object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                  
+                  {/* Top Badges */}
+                  <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/10 backdrop-blur-md border border-white/20">
+                      <span className="text-xs font-semibold text-white uppercase tracking-wider">{ride.vehicle?.brand}</span>
+                    </div>
+                    <div className={cn(
+                      "flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl backdrop-blur-md border",
+                      ride.status === 'completed' 
+                        ? "bg-green-500/20 border-green-500/30" 
+                        : ride.status === 'cancelled'
+                        ? "bg-red-500/20 border-red-500/30"
+                        : "bg-accent/20 border-accent/30"
+                    )}>
+                      {ride.status === 'completed' ? (
+                        <CheckCircle2 className="h-3 w-3 text-green-400" />
+                      ) : ride.status === 'cancelled' ? (
+                        <XCircle className="h-3 w-3 text-red-400" />
+                      ) : null}
+                      <span className={cn(
+                        "text-xs font-semibold uppercase tracking-wider",
+                        ride.status === 'completed' ? "text-green-400" 
+                          : ride.status === 'cancelled' ? "text-red-400" 
+                          : "text-accent"
+                      )}>
+                        {ride.status}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <h3 className="font-bold truncate">
-                          {ride.vehicle?.brand} {ride.vehicle?.model}
-                        </h3>
-                        <p className="text-muted-foreground text-xs">
-                          {ride.vehicle?.color} &bull; {ride.vehicle?.year}
-                        </p>
-                      </div>
-                      <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
-                    </div>
+                  {/* Car Info Overlay */}
+                  <div className="absolute bottom-3 left-3 right-3">
+                    <h3 className="text-lg font-bold text-white mb-0.5">
+                      {ride.vehicle?.brand} {ride.vehicle?.model}
+                    </h3>
+                    <p className="text-white/70 text-xs">
+                      {ride.vehicle?.color} &bull; {ride.vehicle?.year} &bull; {ride.vehicle?.license_plate}
+                    </p>
+                  </div>
+                </div>
 
-                    <div className="mt-3 space-y-1.5">
-                      <div className="flex items-center gap-2 text-xs">
-                        <Calendar className="h-3.5 w-3.5 text-accent flex-shrink-0" />
-                        <span className="text-muted-foreground truncate">
+                {/* Details Panel - Glassmorphism */}
+                <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/10 dark:from-white/5 dark:to-white/[0.02] p-4 -mt-2 rounded-b-3xl">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-2 flex-1">
+                      <div className="flex items-center gap-3 text-sm">
+                        <div className="h-8 w-8 rounded-lg bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center">
+                          <Calendar className="h-3.5 w-3.5 text-accent" />
+                        </div>
+                        <span className="text-muted-foreground">
                           {new Date(ride.pickup_date).toLocaleDateString('en-US', {
                             day: 'numeric',
                             month: 'short',
@@ -194,16 +224,22 @@ export default function DriverHistoryPage() {
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-2 text-xs">
-                        <User className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                        <span className="text-muted-foreground truncate">{ride.customer?.full_name}</span>
+                      <div className="flex items-center gap-3 text-sm">
+                        <div className="h-8 w-8 rounded-lg bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center">
+                          <User className="h-3.5 w-3.5 text-muted-foreground" />
+                        </div>
+                        <span className="text-muted-foreground">{ride.customer?.full_name}</span>
                       </div>
 
-                      <div className="flex items-center gap-2 text-xs">
-                        <MapPin className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
-                        <span className="text-muted-foreground truncate">{ride.pickup_location?.address}</span>
+                      <div className="flex items-center gap-3 text-sm">
+                        <div className="h-8 w-8 rounded-lg bg-white/10 backdrop-blur-md border border-white/10 flex items-center justify-center">
+                          <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                        </div>
+                        <span className="text-muted-foreground truncate max-w-[200px]">{ride.pickup_location?.address}</span>
                       </div>
                     </div>
+                    
+                    <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
                   </div>
                 </div>
               </div>
