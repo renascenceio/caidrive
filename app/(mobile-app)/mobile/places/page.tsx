@@ -103,7 +103,7 @@ export default function MobilePlacesPage() {
       </header>
 
       {/* Content */}
-      <div className="p-4 space-y-4">
+      <div className="p-4 flex flex-col gap-4">
         {loading ? (
           Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="h-40 rounded-3xl bg-secondary animate-pulse" />
@@ -128,7 +128,7 @@ function PlaceCard({ place }: { place: Place }) {
   const Icon = categoryIcons[place.category] || MapPin
 
   return (
-    <Link href={`/mobile/places/${place.id}`}>
+    <Link href={`/mobile/places/${place.id}`} className="block">
       <div className="relative rounded-3xl overflow-hidden group">
         <div className="relative h-44">
           <Image
