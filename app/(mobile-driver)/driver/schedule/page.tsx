@@ -70,15 +70,15 @@ export default function DriverSchedulePage() {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-xl border-b border-border/50">
-        <div className="px-4 py-3">
+        <div className="px-5 py-4">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-xl font-semibold">Schedule</h1>
+            <h1 className="text-xl font-bold">Schedule</h1>
             <button 
               onClick={() => {
                 setSelectedDate(new Date())
                 setWeekStart(startOfWeek(new Date(), { weekStartsOn: 1 }))
               }}
-              className="text-xs text-blue-600 font-medium px-3 py-1.5 bg-blue-500/10 rounded-lg"
+              className="text-xs font-semibold px-3 py-1.5 bg-accent/10 text-accent rounded-lg hover:bg-accent/20 transition-colors"
             >
               Today
             </button>
@@ -86,13 +86,13 @@ export default function DriverSchedulePage() {
 
           {/* Week Navigation */}
           <div className="flex items-center justify-between mb-4">
-            <button onClick={goToPreviousWeek} className="p-2 hover:bg-secondary rounded-lg">
+            <button onClick={goToPreviousWeek} className="p-2 hover:bg-secondary rounded-xl transition-colors">
               <ChevronLeft className="h-5 w-5" />
             </button>
-            <span className="font-medium">
+            <span className="font-semibold">
               {format(weekStart, 'MMM d')} - {format(addDays(weekStart, 6), 'MMM d, yyyy')}
             </span>
-            <button onClick={goToNextWeek} className="p-2 hover:bg-secondary rounded-lg">
+            <button onClick={goToNextWeek} className="p-2 hover:bg-secondary rounded-xl transition-colors">
               <ChevronRight className="h-5 w-5" />
             </button>
           </div>
@@ -108,21 +108,18 @@ export default function DriverSchedulePage() {
                   key={day.toISOString()}
                   onClick={() => setSelectedDate(day)}
                   className={cn(
-                    "flex flex-col items-center py-2 rounded-xl transition-colors",
+                    "flex flex-col items-center py-2 rounded-xl transition-all",
                     isSelected 
-                      ? "bg-blue-600 text-white" 
+                      ? "bg-accent text-white shadow-lg shadow-accent/25" 
                       : isToday 
-                        ? "bg-blue-500/10 text-blue-600"
+                        ? "bg-accent/10 text-accent"
                         : "hover:bg-secondary"
                   )}
                 >
-                  <span className="text-[10px] font-medium uppercase">
+                  <span className="text-[10px] font-semibold uppercase opacity-70">
                     {format(day, 'EEE')}
                   </span>
-                  <span className={cn(
-                    "text-lg font-semibold",
-                    !isSelected && !isToday && "text-foreground"
-                  )}>
+                  <span className="text-lg font-bold">
                     {format(day, 'd')}
                   </span>
                 </button>
@@ -133,8 +130,8 @@ export default function DriverSchedulePage() {
       </header>
 
       {/* Content */}
-      <div className="p-4">
-        <h2 className="font-semibold mb-3">
+      <div className="p-5">
+        <h2 className="font-semibold mb-4">
           {format(selectedDate, 'EEEE, MMMM d')}
         </h2>
 
@@ -146,7 +143,9 @@ export default function DriverSchedulePage() {
           </div>
         ) : rides.length === 0 ? (
           <div className="text-center py-12">
-            <Calendar className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
+            <div className="h-16 w-16 rounded-2xl bg-secondary mx-auto mb-4 flex items-center justify-center">
+              <Calendar className="h-8 w-8 text-muted-foreground" />
+            </div>
             <h3 className="font-semibold mb-1">No rides scheduled</h3>
             <p className="text-sm text-muted-foreground">You have no rides on this day</p>
           </div>
@@ -158,11 +157,11 @@ export default function DriverSchedulePage() {
                 className="p-4 bg-card rounded-2xl border border-border/50"
               >
                 <div className="flex items-start gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-                    <Clock className="h-5 w-5 text-blue-600" />
+                  <div className="h-11 w-11 rounded-xl bg-accent/10 flex items-center justify-center flex-shrink-0">
+                    <Clock className="h-5 w-5 text-accent" />
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold">{format(new Date(ride.pickup_date), 'h:mm a')}</p>
+                    <p className="font-bold text-lg">{format(new Date(ride.pickup_date), 'h:mm a')}</p>
                     <p className="text-sm text-muted-foreground">{ride.customer?.full_name}</p>
                     
                     <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">

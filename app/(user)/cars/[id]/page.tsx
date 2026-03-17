@@ -4,12 +4,13 @@ import Link from 'next/link'
 import { 
   Star, Heart, Share2, ChevronLeft,
   Gauge, Zap, Users, Activity, Fuel, Settings2, Calendar, Shield,
-  MapPin, Clock, Check, ChevronRight
+  MapPin, Clock, Check, ChevronRight, Wifi, Bluetooth, Navigation, Radio, Car
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { createClient } from '@/lib/supabase/server'
+import { format, addDays, isSameDay, startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, endOfWeek } from 'date-fns'
 
 interface CarDetailPageProps {
   params: Promise<{ id: string }>
@@ -30,6 +31,22 @@ async function getVehicle(id: string) {
   return data
 }
 
+async function getVehicleBookings(vehicleId: string) {
+  const supabase = await createClient()
+  const today = new Date()
+  const thirtyDaysLater = addDays(today, 30)
+  
+  const { data } = await supabase
+    .from('bookings')
+    .select('id, pickup_date, return_date, status')
+    .eq('vehicle_id', vehicleId)
+    .in('status', ['confirmed', 'active', 'pending'])
+    .gte('return_date', today.toISOString())
+    .lte('pickup_date', thirtyDaysLater.toISOString())
+  
+  return data || []
+}
+
 async function getSimilarCars(brand: string, excludeId: string) {
   const supabase = await createClient()
   const { data } = await supabase
@@ -42,6 +59,93 @@ async function getSimilarCars(brand: string, excludeId: string) {
   return data || []
 }
 
+function isDateBooked(date: Date, bookings: Array<{pickup_date: string, return_date: string}>) {
+  return bookings.some(booking => {
+    const pickup = new Date(booking.pickup_date)
+    const returnDate = new Date(booking.return_date)
+    return date >= pickup && date <= returnDate
+  })
+}
+
+function AvailabilityCalendar({ bookings }: { bookings: Array<{pickup_date: string, return_date: string, status: string}> }) {
+  const today = new Date()
+  const monthStart = startOfMonth(today)
+  const monthEnd = endOfMonth(today)
+  const calendarStart = startOfWeek(monthStart, { weekStartsOn: 1 })
+  const calendarEnd = endOfWeek(monthEnd, { weekStartsOn: 1 })
+  
+  const days = eachDayOfInterval({ start: calendarStart, end: calendarEnd })
+  const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  
+  return (
+    <div className="rounded-xl border border-border bg-card p-4">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-semibold">{format(today, 'MMMM yyyy')}</h3>
+        <div className="flex items-center gap-4 text-xs">
+          <div className="flex items-center gap-1.5">
+            <div className="h-3 w-3 rounded-full bg-green-500" />
+            <span className="text-muted-foreground">Available</span>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <div className="h-3 w-3 rounded-full bg-accent" />
+            <span className="text-muted-foreground">Booked</span>
+          </div>
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-7 gap-1 mb-2">
+        {weekDays.map(day => (
+          <div key={day} className="text-center text-xs font-medium text-muted-foreground py-2">
+            {day}
+          </div>
+        ))}
+      </div>
+      
+      <div className="grid grid-cols-7 gap-1">
+        {days.map((day, i) => {
+          const isCurrentMonth = day.getMonth() === today.getMonth()
+          const isToday = isSameDay(day, today)
+          const isPast = day < today && !isToday
+          const booked = isDateBooked(day, bookings)
+          
+          return (
+            <div
+              key={i}
+              className={`
+                aspect-square flex items-center justify-center rounded-lg text-sm
+                ${!isCurrentMonth ? 'text-muted-foreground/30' : ''}
+                ${isPast ? 'text-muted-foreground/50' : ''}
+                ${isToday ? 'ring-2 ring-accent ring-offset-2 ring-offset-background font-semibold' : ''}
+                ${booked && !isPast ? 'bg-accent/20 text-accent font-medium' : ''}
+                ${!booked && !isPast && isCurrentMonth ? 'bg-green-500/10 text-green-600' : ''}
+              `}
+            >
+              {format(day, 'd')}
+            </div>
+          )
+        })}
+      </div>
+      
+      {/* Upcoming Bookings */}
+      {bookings.length > 0 && (
+        <div className="mt-4 pt-4 border-t border-border">
+          <p className="text-sm font-medium mb-2">Upcoming Bookings</p>
+          <div className="space-y-2">
+            {bookings.slice(0, 3).map((booking, i) => (
+              <div key={i} className="flex items-center gap-2 text-xs">
+                <div className="h-2 w-2 rounded-full bg-accent" />
+                <span className="text-muted-foreground">
+                  {format(new Date(booking.pickup_date), 'MMM d')} - {format(new Date(booking.return_date), 'MMM d, yyyy')}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default async function CarDetailPage({ params }: CarDetailPageProps) {
   const { id } = await params
   const vehicle = await getVehicle(id)
@@ -50,18 +154,53 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
     notFound()
   }
 
-  const similarCars = await getSimilarCars(vehicle.brand, vehicle.id)
+  const [similarCars, bookings] = await Promise.all([
+    getSimilarCars(vehicle.brand, vehicle.id),
+    getVehicleBookings(vehicle.id)
+  ])
+
   const images = vehicle.images?.length > 0 
     ? vehicle.images 
     : ['https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=1200&h=800&fit=crop']
 
-  const specs = [
+  // Primary specs shown in grid
+  const primarySpecs = [
     { icon: Gauge, label: 'Top Speed', value: `${vehicle.max_speed || 0} km/h` },
     { icon: Zap, label: '0-100 km/h', value: `${vehicle.acceleration || 0}s` },
     { icon: Activity, label: 'Power', value: `${vehicle.power || 0} HP` },
     { icon: Users, label: 'Seats', value: vehicle.seats || 2 },
     { icon: Fuel, label: 'Fuel', value: vehicle.fuel_type || 'Petrol' },
     { icon: Settings2, label: 'Transmission', value: vehicle.transmission || 'Auto' },
+  ]
+
+  // About Booking section
+  const bookingInfo = [
+    { label: 'Deposit Amount', value: `$${vehicle.deposit_amount?.toLocaleString() || 0}` },
+    { label: 'Price per Day', value: `$${vehicle.price_per_day?.toLocaleString() || 0}` },
+    { label: 'Mileage Limit', value: `${vehicle.mileage_limit || 300} km` },
+  ]
+
+  // Technical Specifications
+  const technicalSpecs = [
+    { label: 'Power', value: `${vehicle.power || 0} bhp` },
+    { label: 'Engine', value: vehicle.engine_size || 'N/A' },
+    { label: '0-100 / 0-200', value: `${vehicle.acceleration || 0}s / ${(vehicle.acceleration || 0) * 2}s` },
+    { label: 'Top Speed', value: `${vehicle.max_speed || 0} km/h` },
+    { label: 'Transmission', value: vehicle.transmission || 'Automatic' },
+    { label: 'Fuel Consumption', value: vehicle.fuel_consumption ? `${vehicle.fuel_consumption} L/100km` : 'N/A' },
+    { label: 'Drivetrain', value: vehicle.drivetrain || 'RWD' },
+    { label: 'GPS/Glonass', value: vehicle.gps_enabled !== false ? 'Yes' : 'No' },
+    { label: 'Seats', value: `${vehicle.seats || 2} seats` },
+    { label: 'Multimedia', value: vehicle.multimedia || 'Premium' },
+    { label: 'Audio', value: vehicle.audio_power ? `${vehicle.audio_power}W` : 'N/A' },
+  ]
+
+  // Connectivity
+  const connectivity = [
+    { icon: Navigation, label: 'GPS Navigation', enabled: vehicle.gps_enabled !== false },
+    { icon: Car, label: 'Apple CarPlay', enabled: vehicle.apple_carplay !== false },
+    { icon: Wifi, label: 'WiFi', enabled: vehicle.wifi !== false },
+    { icon: Bluetooth, label: 'Bluetooth', enabled: vehicle.bluetooth !== false },
   ]
 
   return (
@@ -145,20 +284,76 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
                 <div className="flex items-center gap-1.5">
                   <Star className="h-4 w-4 fill-yellow-500 text-yellow-500" />
                   <span className="font-medium text-foreground">{vehicle.rating?.toFixed(1) || '0.0'}</span>
-                  <span>({vehicle.review_count || 0} reviews)</span>
+                  <Link href="#reviews" className="hover:underline">
+                    ({vehicle.review_count || 0} reviews)
+                  </Link>
                 </div>
               </div>
             </div>
 
-            {/* Specs Grid */}
+            {/* Primary Specs Grid */}
             <div className="grid grid-cols-3 gap-4 sm:grid-cols-6">
-              {specs.map(({ icon: Icon, label, value }) => (
+              {primarySpecs.map(({ icon: Icon, label, value }) => (
                 <div key={label} className="rounded-xl border border-border bg-card p-4 text-center">
                   <Icon className="mx-auto h-5 w-5 text-muted-foreground mb-2" />
                   <p className="font-semibold">{value}</p>
                   <p className="text-xs text-muted-foreground">{label}</p>
                 </div>
               ))}
+            </div>
+
+            {/* Description */}
+            {vehicle.description && (
+              <div>
+                <h2 className="text-lg font-semibold mb-3">Description</h2>
+                <p className="text-muted-foreground leading-relaxed">{vehicle.description}</p>
+              </div>
+            )}
+
+            {/* About Booking */}
+            <div>
+              <h2 className="text-lg font-semibold mb-4">About Booking</h2>
+              <div className="grid gap-3 sm:grid-cols-3">
+                {bookingInfo.map(({ label, value }) => (
+                  <div key={label} className="rounded-xl border border-border bg-card p-4">
+                    <p className="text-sm text-muted-foreground mb-1">{label}</p>
+                    <p className="text-lg font-bold text-accent">{value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Technical Specifications */}
+            <div>
+              <h2 className="text-lg font-semibold mb-4">Technical Specifications</h2>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                {technicalSpecs.map(({ label, value }) => (
+                  <div key={label} className="rounded-xl border border-border bg-card p-4">
+                    <p className="text-xs text-muted-foreground mb-1">{label}</p>
+                    <p className="font-semibold">{value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Connectivity */}
+            <div>
+              <h2 className="text-lg font-semibold mb-4">Connectivity</h2>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {connectivity.map(({ icon: Icon, label, enabled }) => (
+                  <div key={label} className="flex items-center gap-3 rounded-xl border border-border bg-card p-4">
+                    <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${enabled ? 'bg-green-500/10' : 'bg-muted'}`}>
+                      <Icon className={`h-5 w-5 ${enabled ? 'text-green-500' : 'text-muted-foreground'}`} />
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm">{label}</p>
+                      <p className={`text-xs ${enabled ? 'text-green-500' : 'text-muted-foreground'}`}>
+                        {enabled ? 'Available' : 'Not Available'}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
 
             {/* Features */}
@@ -190,8 +385,8 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
                   </div>
                 </div>
                 <div className="flex items-start gap-3 rounded-xl border border-border p-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-500/10">
-                    <Clock className="h-5 w-5 text-blue-500" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/10">
+                    <Clock className="h-5 w-5 text-accent" />
                   </div>
                   <div>
                     <p className="font-medium">Free Cancellation</p>
@@ -199,8 +394,8 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
                   </div>
                 </div>
                 <div className="flex items-start gap-3 rounded-xl border border-border p-4">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-purple-500/10">
-                    <MapPin className="h-5 w-5 text-purple-500" />
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/10">
+                    <MapPin className="h-5 w-5 text-accent" />
                   </div>
                   <div>
                     <p className="font-medium">Delivery Available</p>
@@ -210,8 +405,14 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
               </div>
             </div>
 
-            {/* Reviews */}
+            {/* Availability Calendar */}
             <div>
+              <h2 className="text-lg font-semibold mb-4">Availability - Next 30 Days</h2>
+              <AvailabilityCalendar bookings={bookings} />
+            </div>
+
+            {/* Reviews */}
+            <div id="reviews">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold">Reviews</h2>
                 {vehicle.reviews?.length > 0 && (
@@ -276,7 +477,7 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
                       </div>
                       <div className="p-3">
                         <h3 className="font-medium truncate">{car.brand} {car.model}</h3>
-                        <p className="text-sm font-semibold mt-1">${car.price_per_day}/day</p>
+                        <p className="text-sm font-semibold text-accent mt-1">${car.price_per_day}/day</p>
                       </div>
                     </Link>
                   ))}
@@ -289,7 +490,7 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
           <div className="hidden lg:block">
             <div className="sticky top-24 rounded-2xl border border-border bg-card p-6">
               <div className="flex items-baseline gap-1 mb-6">
-                <span className="text-4xl font-bold">${vehicle.price_per_day}</span>
+                <span className="text-4xl font-bold text-accent">${vehicle.price_per_day}</span>
                 <span className="text-muted-foreground">/day</span>
               </div>
 
@@ -337,7 +538,7 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
 
               <div className="flex justify-between text-lg font-bold mb-6">
                 <span>Total</span>
-                <span>${vehicle.price_per_day + 25}</span>
+                <span className="text-accent">${vehicle.price_per_day + 25}</span>
               </div>
 
               <Link href={`/cars/${vehicle.id}/book`}>
@@ -358,7 +559,7 @@ export default async function CarDetailPage({ params }: CarDetailPageProps) {
       <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 backdrop-blur-xl p-4 lg:hidden">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <span className="text-2xl font-bold">${vehicle.price_per_day}</span>
+            <span className="text-2xl font-bold text-accent">${vehicle.price_per_day}</span>
             <span className="text-muted-foreground">/day</span>
           </div>
           <Link href={`/cars/${vehicle.id}/book`}>

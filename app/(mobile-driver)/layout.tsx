@@ -5,7 +5,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
-import { ClipboardList, MessageCircle, Car, Clock, User } from 'lucide-react'
+import { ClipboardList, MessageCircle, Car, Clock, User, Moon, Sun } from 'lucide-react'
+import { ThemeProvider, useTheme } from 'next-themes'
 
 const navItems = [
   { href: '/driver', icon: ClipboardList, label: 'Orders' },
@@ -15,9 +16,10 @@ const navItems = [
   { href: '/driver/profile', icon: User, label: 'Profile' },
 ]
 
-export default function DriverAppLayout({ children }: { children: ReactNode }) {
+function DriverAppContent({ children }: { children: ReactNode }) {
   const pathname = usePathname()
   const [mounted, setMounted] = useState(false)
+  const { theme, setTheme } = useTheme()
   
   useEffect(() => {
     setMounted(true)
@@ -28,27 +30,39 @@ export default function DriverAppLayout({ children }: { children: ReactNode }) {
 
   if (!mounted) {
     return (
-      <div className="min-h-screen bg-[#0a0a0a] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="animate-pulse">
-          <Image src="/cai-logo.svg" alt="CAI" width={80} height={32} className="invert" />
+          <Image src="/cai-logo.svg" alt="CAI" width={80} height={32} className="dark:invert" />
         </div>
       </div>
     )
   }
 
   if (isAuthPage) {
-    return <div className="min-h-screen bg-[#0a0a0a]">{children}</div>
+    return <div className="min-h-screen bg-background">{children}</div>
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white flex flex-col">
+    <div className="min-h-screen bg-background text-foreground flex flex-col">
+      {/* Theme Toggle - Fixed in corner */}
+      <button
+        onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+        className="fixed top-4 right-4 z-50 p-2.5 rounded-xl bg-secondary/80 backdrop-blur-sm border border-border/50 hover:bg-secondary transition-colors"
+      >
+        {theme === 'dark' ? (
+          <Sun className="h-4 w-4" />
+        ) : (
+          <Moon className="h-4 w-4" />
+        )}
+      </button>
+
       {/* Main Content */}
       <main className="flex-1 pb-20 overflow-y-auto">
         {children}
       </main>
 
-      {/* Bottom Navigation - Dark themed matching designs */}
-      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-[#111111] border-t border-white/5">
+      {/* Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-xl border-t border-border/50">
         <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
           {navItems.map((item) => {
             const isActive = pathname === item.href || 
@@ -63,17 +77,17 @@ export default function DriverAppLayout({ children }: { children: ReactNode }) {
                   "flex flex-col items-center justify-center flex-1 h-full gap-1",
                   "transition-colors duration-200",
                   isActive 
-                    ? "text-white" 
-                    : "text-white/40 hover:text-white/60"
+                    ? "text-foreground" 
+                    : "text-muted-foreground hover:text-foreground"
                 )}
               >
                 <Icon className={cn(
                   "h-5 w-5 transition-colors",
-                  isActive ? "text-accent" : "text-white/40"
+                  isActive ? "text-accent" : "text-muted-foreground"
                 )} />
                 <span className={cn(
                   "text-[10px] font-medium",
-                  isActive ? "text-white" : "text-white/40"
+                  isActive ? "text-foreground" : "text-muted-foreground"
                 )}>{item.label}</span>
               </Link>
             )
@@ -81,5 +95,18 @@ export default function DriverAppLayout({ children }: { children: ReactNode }) {
         </div>
       </nav>
     </div>
+  )
+}
+
+export default function DriverAppLayout({ children }: { children: ReactNode }) {
+  return (
+    <ThemeProvider
+      attribute="class"
+      defaultTheme="dark"
+      enableSystem
+      disableTransitionOnChange
+    >
+      <DriverAppContent>{children}</DriverAppContent>
+    </ThemeProvider>
   )
 }

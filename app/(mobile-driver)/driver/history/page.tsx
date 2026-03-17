@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
-import { ArrowLeft, Calendar, MapPin, User, Car } from 'lucide-react'
+import { Calendar, MapPin, User, Car, ChevronRight } from 'lucide-react'
 
 interface Ride {
   id: string
@@ -63,7 +63,6 @@ export default function DriverHistoryPage() {
     fetchData()
   }, [tab])
 
-  // Mock rides for demo
   const mockRides: Ride[] = [
     {
       id: 'mock-1',
@@ -104,120 +103,107 @@ export default function DriverHistoryPage() {
   const displayRides = rides.length > 0 ? rides : mockRides
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="px-5 pt-12 pb-4">
-        <div className="flex items-center gap-3">
-          <Link href="/driver" className="p-2 -ml-2">
-            <ArrowLeft className="h-5 w-5" />
-          </Link>
-          <h1 className="text-xl font-semibold">History</h1>
-        </div>
+        <h1 className="text-xl font-bold">History</h1>
       </header>
 
       {/* Tabs */}
       <div className="px-5 mb-4">
-        <div className="flex gap-4 border-b border-white/10">
+        <div className="flex p-1 bg-secondary rounded-xl">
           <button
             onClick={() => setTab('upcoming')}
             className={cn(
-              "pb-3 text-sm font-medium transition-colors relative",
-              tab === 'upcoming' ? "text-white" : "text-white/40"
+              "flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all",
+              tab === 'upcoming' 
+                ? "bg-background text-foreground shadow-sm" 
+                : "text-muted-foreground hover:text-foreground"
             )}
           >
-            Upcoming Rides
-            {tab === 'upcoming' && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
-            )}
+            Upcoming
           </button>
           <button
             onClick={() => setTab('previous')}
             className={cn(
-              "pb-3 text-sm font-medium transition-colors relative",
-              tab === 'previous' ? "text-white" : "text-white/40"
+              "flex-1 py-2.5 text-sm font-semibold rounded-lg transition-all",
+              tab === 'previous' 
+                ? "bg-background text-foreground shadow-sm" 
+                : "text-muted-foreground hover:text-foreground"
             )}
           >
-            Previous rides
-            {tab === 'previous' && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent" />
-            )}
+            Previous
           </button>
         </div>
       </div>
 
       {/* Rides List */}
-      <div className="px-5 pb-24 space-y-4">
+      <div className="px-5 pb-24 space-y-3">
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="animate-spin h-8 w-8 border-2 border-white/20 border-t-accent rounded-full" />
+            <div className="animate-spin h-8 w-8 border-2 border-muted-foreground/20 border-t-accent rounded-full" />
           </div>
         ) : displayRides.length === 0 ? (
           <div className="text-center py-12">
-            <Car className="h-12 w-12 mx-auto mb-3 text-white/20" />
-            <p className="text-white/40">No rides found</p>
+            <div className="h-16 w-16 rounded-2xl bg-secondary mx-auto mb-4 flex items-center justify-center">
+              <Car className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h3 className="font-semibold mb-1">No rides found</h3>
+            <p className="text-sm text-muted-foreground">
+              {tab === 'upcoming' ? 'No upcoming rides scheduled' : 'No previous rides yet'}
+            </p>
           </div>
         ) : (
           displayRides.map((ride) => (
             <Link key={ride.id} href={`/driver/rides/${ride.id}`}>
-              <div className="bg-[#111111] rounded-2xl overflow-hidden border border-white/5 hover:border-white/10 transition-colors">
-                {/* Car Image */}
-                <div className="relative h-36 bg-gradient-to-b from-white/5 to-transparent">
-                  <Image
-                    src={ride.vehicle?.images?.[0] || 'https://images.unsplash.com/photo-1592198084033-aade902d1aae?w=600'}
-                    alt={`${ride.vehicle?.brand} ${ride.vehicle?.model}`}
-                    fill
-                    className="object-contain"
-                  />
-                  {/* License Plate Badge */}
-                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-white/10 backdrop-blur-sm rounded-lg border border-white/20">
-                    <span className="text-xs font-mono font-semibold">CSR2 CSB</span>
+              <div className="bg-card rounded-2xl overflow-hidden border border-border/50 hover:border-border transition-colors">
+                <div className="flex gap-4 p-4">
+                  {/* Car Image */}
+                  <div className="relative h-24 w-32 rounded-xl bg-secondary overflow-hidden flex-shrink-0">
+                    <Image
+                      src={ride.vehicle?.images?.[0] || 'https://images.unsplash.com/photo-1592198084033-aade902d1aae?w=600'}
+                      alt={`${ride.vehicle?.brand} ${ride.vehicle?.model}`}
+                      fill
+                      className="object-contain p-2"
+                    />
                   </div>
-                </div>
 
-                {/* Info */}
-                <div className="p-4">
-                  <h3 className="font-semibold mb-0.5">
-                    {ride.vehicle?.brand} {ride.vehicle?.model}
-                  </h3>
-                  <p className="text-white/40 text-xs mb-3">
-                    {ride.vehicle?.color}, {ride.vehicle?.year}, {ride.vehicle?.license_plate}
-                  </p>
-
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm">
-                      <Calendar className="h-3.5 w-3.5 text-white/40" />
-                      <span className="text-white/60">Drop Date & Time</span>
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <h3 className="font-bold truncate">
+                          {ride.vehicle?.brand} {ride.vehicle?.model}
+                        </h3>
+                        <p className="text-muted-foreground text-xs">
+                          {ride.vehicle?.color} &bull; {ride.vehicle?.year}
+                        </p>
+                      </div>
+                      <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0" />
                     </div>
-                    <p className="text-sm font-medium pl-5">
-                      {new Date(ride.pickup_date).toLocaleDateString('en-US', {
-                        day: 'numeric',
-                        month: 'long',
-                        year: 'numeric'
-                      })}{' '}
-                      {new Date(ride.pickup_date).toLocaleTimeString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true
-                      })}
-                    </p>
 
-                    <div className="flex items-center gap-2 text-sm">
-                      <MapPin className="h-3.5 w-3.5 text-white/40" />
-                      <span className="text-white/60">Drop Address</span>
-                    </div>
-                    <p className="text-sm font-medium pl-5">{ride.pickup_location?.address}</p>
+                    <div className="mt-3 space-y-1.5">
+                      <div className="flex items-center gap-2 text-xs">
+                        <Calendar className="h-3.5 w-3.5 text-accent flex-shrink-0" />
+                        <span className="text-muted-foreground truncate">
+                          {new Date(ride.pickup_date).toLocaleDateString('en-US', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric'
+                          })}
+                        </span>
+                      </div>
 
-                    <div className="flex items-center gap-2 text-sm">
-                      <MapPin className="h-3.5 w-3.5 text-accent" />
-                      <span className="text-white/60">Collect address</span>
-                    </div>
-                    <p className="text-sm font-medium pl-5">{ride.return_location?.address}</p>
+                      <div className="flex items-center gap-2 text-xs">
+                        <User className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                        <span className="text-muted-foreground truncate">{ride.customer?.full_name}</span>
+                      </div>
 
-                    <div className="flex items-center gap-2 text-sm">
-                      <User className="h-3.5 w-3.5 text-white/40" />
-                      <span className="text-white/60">Client</span>
+                      <div className="flex items-center gap-2 text-xs">
+                        <MapPin className="h-3.5 w-3.5 text-muted-foreground flex-shrink-0" />
+                        <span className="text-muted-foreground truncate">{ride.pickup_location?.address}</span>
+                      </div>
                     </div>
-                    <p className="text-sm font-medium pl-5">{ride.customer?.full_name}</p>
                   </div>
                 </div>
               </div>

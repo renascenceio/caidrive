@@ -5,7 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
-import { Bell, Calendar, MapPin, User, Check } from 'lucide-react'
+import { Bell, Calendar, MapPin, User, Check, Clock, Gauge } from 'lucide-react'
 
 interface RideAlert {
   id: string
@@ -27,6 +27,7 @@ export default function DriverOrdersPage() {
   const [alerts, setAlerts] = useState<RideAlert[]>([])
   const [loading, setLoading] = useState(true)
   const [acceptingId, setAcceptingId] = useState<string | null>(null)
+  const [alertsEnabled, setAlertsEnabled] = useState(true)
 
   useEffect(() => {
     async function fetchData() {
@@ -38,7 +39,6 @@ export default function DriverOrdersPage() {
         return
       }
 
-      // Get driver profile
       const { data: profile } = await supabase
         .from('profiles')
         .select('full_name')
@@ -49,7 +49,6 @@ export default function DriverOrdersPage() {
         setDriverName(profile.full_name.split(' ')[0])
       }
 
-      // Get pending ride alerts (assigned but not accepted)
       const { data: pendingRides } = await supabase
         .from('bookings')
         .select(`
@@ -77,7 +76,6 @@ export default function DriverOrdersPage() {
       .update({ status: 'confirmed' })
       .eq('id', rideId)
 
-    // Remove from alerts
     setAlerts(prev => prev.filter(a => a.id !== rideId))
     setAcceptingId(null)
   }
@@ -101,71 +99,113 @@ export default function DriverOrdersPage() {
   const displayAlerts = alerts.length > 0 ? alerts : [mockAlert]
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-white">
+    <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="px-5 pt-12 pb-4">
         <div className="flex items-center justify-between">
-          <Image src="/cai-logo.svg" alt="CAI" width={60} height={24} className="invert" />
-          <Link href="/driver/notifications" className="relative p-2">
-            <Bell className="h-5 w-5 text-white/60" />
-            <span className="absolute top-1 right-1 h-2 w-2 bg-accent rounded-full" />
+          <Image src="/cai-logo.svg" alt="CAI" width={60} height={24} className="dark:invert" />
+          <Link href="/driver/notifications" className="relative p-2 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors">
+            <Bell className="h-5 w-5 text-muted-foreground" />
+            <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-accent rounded-full" />
           </Link>
         </div>
       </header>
 
       {/* Welcome Section */}
       <div className="px-5 pb-6">
-        <p className="text-white/40 text-sm">Hi {driverName}</p>
-        <h1 className="text-2xl font-semibold">Welcome back!</h1>
+        <p className="text-muted-foreground text-sm mb-0.5">Hi {driverName}</p>
+        <h1 className="text-2xl font-bold">Welcome back!</h1>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="px-5 mb-6">
+        <div className="grid grid-cols-3 gap-3">
+          <div className="p-4 rounded-2xl bg-card border border-border/50">
+            <Clock className="h-5 w-5 text-accent mb-2" />
+            <p className="text-2xl font-bold">12</p>
+            <p className="text-xs text-muted-foreground">Rides Today</p>
+          </div>
+          <div className="p-4 rounded-2xl bg-card border border-border/50">
+            <Gauge className="h-5 w-5 text-accent mb-2" />
+            <p className="text-2xl font-bold">248</p>
+            <p className="text-xs text-muted-foreground">KM Driven</p>
+          </div>
+          <div className="p-4 rounded-2xl bg-card border border-border/50">
+            <Check className="h-5 w-5 text-green-500 mb-2" />
+            <p className="text-2xl font-bold">98%</p>
+            <p className="text-xs text-muted-foreground">On Time</p>
+          </div>
+        </div>
       </div>
 
       {/* Alert Toggle */}
       <div className="px-5 mb-6">
-        <div className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10">
-          <span className="font-medium">Get Alert</span>
-          <div className="w-12 h-6 bg-accent rounded-full relative cursor-pointer">
-            <div className="absolute right-1 top-1 h-4 w-4 bg-white rounded-full" />
+        <div className="flex items-center justify-between p-4 bg-card rounded-2xl border border-border/50">
+          <div>
+            <span className="font-semibold">Get Alert</span>
+            <p className="text-xs text-muted-foreground">Receive new ride notifications</p>
           </div>
+          <button 
+            onClick={() => setAlertsEnabled(!alertsEnabled)}
+            className={cn(
+              "w-12 h-7 rounded-full relative transition-colors",
+              alertsEnabled ? "bg-accent" : "bg-secondary"
+            )}
+          >
+            <div className={cn(
+              "absolute top-1 h-5 w-5 bg-white rounded-full transition-all shadow-sm",
+              alertsEnabled ? "right-1" : "left-1"
+            )} />
+          </button>
         </div>
+      </div>
+
+      {/* Section Title */}
+      <div className="px-5 mb-4">
+        <h2 className="font-semibold">Pending Orders</h2>
       </div>
 
       {/* Ride Alerts */}
       <div className="px-5 space-y-4 pb-24">
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="animate-spin h-8 w-8 border-2 border-white/20 border-t-accent rounded-full" />
+            <div className="animate-spin h-8 w-8 border-2 border-muted-foreground/20 border-t-accent rounded-full" />
           </div>
         ) : (
           displayAlerts.map((alert) => (
-            <div key={alert.id} className="bg-[#111111] rounded-2xl overflow-hidden border border-white/5">
+            <div key={alert.id} className="bg-card rounded-2xl overflow-hidden border border-border/50 shadow-sm">
               {/* Car Image */}
-              <div className="relative h-40 bg-gradient-to-b from-white/5 to-transparent">
+              <div className="relative h-44 bg-gradient-to-b from-secondary/50 to-transparent">
                 <Image
                   src={alert.vehicle?.images?.[0] || 'https://images.unsplash.com/photo-1592198084033-aade902d1aae?w=600'}
                   alt={`${alert.vehicle?.brand} ${alert.vehicle?.model}`}
                   fill
-                  className="object-contain"
+                  className="object-contain p-4"
                 />
+                {/* License Plate Badge */}
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-background/80 backdrop-blur-sm rounded-lg border border-border/50">
+                  <span className="text-sm font-mono font-bold">{alert.vehicle?.license_plate || 'CSR2 CSB'}</span>
+                </div>
               </div>
 
               {/* Car Info */}
-              <div className="p-4 pt-0">
-                <h3 className="text-lg font-semibold mb-0.5">
+              <div className="p-4">
+                <h3 className="text-lg font-bold mb-0.5">
                   {alert.vehicle?.brand} {alert.vehicle?.model}
                 </h3>
-                <p className="text-white/40 text-sm mb-4">
-                  {alert.vehicle?.color}, {alert.vehicle?.year}, {alert.vehicle?.license_plate}
+                <p className="text-muted-foreground text-sm mb-4">
+                  {alert.vehicle?.color} &bull; {alert.vehicle?.year}
                 </p>
 
                 {/* Details */}
                 <div className="space-y-3 mb-5">
                   <div className="flex items-start gap-3">
-                    <div className="h-8 w-8 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0">
-                      <Calendar className="h-4 w-4 text-white/40" />
+                    <div className="h-9 w-9 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">
+                      <Calendar className="h-4 w-4 text-muted-foreground" />
                     </div>
                     <div>
-                      <p className="text-white/40 text-xs">Drop Date & Time</p>
-                      <p className="text-sm font-medium">
+                      <p className="text-muted-foreground text-xs">Drop Date & Time</p>
+                      <p className="text-sm font-semibold">
                         {new Date(alert.pickup_date).toLocaleDateString('en-US', {
                           day: 'numeric',
                           month: 'long',
@@ -181,22 +221,22 @@ export default function DriverOrdersPage() {
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <div className="h-8 w-8 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0">
-                      <MapPin className="h-4 w-4 text-white/40" />
+                    <div className="h-9 w-9 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">
+                      <MapPin className="h-4 w-4 text-muted-foreground" />
                     </div>
                     <div>
-                      <p className="text-white/40 text-xs">Drop Address</p>
-                      <p className="text-sm font-medium">{alert.pickup_location?.address}</p>
+                      <p className="text-muted-foreground text-xs">Drop Address</p>
+                      <p className="text-sm font-semibold">{alert.pickup_location?.address}</p>
                     </div>
                   </div>
 
                   <div className="flex items-start gap-3">
-                    <div className="h-8 w-8 rounded-full bg-white/5 flex items-center justify-center flex-shrink-0">
-                      <User className="h-4 w-4 text-white/40" />
+                    <div className="h-9 w-9 rounded-xl bg-secondary flex items-center justify-center flex-shrink-0">
+                      <User className="h-4 w-4 text-muted-foreground" />
                     </div>
                     <div>
-                      <p className="text-white/40 text-xs">Client</p>
-                      <p className="text-sm font-medium">{alert.customer?.full_name}</p>
+                      <p className="text-muted-foreground text-xs">Client</p>
+                      <p className="text-sm font-semibold">{alert.customer?.full_name}</p>
                     </div>
                   </div>
                 </div>
@@ -220,7 +260,7 @@ export default function DriverOrdersPage() {
                   ) : (
                     <>
                       <Check className="h-4 w-4" />
-                      Accept
+                      Accept Order
                     </>
                   )}
                 </button>
