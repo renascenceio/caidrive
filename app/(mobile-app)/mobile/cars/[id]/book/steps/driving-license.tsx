@@ -71,19 +71,19 @@ function CustomCalendar({
       <div className="w-full max-w-sm bg-white rounded-2xl p-4">
         {/* Month Navigation */}
         <div className="flex items-center justify-between mb-4">
-          <button onClick={prevMonth} className="p-2 hover:bg-secondary rounded-lg">
-            <ChevronLeft className="h-5 w-5" />
+          <button onClick={prevMonth} className="p-2 hover:bg-[#f5f5f7] rounded-lg">
+            <ChevronLeft className="h-5 w-5 mobile-text-dark" />
           </button>
-          <span className="font-semibold">{MONTHS[month]} {year}</span>
-          <button onClick={nextMonth} className="p-2 hover:bg-secondary rounded-lg">
-            <ChevronRight className="h-5 w-5" />
+          <span className="font-semibold mobile-text-dark">{MONTHS[month]} {year}</span>
+          <button onClick={nextMonth} className="p-2 hover:bg-[#f5f5f7] rounded-lg">
+            <ChevronRight className="h-5 w-5 mobile-text-dark" />
           </button>
         </div>
         
         {/* Weekday Headers */}
         <div className="grid grid-cols-7 gap-1 mb-2">
           {WEEKDAYS.map(day => (
-            <div key={day} className="text-center text-xs text-muted-foreground py-2 font-medium">
+            <div key={day} className="text-center text-xs mobile-text-muted py-2 font-medium">
               {day}
             </div>
           ))}
@@ -100,9 +100,9 @@ function CustomCalendar({
                   className={cn(
                     "w-full h-full rounded-full flex items-center justify-center text-sm transition-all",
                     isDateSelected(day) 
-                      ? "bg-foreground text-background font-semibold" 
-                      : "hover:bg-secondary",
-                    isDateDisabled(day) && "text-muted-foreground/30 cursor-not-allowed hover:bg-transparent"
+                      ? "bg-[#161821] text-white font-semibold" 
+                      : "hover:bg-[#f5f5f7] mobile-text-dark",
+                    isDateDisabled(day) && "text-[#c7c7cc] cursor-not-allowed hover:bg-transparent"
                   )}
                 >
                   {day}
@@ -115,7 +115,7 @@ function CustomCalendar({
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="w-full mt-4 py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          className="w-full mt-4 py-3 text-sm mobile-text-muted hover:text-[#161821] transition-colors"
         >
           Cancel
         </button>
@@ -200,66 +200,66 @@ export function DrivingLicenseStep({ data, onChange, onNext }: DrivingLicenseSte
           <p className="text-xs text-green-700">Your details from a previous booking have been pre-filled.</p>
         </div>
       )}
-      <h2 className="font-semibold text-base mb-6">Driving License details</h2>
+      <h2 className="font-semibold text-base mb-6 mobile-text-dark">Driving License details</h2>
 
       <div className="space-y-4">
         {/* First Name */}
         <div>
-          <label className="text-sm text-muted-foreground mb-2 block">Name</label>
+          <label className="text-sm mobile-text-muted mb-2 block">Name</label>
           <input
             type="text"
             value={data.licenseFirstName}
             onChange={(e) => onChange({ licenseFirstName: e.target.value })}
             placeholder="Enter your name"
-            className="w-full px-4 py-3.5 bg-white rounded-xl border border-border/50 text-sm"
+            className="w-full px-4 py-3.5 bg-white rounded-xl border border-[#e5e5e7] text-sm mobile-text-dark placeholder:text-[#8e8e93]"
           />
         </div>
 
         {/* Surname */}
         <div>
-          <label className="text-sm text-muted-foreground mb-2 block">Surname</label>
+          <label className="text-sm mobile-text-muted mb-2 block">Surname</label>
           <input
             type="text"
             value={data.licenseSurname}
             onChange={(e) => onChange({ licenseSurname: e.target.value })}
             placeholder="Enter your surname"
-            className="w-full px-4 py-3.5 bg-white rounded-xl border border-border/50 text-sm"
+            className="w-full px-4 py-3.5 bg-white rounded-xl border border-[#e5e5e7] text-sm mobile-text-dark placeholder:text-[#8e8e93]"
           />
         </div>
 
         {/* License Number */}
         <div>
-          <label className="text-sm text-muted-foreground mb-2 block">Driving License Number</label>
+          <label className="text-sm mobile-text-muted mb-2 block">Driving License Number</label>
           <input
             type="text"
             value={data.licenseNumber}
             onChange={(e) => onChange({ licenseNumber: e.target.value })}
             placeholder="AA1783585"
-            className="w-full px-4 py-3.5 bg-white rounded-xl border border-border/50 text-sm"
+            className="w-full px-4 py-3.5 bg-white rounded-xl border border-[#e5e5e7] text-sm mobile-text-dark placeholder:text-[#8e8e93]"
           />
         </div>
 
         {/* Address */}
         <div>
-          <label className="text-sm text-muted-foreground mb-2 block">Address</label>
+          <label className="text-sm mobile-text-muted mb-2 block">Address</label>
           <input
             type="text"
             value={data.licenseAddress}
             onChange={(e) => onChange({ licenseAddress: e.target.value })}
             placeholder="Enter your address"
-            className="w-full px-4 py-3.5 bg-white rounded-xl border border-border/50 text-sm"
+            className="w-full px-4 py-3.5 bg-white rounded-xl border border-[#e5e5e7] text-sm mobile-text-dark placeholder:text-[#8e8e93]"
           />
         </div>
 
         {/* Expiry Date */}
         <div>
-          <label className="text-sm text-muted-foreground mb-2 block">Expiry Date</label>
+          <label className="text-sm mobile-text-muted mb-2 block">Expiry Date</label>
           <button
             onClick={() => setShowCalendar(true)}
-            className="w-full flex items-center gap-3 px-4 py-3.5 bg-white rounded-xl border border-border/50 text-left"
+            className="w-full flex items-center gap-3 px-4 py-3.5 bg-white rounded-xl border border-[#e5e5e7] text-left"
           >
-            <Calendar className="h-5 w-5 text-muted-foreground" />
-            <span className={data.licenseExpiry ? "text-foreground text-sm" : "text-muted-foreground text-sm"}>
+            <Calendar className="h-5 w-5 mobile-text-muted" />
+            <span className={data.licenseExpiry ? "mobile-text-dark text-sm" : "mobile-text-muted text-sm"}>
               {data.licenseExpiry 
                 ? new Date(data.licenseExpiry).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
                 : 'Select expiry date'
@@ -270,22 +270,22 @@ export function DrivingLicenseStep({ data, onChange, onNext }: DrivingLicenseSte
 
         {/* Country of Issue */}
         <div>
-          <label className="text-sm text-muted-foreground mb-2 block">Country of Issue</label>
+          <label className="text-sm mobile-text-muted mb-2 block">Country of Issue</label>
           <button
             onClick={() => setShowCountryPicker(true)}
-            className="w-full flex items-center justify-between px-4 py-3.5 bg-white rounded-xl border border-border/50"
+            className="w-full flex items-center justify-between px-4 py-3.5 bg-white rounded-xl border border-[#e5e5e7]"
           >
             <div className="flex items-center gap-3">
               <span className="text-lg">{selectedCountry.flag}</span>
-              <span className="text-sm">{selectedCountry.name}</span>
+              <span className="text-sm mobile-text-dark">{selectedCountry.name}</span>
             </div>
-            <ChevronDown className="h-5 w-5 text-muted-foreground" />
+            <ChevronDown className="h-5 w-5 mobile-text-muted" />
           </button>
         </div>
 
         {/* Upload Driving License */}
         <div>
-          <label className="text-sm text-muted-foreground mb-2 block">Upload your Driving License</label>
+          <label className="text-sm mobile-text-muted mb-2 block">Upload your Driving License</label>
           
           <input
             ref={fileInputRef}
@@ -296,9 +296,9 @@ export function DrivingLicenseStep({ data, onChange, onNext }: DrivingLicenseSte
           />
 
           {data.licenseImage ? (
-            <div className="relative bg-white rounded-xl border border-border/50 p-4">
+            <div className="relative bg-white rounded-xl border border-[#e5e5e7] p-4">
               <div className="flex items-center gap-4">
-                <div className="relative w-20 h-14 rounded-lg overflow-hidden bg-secondary">
+                <div className="relative w-20 h-14 rounded-lg overflow-hidden bg-[#f5f5f7]">
                   <Image
                     src={data.licenseImage}
                     alt="License"
@@ -307,12 +307,12 @@ export function DrivingLicenseStep({ data, onChange, onNext }: DrivingLicenseSte
                   />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium">license_front.jpg</p>
-                  <p className="text-xs text-muted-foreground">Uploaded successfully</p>
+                  <p className="text-sm font-medium mobile-text-dark">license_front.jpg</p>
+                  <p className="text-xs mobile-text-muted">Uploaded successfully</p>
                 </div>
                 <button
                   onClick={() => onChange({ licenseImage: null })}
-                  className="p-2 text-muted-foreground hover:text-foreground"
+                  className="p-2 mobile-text-muted hover:text-[#161821]"
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -322,17 +322,17 @@ export function DrivingLicenseStep({ data, onChange, onNext }: DrivingLicenseSte
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="flex flex-col items-center gap-2 p-6 bg-white rounded-xl border border-dashed border-border hover:border-foreground/50 transition-colors"
+                className="flex flex-col items-center gap-2 p-6 bg-white rounded-xl border border-dashed border-[#e5e5e7] hover:border-[#8e8e93] transition-colors"
               >
-                <Upload className="h-6 w-6 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Upload a Photo</span>
+                <Upload className="h-6 w-6 mobile-text-muted" />
+                <span className="text-sm mobile-text-muted">Upload a Photo</span>
               </button>
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="flex flex-col items-center gap-2 p-6 bg-white rounded-xl border border-dashed border-border hover:border-foreground/50 transition-colors"
+                className="flex flex-col items-center gap-2 p-6 bg-white rounded-xl border border-dashed border-[#e5e5e7] hover:border-[#8e8e93] transition-colors"
               >
-                <Camera className="h-6 w-6 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Take a Photo</span>
+                <Camera className="h-6 w-6 mobile-text-muted" />
+                <span className="text-sm mobile-text-muted">Take a Photo</span>
               </button>
             </div>
           )}
@@ -356,10 +356,10 @@ export function DrivingLicenseStep({ data, onChange, onNext }: DrivingLicenseSte
       {showCountryPicker && (
         <div className="fixed inset-0 z-50 bg-black/50 flex items-end">
           <div className="w-full bg-white rounded-t-3xl max-h-[80vh] overflow-hidden">
-            <div className="sticky top-0 bg-white border-b border-border/30 px-5 py-4 flex items-center justify-between">
-              <h3 className="font-semibold">Select country</h3>
+            <div className="sticky top-0 bg-white border-b border-[#e5e5e7] px-5 py-4 flex items-center justify-between">
+              <h3 className="font-semibold mobile-text-dark">Select country</h3>
               <button onClick={() => setShowCountryPicker(false)}>
-                <X className="h-5 w-5" />
+                <X className="h-5 w-5 mobile-text-dark" />
               </button>
             </div>
             <div className="overflow-y-auto max-h-[60vh]">
@@ -368,12 +368,12 @@ export function DrivingLicenseStep({ data, onChange, onNext }: DrivingLicenseSte
                   key={country.code}
                   onClick={() => handleCountrySelect(country)}
                   className={cn(
-                    "w-full flex items-center gap-4 px-5 py-4 hover:bg-secondary/50 transition-colors",
-                    data.licenseCountry === country.name && "bg-secondary/50"
+                    "w-full flex items-center gap-4 px-5 py-4 hover:bg-[#f5f5f7] transition-colors",
+                    data.licenseCountry === country.name && "bg-[#f5f5f7]"
                   )}
                 >
                   <span className="text-xl">{country.flag}</span>
-                  <span className="text-sm">{country.name}</span>
+                  <span className="text-sm mobile-text-dark">{country.name}</span>
                 </button>
               ))}
             </div>
@@ -398,10 +398,10 @@ export function DrivingLicenseStep({ data, onChange, onNext }: DrivingLicenseSte
             <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-amber-100 flex items-center justify-center">
               <FileText className="h-6 w-6 text-amber-600" />
             </div>
-            <h3 className="text-lg font-semibold text-center mb-2">
+            <h3 className="text-lg font-semibold text-center mb-2 mobile-text-dark">
               An international driving license is required for {selectedCountry.name}
             </h3>
-            <p className="text-sm text-muted-foreground text-center mb-6">
+            <p className="text-sm mobile-text-muted text-center mb-6">
               How can I obtain one?
             </p>
             <div className="space-y-3">
@@ -410,13 +410,13 @@ export function DrivingLicenseStep({ data, onChange, onNext }: DrivingLicenseSte
                   onChange({ isInternational: true })
                   setShowInternationalModal(false)
                 }}
-                className="w-full py-3.5 bg-foreground text-background rounded-xl font-medium"
+                className="w-full py-3.5 bg-[#161821] text-white rounded-xl font-medium"
               >
                 My license is International
               </button>
               <button
                 onClick={() => setShowInternationalModal(false)}
-                className="w-full py-3.5 bg-white border border-border rounded-xl font-medium"
+                className="w-full py-3.5 bg-white border border-[#e5e5e7] rounded-xl font-medium mobile-text-dark"
               >
                 I'll get one
               </button>
@@ -426,15 +426,15 @@ export function DrivingLicenseStep({ data, onChange, onNext }: DrivingLicenseSte
       )}
 
       {/* Fixed Bottom Button - Floating above bottom nav */}
-      <div className="fixed bottom-[80px] left-0 right-0 px-5">
+      <div className="fixed bottom-16 left-0 right-0 px-5 pb-4 bg-[#f5f5f7]">
         <button
           onClick={onNext}
           disabled={!isValid}
           className={cn(
             "w-full py-4 rounded-full font-semibold text-base transition-all shadow-lg",
             isValid
-              ? "bg-foreground text-background"
-              : "bg-muted-foreground text-background cursor-not-allowed"
+              ? "bg-[#161821] text-white"
+              : "bg-[#8e8e93] text-white cursor-not-allowed"
           )}
         >
           Continue

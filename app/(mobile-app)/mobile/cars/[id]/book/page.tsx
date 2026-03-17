@@ -454,23 +454,23 @@ export default function MobileBookingPage({ params }: { params: Promise<{ id: st
       {showDraftPrompt && (
         <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-5">
           <div className="w-full max-w-sm bg-white rounded-2xl p-6">
-            <div className="flex items-center justify-center w-12 h-12 bg-accent/10 rounded-full mx-auto mb-4">
-              <RotateCcw className="h-6 w-6 text-accent" />
+            <div className="flex items-center justify-center w-12 h-12 bg-[#dd3155]/10 rounded-full mx-auto mb-4">
+              <RotateCcw className="h-6 w-6 text-[#dd3155]" />
             </div>
-            <h3 className="text-lg font-semibold text-center mb-2">Resume Your Booking?</h3>
-            <p className="text-sm text-muted-foreground text-center mb-6">
+            <h3 className="text-lg font-semibold text-center mb-2 mobile-text-dark">Resume Your Booking?</h3>
+            <p className="text-sm mobile-text-muted text-center mb-6">
               You have an unfinished booking for this car. Would you like to continue where you left off?
             </p>
             <div className="flex gap-3">
               <button
                 onClick={discardDraft}
-                className="flex-1 py-3 text-sm font-medium text-muted-foreground bg-secondary rounded-xl"
+                className="flex-1 py-3 text-sm font-medium mobile-text-muted bg-[#f5f5f7] rounded-xl"
               >
                 Start Fresh
               </button>
               <button
                 onClick={restoreDraft}
-                className="flex-1 py-3 text-sm font-medium text-white bg-foreground rounded-xl"
+                className="flex-1 py-3 text-sm font-medium text-white bg-[#161821] rounded-xl"
               >
                 Continue
               </button>
@@ -480,16 +480,16 @@ export default function MobileBookingPage({ params }: { params: Promise<{ id: st
       )}
 
       {/* Header */}
-      <div className="sticky top-0 z-50 bg-[#f5f5f7] border-b border-border/30">
+      <div className="sticky top-0 z-50 bg-[#f5f5f7] border-b border-[#e5e5e7]">
         <div className="flex items-center gap-4 px-5 py-4">
           <button onClick={prevStep} className="p-1 -ml-1">
             {currentStep === STEPS.length - 1 ? (
-              <X className="h-5 w-5" />
+              <X className="h-5 w-5 mobile-text-dark" />
             ) : (
-              <ArrowLeft className="h-5 w-5" />
+              <ArrowLeft className="h-5 w-5 mobile-text-dark" />
             )}
           </button>
-          <h1 className="text-lg font-semibold">{STEPS[currentStep].title}</h1>
+          <h1 className="text-lg font-semibold mobile-text-dark">{STEPS[currentStep].title}</h1>
         </div>
         
         {/* Progress Bar */}
@@ -501,7 +501,7 @@ export default function MobileBookingPage({ params }: { params: Promise<{ id: st
                   key={step.id}
                   className={cn(
                     "flex-1 h-1 rounded-full transition-colors",
-                    idx <= currentStep ? "bg-foreground" : "bg-foreground/20"
+                    idx <= currentStep ? "bg-[#161821]" : "bg-[#161821]/20"
                   )}
                 />
               ))}
