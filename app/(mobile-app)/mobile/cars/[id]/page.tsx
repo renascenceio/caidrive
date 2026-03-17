@@ -65,6 +65,8 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
   const [wishlisted, setWishlisted] = useState(false)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
   const [soundEnabled, setSoundEnabled] = useState(false)
+  const [availability, setAvailability] = useState<Array<{ date: string; available: boolean }>>([])
+  const [availabilityLoading, setAvailabilityLoading] = useState(true)
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
   useEffect(() => {
@@ -81,7 +83,22 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
       setLoading(false)
     }
     
+    async function fetchAvailability() {
+      try {
+        const response = await fetch(`/api/vehicles/${id}/availability`)
+        if (response.ok) {
+          const data = await response.json()
+          setAvailability(data.availability || [])
+        }
+      } catch (error) {
+        console.error('Error fetching availability:', error)
+      } finally {
+        setAvailabilityLoading(false)
+      }
+    }
+    
     fetchVehicle()
+    fetchAvailability()
   }, [id])
 
   const toggleSound = () => {
@@ -316,6 +333,74 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
               <span className="text-sm font-medium">{vehicle.mileage_limit || 10} km</span>
             </div>
           </div>
+        </div>
+
+        {/* Availability Calendar - 30 Days */}
+        <div className="bg-white rounded-2xl p-5 border border-border/30">
+          <h2 className="font-semibold text-base mb-4">Availability (Next 30 Days)</h2>
+          {availabilityLoading ? (
+            <div className="grid grid-cols-7 gap-1">
+              {Array.from({ length: 30 }).map((_, i) => (
+                <div key={i} className="aspect-square rounded-lg bg-secondary animate-pulse" />
+              ))}
+            </div>
+          ) : (
+            <>
+              {/* Weekday Headers */}
+              <div className="grid grid-cols-7 gap-1 mb-2">
+                {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
+                  <div key={day} className="text-center text-[10px] text-muted-foreground font-medium py-1">
+                    {day}
+                  </div>
+                ))}
+              </div>
+              
+              {/* Calendar Grid */}
+              <div className="grid grid-cols-7 gap-1">
+                {/* Add empty slots for alignment to start of week */}
+                {availability.length > 0 && (() => {
+                  const firstDate = new Date(availability[0].date)
+                  const dayOfWeek = firstDate.getDay()
+                  return Array.from({ length: dayOfWeek }).map((_, i) => (
+                    <div key={`empty-${i}`} className="aspect-square" />
+                  ))
+                })()}
+                
+                {availability.map((day, idx) => {
+                  const date = new Date(day.date)
+                  const dayNum = date.getDate()
+                  const isToday = new Date().toDateString() === date.toDateString()
+                  
+                  return (
+                    <div
+                      key={day.date}
+                      className={cn(
+                        "aspect-square rounded-lg flex items-center justify-center text-xs font-medium transition-all",
+                        day.available 
+                          ? "bg-green-50 text-green-700 border border-green-200" 
+                          : "bg-muted/50 text-muted-foreground/50",
+                        isToday && "ring-2 ring-accent ring-offset-1"
+                      )}
+                    >
+                      {dayNum}
+                    </div>
+                  )
+                })}
+              </div>
+              
+              {/* Legend */}
+              <div className="flex items-center justify-center gap-4 mt-4 text-xs">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded bg-green-50 border border-green-200" />
+                  <span className="text-muted-foreground">Available</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <div className="w-3 h-3 rounded bg-muted/50" />
+                  <span className="text-muted-foreground">Booked</span>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Technical Specification - Two columns, no image */}
