@@ -9,7 +9,6 @@ import { Search, SlidersHorizontal, Star, Gauge, Zap, Heart, X, Check, Sparkles,
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
 import { Slider } from '@/components/ui/slider'
-import Image from 'next/image'
 
 interface Vehicle {
   id: string
