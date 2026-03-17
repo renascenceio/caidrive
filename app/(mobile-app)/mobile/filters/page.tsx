@@ -4,7 +4,126 @@ import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
-import { ArrowLeft, X, ChevronDown, Calendar } from 'lucide-react'
+import { ArrowLeft, X, ChevronDown, ChevronLeft, ChevronRight, Calendar } from 'lucide-react'
+
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 
+                'July', 'August', 'September', 'October', 'November', 'December']
+
+const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa']
+
+function CustomCalendar({ 
+  selectedDate, 
+  onSelect,
+  onClose,
+  minDate 
+}: { 
+  selectedDate: string
+  onSelect: (date: string) => void
+  onClose: () => void
+  minDate?: string
+}) {
+  const today = new Date()
+  const [viewDate, setViewDate] = useState(new Date(selectedDate || today))
+  
+  const year = viewDate.getFullYear()
+  const month = viewDate.getMonth()
+  
+  const firstDayOfMonth = new Date(year, month, 1)
+  const lastDayOfMonth = new Date(year, month + 1, 0)
+  const startingDayOfWeek = firstDayOfMonth.getDay()
+  const daysInMonth = lastDayOfMonth.getDate()
+  
+  const prevMonth = () => setViewDate(new Date(year, month - 1, 1))
+  const nextMonth = () => setViewDate(new Date(year, month + 1, 1))
+  
+  const days: (number | null)[] = []
+  for (let i = 0; i < startingDayOfWeek; i++) {
+    days.push(null)
+  }
+  for (let i = 1; i <= daysInMonth; i++) {
+    days.push(i)
+  }
+  
+  const isDateDisabled = (day: number) => {
+    if (!minDate) return false
+    const date = new Date(year, month, day)
+    const min = new Date(minDate)
+    min.setHours(0, 0, 0, 0)
+    date.setHours(0, 0, 0, 0)
+    return date < min
+  }
+  
+  const isDateSelected = (day: number) => {
+    if (!selectedDate) return false
+    const date = new Date(year, month, day)
+    const selected = new Date(selectedDate)
+    return date.toDateString() === selected.toDateString()
+  }
+  
+  const handleSelect = (day: number) => {
+    if (isDateDisabled(day)) return
+    const date = new Date(year, month, day)
+    onSelect(date.toISOString().split('T')[0])
+    onClose()
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-5">
+      <div className="w-full max-w-sm bg-white rounded-2xl p-4">
+        {/* Month Navigation */}
+        <div className="flex items-center justify-between mb-4">
+          <button onClick={prevMonth} className="p-2 hover:bg-secondary rounded-lg">
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <span className="font-semibold">{MONTHS[month]} {year}</span>
+          <button onClick={nextMonth} className="p-2 hover:bg-secondary rounded-lg">
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </div>
+        
+        {/* Weekday Headers */}
+        <div className="grid grid-cols-7 gap-1 mb-2">
+          {WEEKDAYS.map(day => (
+            <div key={day} className="text-center text-xs text-muted-foreground py-2 font-medium">
+              {day}
+            </div>
+          ))}
+        </div>
+        
+        {/* Days Grid */}
+        <div className="grid grid-cols-7 gap-1">
+          {days.map((day, idx) => (
+            <div key={idx} className="aspect-square">
+              {day && (
+                <button
+                  onClick={() => handleSelect(day)}
+                  disabled={isDateDisabled(day)}
+                  className={cn(
+                    "w-full h-full rounded-full flex items-center justify-center text-sm transition-all",
+                    isDateSelected(day) 
+                      ? "bg-foreground text-background font-semibold" 
+                      : "hover:bg-secondary",
+                    isDateDisabled(day) && "text-muted-foreground/30 cursor-not-allowed hover:bg-transparent"
+                  )}
+                >
+                  {day}
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+        
+        {/* Close Button */}
+        <button
+          onClick={onClose}
+          className="w-full mt-4 py-3 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  )
+}
 
 // Brand options with dynamic loading
 const defaultBrands = [
@@ -22,6 +141,8 @@ function FiltersContent() {
   const [availableBrands, setAvailableBrands] = useState<string[]>(defaultBrands)
   const [priceRange, setPriceRange] = useState({ min: 64, max: 6490 })
   const [dateRange, setDateRange] = useState({ from: '', to: '' })
+  const [showFromCalendar, setShowFromCalendar] = useState(false)
+  const [showToCalendar, setShowToCalendar] = useState(false)
   const [availability, setAvailability] = useState<'all' | 'available'>('all')
   const [discount, setDiscount] = useState<number | null>(null)
   
@@ -286,29 +407,39 @@ function FiltersContent() {
           <div className="grid grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-muted-foreground mb-2">From</p>
-              <div className="relative">
-                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <input
-                  type="date"
-                  value={dateRange.from}
-                  onChange={(e) => setDateRange({ ...dateRange, from: e.target.value })}
-                  placeholder="Select date"
-                  className="w-full pl-12 pr-4 py-3.5 bg-white rounded-xl border border-border/50 text-sm"
-                />
-              </div>
+              <button
+                onClick={() => setShowFromCalendar(true)}
+                className="w-full flex items-center gap-3 px-4 py-3.5 bg-white rounded-xl border border-border/50 text-left"
+              >
+                <Calendar className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                <span className={cn(
+                  "text-sm truncate",
+                  dateRange.from ? "text-foreground" : "text-muted-foreground"
+                )}>
+                  {dateRange.from 
+                    ? new Date(dateRange.from).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
+                    : 'Select date'
+                  }
+                </span>
+              </button>
             </div>
             <div>
               <p className="text-sm text-muted-foreground mb-2">To</p>
-              <div className="relative">
-                <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <input
-                  type="date"
-                  value={dateRange.to}
-                  onChange={(e) => setDateRange({ ...dateRange, to: e.target.value })}
-                  placeholder="Select date"
-                  className="w-full pl-12 pr-4 py-3.5 bg-white rounded-xl border border-border/50 text-sm"
-                />
-              </div>
+              <button
+                onClick={() => setShowToCalendar(true)}
+                className="w-full flex items-center gap-3 px-4 py-3.5 bg-white rounded-xl border border-border/50 text-left"
+              >
+                <Calendar className="h-5 w-5 text-muted-foreground flex-shrink-0" />
+                <span className={cn(
+                  "text-sm truncate",
+                  dateRange.to ? "text-foreground" : "text-muted-foreground"
+                )}>
+                  {dateRange.to 
+                    ? new Date(dateRange.to).toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' })
+                    : 'Select date'
+                  }
+                </span>
+              </button>
             </div>
           </div>
         </section>
@@ -363,6 +494,25 @@ function FiltersContent() {
           </div>
         </section>
       </div>
+
+      {/* Calendar Modals */}
+      {showFromCalendar && (
+        <CustomCalendar
+          selectedDate={dateRange.from}
+          onSelect={(date) => setDateRange({ ...dateRange, from: date })}
+          onClose={() => setShowFromCalendar(false)}
+          minDate={new Date().toISOString().split('T')[0]}
+        />
+      )}
+
+      {showToCalendar && (
+        <CustomCalendar
+          selectedDate={dateRange.to}
+          onSelect={(date) => setDateRange({ ...dateRange, to: date })}
+          onClose={() => setShowToCalendar(false)}
+          minDate={dateRange.from || new Date().toISOString().split('T')[0]}
+        />
+      )}
 
       {/* Fixed Apply Button - Above bottom nav */}
       <div className="fixed bottom-20 left-0 right-0 bg-[#f5f5f7] border-t border-border/30 px-6 py-4">
