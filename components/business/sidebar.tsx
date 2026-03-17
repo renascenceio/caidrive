@@ -81,9 +81,9 @@ export function BusinessSidebar({ company, userName = 'User', lastLogin }: Busin
       {/* Logo & Company Header */}
       <div className="flex items-center justify-between px-5 py-5">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-accent/10 overflow-hidden">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-white overflow-hidden p-1">
             {company.logo_url ? (
-              <Image src={company.logo_url} alt={company.name} width={36} height={36} className="object-cover" />
+              <Image src={company.logo_url} alt={company.name} width={36} height={36} className="object-contain w-full h-full" />
             ) : (
               <span className="text-sm font-bold text-accent">{company.name.charAt(0)}</span>
             )}
