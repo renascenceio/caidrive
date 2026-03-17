@@ -55,19 +55,19 @@ export default function MobileHomePage() {
     <div className="min-h-screen bg-background pb-24">
       {/* Header - CaiDrive Branding */}
       <header className="px-5 pt-12 pb-6">
-        <div className="flex items-center gap-3 mb-6">
+        <div className="flex items-center gap-4 mb-6">
           <Image
             src="/logo-black.png"
             alt="CaiDrive"
-            width={44}
-            height={44}
+            width={88}
+            height={88}
             className="dark:hidden"
           />
           <Image
             src="/logo-white.png"
             alt="CaiDrive"
-            width={44}
-            height={44}
+            width={88}
+            height={88}
             className="hidden dark:block"
           />
           <div>
