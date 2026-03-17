@@ -235,14 +235,14 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
             </div>
           )}
           <div>
-            <h1 className="text-2xl font-bold text-[#161821]">{vehicle.brand}</h1>
+            <h1 className="text-2xl font-bold mobile-text-dark">{vehicle.brand}</h1>
             <Link 
               href={`/mobile/cars/${id}/reviews`}
               className="flex items-center gap-1 text-sm"
             >
-              <Star className="h-4 w-4 fill-[#161821] text-[#161821]" />
-              <span className="font-medium text-[#161821]">{vehicle.rating?.toFixed(1) || '4.7'}</span>
-              <span className="text-[#8e8e93] ml-1">View reviews ({vehicle.review_count || 34})</span>
+              <Star className="h-4 w-4 fill-[#161821] mobile-text-dark" />
+              <span className="font-medium mobile-text-dark">{vehicle.rating?.toFixed(1) || '4.7'}</span>
+              <span className="mobile-text-muted ml-1">View reviews ({vehicle.review_count || 34})</span>
             </Link>
           </div>
         </div>
@@ -283,61 +283,61 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
         <div className="grid grid-cols-3 gap-3">
           <div className="bg-white rounded-2xl p-4 text-center border border-[#e5e5e7]">
             <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-[#f5f5f7] flex items-center justify-center">
-              <Gauge className="h-5 w-5 text-[#161821]" />
+              <Gauge className="h-5 w-5 mobile-text-dark" />
             </div>
-            <p className="text-lg font-bold text-[#161821]">{vehicle.max_speed || 296} km/h</p>
-            <p className="text-xs text-[#8e8e93]">Max speed</p>
+            <p className="text-lg font-bold mobile-text-dark">{vehicle.max_speed || 296} km/h</p>
+            <p className="text-xs mobile-text-muted">Max speed</p>
           </div>
           <div className="bg-white rounded-2xl p-4 text-center border border-[#e5e5e7]">
             <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-[#f5f5f7] flex items-center justify-center">
-              <Zap className="h-5 w-5 text-[#161821]" />
+              <Zap className="h-5 w-5 mobile-text-dark" />
             </div>
-            <p className="text-lg font-bold text-[#161821]">{vehicle.acceleration || 2.7} sec</p>
-            <p className="text-xs text-[#8e8e93]">Acceleration</p>
+            <p className="text-lg font-bold mobile-text-dark">{vehicle.acceleration || 2.7} sec</p>
+            <p className="text-xs mobile-text-muted">Acceleration</p>
           </div>
           <div className="bg-white rounded-2xl p-4 text-center border border-[#e5e5e7]">
             <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-[#f5f5f7] flex items-center justify-center">
-              <Power className="h-5 w-5 text-[#161821]" />
+              <Power className="h-5 w-5 mobile-text-dark" />
             </div>
-            <p className="text-lg font-bold text-[#161821]">{vehicle.horsepower || vehicle.power || 510} bhp</p>
-            <p className="text-xs text-[#8e8e93]">Power</p>
+            <p className="text-lg font-bold mobile-text-dark">{vehicle.horsepower || vehicle.power || 510} bhp</p>
+            <p className="text-xs mobile-text-muted">Power</p>
           </div>
         </div>
 
         {/* Description */}
         <div>
-          <h2 className="font-semibold text-base mb-3 text-[#161821]">Description</h2>
-          <p className="text-sm text-[#8e8e93] leading-relaxed">
+          <h2 className="font-semibold text-base mb-3 mobile-text-dark">Description</h2>
+          <p className="text-sm mobile-text-muted leading-relaxed">
             {vehicle.description || 'Lorem ipsum dolor sit amet consectetur. Consectetur lorem fusce euismod viverra egestas fermentum. Arcu sollicitudin tincidunt pellentesque integer diam. Id amet ac congue leo hendrerit. Cras pellentesque orci at posuere.'}
           </p>
         </div>
 
         {/* About Booking - White Card */}
         <div className="bg-white rounded-2xl p-5 border border-[#e5e5e7]">
-          <h2 className="font-semibold text-base mb-4 text-[#161821]">About Booking</h2>
+          <h2 className="font-semibold text-base mb-4 mobile-text-dark">About Booking</h2>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[#8e8e93]">Deposit Amount</span>
-              <span className="text-sm font-medium text-[#161821] text-right">
+              <span className="text-sm mobile-text-muted">Deposit Amount</span>
+              <span className="text-sm font-medium mobile-text-dark text-right">
                 {vehicle.deposit_amount 
                   ? `$${vehicle.deposit_amount.toLocaleString()}` 
                   : '50%'}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[#8e8e93]">Price per Day</span>
-              <span className="text-sm font-medium text-[#161821]">${vehicle.price_per_day?.toLocaleString() || '1,256'}/day</span>
+              <span className="text-sm mobile-text-muted">Price per Day</span>
+              <span className="text-sm font-medium mobile-text-dark">${vehicle.price_per_day?.toLocaleString() || '1,256'}/day</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[#8e8e93]">Mileage Limit</span>
-              <span className="text-sm font-medium text-[#161821]">{vehicle.mileage_limit || 10} km</span>
+              <span className="text-sm mobile-text-muted">Mileage Limit</span>
+              <span className="text-sm font-medium mobile-text-dark">{vehicle.mileage_limit || 10} km</span>
             </div>
           </div>
         </div>
 
         {/* Availability Calendar - 30 Days */}
         <div className="bg-white rounded-2xl p-5 border border-[#e5e5e7]">
-          <h2 className="font-semibold text-base mb-4 text-[#161821]">Availability (Next 30 Days)</h2>
+          <h2 className="font-semibold text-base mb-4 mobile-text-dark">Availability (Next 30 Days)</h2>
           {availabilityLoading ? (
             <div className="grid grid-cols-7 gap-1">
               {Array.from({ length: 30 }).map((_, i) => (
@@ -349,7 +349,7 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
               {/* Weekday Headers */}
               <div className="grid grid-cols-7 gap-1 mb-2">
                 {['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'].map(day => (
-                  <div key={day} className="text-center text-[10px] text-[#8e8e93] font-medium py-1">
+                  <div key={day} className="text-center text-[10px] mobile-text-muted font-medium py-1">
                     {day}
                   </div>
                 ))}
@@ -393,11 +393,11 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
               <div className="flex items-center justify-center gap-4 mt-4 text-xs">
                 <div className="flex items-center gap-1.5">
                   <div className="w-3 h-3 rounded bg-green-50 border border-green-200" />
-                  <span className="text-[#8e8e93]">Available</span>
+                  <span className="mobile-text-muted">Available</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <div className="w-3 h-3 rounded bg-[#f0f0f2]" />
-                  <span className="text-[#8e8e93]">Booked</span>
+                  <span className="mobile-text-muted">Booked</span>
                 </div>
               </div>
             </>
@@ -406,7 +406,7 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
 
         {/* Technical Specification - Two columns, no image */}
         <div>
-          <h2 className="font-semibold text-base mb-4 text-[#161821]">Technical specification</h2>
+          <h2 className="font-semibold text-base mb-4 mobile-text-dark">Technical specification</h2>
           
           <div className="grid grid-cols-2 gap-4">
             <SpecItem icon={<Power className="h-5 w-5" />} label="Power" value={`${vehicle.horsepower || vehicle.power || 440} bhp`} />
@@ -460,11 +460,11 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
         {/* Reviews Section */}
         <div>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-base text-[#161821]">Reviews</h2>
+            <h2 className="font-semibold text-base mobile-text-dark">Reviews</h2>
             <div className="flex items-center gap-1">
-              <Star className="h-4 w-4 fill-[#161821] text-[#161821]" />
-              <span className="font-semibold text-[#161821]">{vehicle.rating?.toFixed(1) || '4.7'}</span>
-              <span className="text-sm text-[#8e8e93] ml-1">{vehicle.review_count || 34} reviews</span>
+              <Star className="h-4 w-4 fill-[#161821] mobile-text-dark" />
+              <span className="font-semibold mobile-text-dark">{vehicle.rating?.toFixed(1) || '4.7'}</span>
+              <span className="text-sm mobile-text-muted ml-1">{vehicle.review_count || 34} reviews</span>
             </div>
           </div>
           
@@ -483,15 +483,15 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
                     />
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium text-sm text-[#161821]">{idx === 0 ? 'John Doe' : 'Jane Smith'}</p>
+                    <p className="font-medium text-sm mobile-text-dark">{idx === 0 ? 'John Doe' : 'Jane Smith'}</p>
                     <div className="flex items-center gap-1">
-                      <Star className="h-3 w-3 fill-[#161821] text-[#161821]" />
-                      <span className="text-xs text-[#161821]">{idx === 0 ? '5' : '4'}</span>
-                      <span className="text-xs text-[#8e8e93] ml-1">October {idx + 2}, 2023</span>
+                      <Star className="h-3 w-3 fill-[#161821] mobile-text-dark" />
+                      <span className="text-xs mobile-text-dark">{idx === 0 ? '5' : '4'}</span>
+                      <span className="text-xs mobile-text-muted ml-1">October {idx + 2}, 2023</span>
                     </div>
                   </div>
                 </div>
-                <p className="text-sm text-[#8e8e93] line-clamp-3">
+                <p className="text-sm mobile-text-muted line-clamp-3">
                   Lorem ipsum dolor sit amet consectetur. Consectetur lorem fusce euismod viverra egestas fermentum. Arcu sollicitudin tincidunt pellentesque integer diam.
                 </p>
               </div>
@@ -525,12 +525,12 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
 function SpecItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="flex items-center gap-3 bg-white rounded-xl p-3 border border-[#e5e5e7]">
-      <div className="w-9 h-9 rounded-lg bg-[#f5f5f7] flex items-center justify-center flex-shrink-0 text-[#161821]">
+      <div className="w-9 h-9 rounded-lg bg-[#f5f5f7] flex items-center justify-center flex-shrink-0 mobile-text-dark">
         {icon}
       </div>
       <div className="min-w-0">
-        <p className="text-[10px] text-[#8e8e93] uppercase tracking-wide">{label}</p>
-        <p className="font-semibold text-sm truncate text-[#161821]">{value}</p>
+        <p className="text-[10px] mobile-text-muted uppercase tracking-wide">{label}</p>
+        <p className="font-semibold text-sm truncate mobile-text-dark">{value}</p>
       </div>
     </div>
   )
@@ -542,11 +542,11 @@ function FeatureBox({ icon, label, sublabel, active = true }: { icon: React.Reac
       "bg-white rounded-2xl p-4 text-center border border-[#e5e5e7]",
       !active && "opacity-50"
     )}>
-      <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-[#f5f5f7] flex items-center justify-center text-[#161821]">
+      <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-[#f5f5f7] flex items-center justify-center mobile-text-dark">
         {icon}
       </div>
-      <p className="text-sm font-medium text-[#161821]">{label}</p>
-      <p className="text-xs text-[#8e8e93]">{sublabel}</p>
+      <p className="text-sm font-medium mobile-text-dark">{label}</p>
+      <p className="text-xs mobile-text-muted">{sublabel}</p>
     </div>
   )
 }

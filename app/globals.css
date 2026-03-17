@@ -203,11 +203,18 @@
 }
 
 @layer base {
+  /* Force light color scheme for Safari iOS */
+  :root {
+    color-scheme: light only;
+  }
+  
   * {
     @apply border-border outline-ring/50;
   }
   body {
     @apply bg-background text-foreground antialiased;
+    color-scheme: light only;
+    -webkit-text-fill-color: inherit;
   }
   
   /* Custom scrollbar */
@@ -227,6 +234,35 @@
   ::-webkit-scrollbar-thumb:hover {
     @apply bg-muted-foreground/50;
   }
+}
+
+/* Safari iOS text color fix - force dark text on light backgrounds */
+@supports (-webkit-touch-callout: none) {
+  /* iOS Safari specific - prevent dark mode override */
+  html, body {
+    color-scheme: light only !important;
+  }
+  
+  /* Force text colors on iOS Safari */
+  h1, h2, h3, h4, h5, h6, p, span, div, a, button, label {
+    -webkit-text-fill-color: currentColor;
+  }
+}
+
+/* Mobile text utility classes with explicit colors */
+.mobile-text-dark {
+  color: #161821 !important;
+  -webkit-text-fill-color: #161821 !important;
+}
+
+.mobile-text-muted {
+  color: #8e8e93 !important;
+  -webkit-text-fill-color: #8e8e93 !important;
+}
+
+.mobile-text-white {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 
 /* CAI Brand utility classes */
