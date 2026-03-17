@@ -118,11 +118,11 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#f5f5f7] animate-pulse">
-        <div className="h-72 bg-white" />
+      <div className="min-h-screen bg-background animate-pulse">
+        <div className="h-72 bg-card" />
         <div className="p-5 space-y-4">
-          <div className="h-8 bg-white rounded-xl w-3/4" />
-          <div className="h-4 bg-white rounded-xl w-1/2" />
+          <div className="h-8 bg-card rounded-xl w-3/4" />
+          <div className="h-4 bg-card rounded-xl w-1/2" />
         </div>
       </div>
     )
@@ -130,7 +130,7 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
 
   if (!vehicle) {
     return (
-      <div className="min-h-screen bg-[#f5f5f7] flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <p className="text-muted-foreground">Vehicle not found</p>
       </div>
     )
@@ -143,7 +143,7 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
   const brandLogo = brandLogos[vehicle.brand]
 
   return (
-    <div className="min-h-screen bg-[#f5f5f7] pb-40">
+    <div className="min-h-screen bg-background pb-40">
       {/* Header - Floating on Image */}
       <div className="fixed top-0 left-0 right-0 z-50 px-4 py-3">
         <div className="flex items-center justify-between">
@@ -204,7 +204,7 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
         
         {/* Image Dots - Red accent color */}
         {images.length > 1 && (
-          <div className="flex items-center justify-center gap-1.5 py-4 bg-[#f5f5f7]">
+          <div className="flex items-center justify-center gap-1.5 py-4 bg-background">
             {images.map((_, idx) => (
               <button
                 key={idx}
@@ -279,28 +279,28 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
           </div>
         </div>
 
-        {/* Quick Stats - 3 Boxes */}
+        {/* Quick Stats - 3 Boxes with Glass effect */}
         <div className="grid grid-cols-3 gap-3">
-          <div className="bg-white rounded-2xl p-4 text-center border border-[#e5e5e7]">
-            <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-[#f5f5f7] flex items-center justify-center">
-              <Gauge className="h-5 w-5 mobile-text-dark" />
+          <div className="bg-card/80 backdrop-blur-xl rounded-2xl p-4 text-center border border-border/50 shadow-sm">
+            <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-secondary/80 backdrop-blur flex items-center justify-center">
+              <Gauge className="h-5 w-5 text-foreground" />
             </div>
-            <p className="text-lg font-bold mobile-text-dark">{vehicle.max_speed || 296} km/h</p>
-            <p className="text-xs mobile-text-muted">Max speed</p>
+            <p className="text-lg font-bold text-foreground">{vehicle.max_speed || 296} km/h</p>
+            <p className="text-xs text-muted-foreground">Max speed</p>
           </div>
-          <div className="bg-white rounded-2xl p-4 text-center border border-[#e5e5e7]">
-            <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-[#f5f5f7] flex items-center justify-center">
-              <Zap className="h-5 w-5 mobile-text-dark" />
+          <div className="bg-card/80 backdrop-blur-xl rounded-2xl p-4 text-center border border-border/50 shadow-sm">
+            <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-secondary/80 backdrop-blur flex items-center justify-center">
+              <Zap className="h-5 w-5 text-foreground" />
             </div>
-            <p className="text-lg font-bold mobile-text-dark">{vehicle.acceleration || 2.7} sec</p>
-            <p className="text-xs mobile-text-muted">Acceleration</p>
+            <p className="text-lg font-bold text-foreground">{vehicle.acceleration || 2.7} sec</p>
+            <p className="text-xs text-muted-foreground">Acceleration</p>
           </div>
-          <div className="bg-white rounded-2xl p-4 text-center border border-[#e5e5e7]">
-            <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-[#f5f5f7] flex items-center justify-center">
-              <Power className="h-5 w-5 mobile-text-dark" />
+          <div className="bg-card/80 backdrop-blur-xl rounded-2xl p-4 text-center border border-border/50 shadow-sm">
+            <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-secondary/80 backdrop-blur flex items-center justify-center">
+              <Power className="h-5 w-5 text-foreground" />
             </div>
-            <p className="text-lg font-bold mobile-text-dark">{vehicle.horsepower || vehicle.power || 510} bhp</p>
-            <p className="text-xs mobile-text-muted">Power</p>
+            <p className="text-lg font-bold text-foreground">{vehicle.horsepower || vehicle.power || 510} bhp</p>
+            <p className="text-xs text-muted-foreground">Power</p>
           </div>
         </div>
 
@@ -312,32 +312,32 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
           </p>
         </div>
 
-        {/* About Booking - White Card */}
-        <div className="bg-white rounded-2xl p-5 border border-[#e5e5e7]">
-          <h2 className="font-semibold text-base mb-4 mobile-text-dark">About Booking</h2>
+        {/* About Booking - Glass Card */}
+        <div className="bg-card/80 backdrop-blur-xl rounded-2xl p-5 border border-border/50 shadow-sm">
+          <h2 className="font-semibold text-base mb-4 text-foreground">About Booking</h2>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm mobile-text-muted">Deposit Amount</span>
-              <span className="text-sm font-medium mobile-text-dark text-right">
+              <span className="text-sm text-muted-foreground">Deposit Amount</span>
+              <span className="text-sm font-medium text-foreground text-right">
                 {vehicle.deposit_amount 
                   ? `$${vehicle.deposit_amount.toLocaleString()}` 
                   : '50%'}
               </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm mobile-text-muted">Price per Day</span>
-              <span className="text-sm font-medium mobile-text-dark">${vehicle.price_per_day?.toLocaleString() || '1,256'}/day</span>
+              <span className="text-sm text-muted-foreground">Price per Day</span>
+              <span className="text-sm font-medium text-foreground">${vehicle.price_per_day?.toLocaleString() || '1,256'}/day</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm mobile-text-muted">Mileage Limit</span>
-              <span className="text-sm font-medium mobile-text-dark">{vehicle.mileage_limit || 10} km</span>
+              <span className="text-sm text-muted-foreground">Mileage Limit</span>
+              <span className="text-sm font-medium text-foreground">{vehicle.mileage_limit || 10} km</span>
             </div>
           </div>
         </div>
 
-        {/* Availability Calendar - 30 Days */}
-        <div className="bg-white rounded-2xl p-5 border border-[#e5e5e7]">
-          <h2 className="font-semibold text-base mb-4 mobile-text-dark">Availability (Next 30 Days)</h2>
+        {/* Availability Calendar - Glass Card */}
+        <div className="bg-card/80 backdrop-blur-xl rounded-2xl p-5 border border-border/50 shadow-sm">
+          <h2 className="font-semibold text-base mb-4 text-foreground">Availability (Next 30 Days)</h2>
           {availabilityLoading ? (
             <div className="grid grid-cols-7 gap-1">
               {Array.from({ length: 30 }).map((_, i) => (
@@ -524,13 +524,13 @@ export default function MobileCarDetailPage({ params }: { params: Promise<{ id: 
 
 function SpecItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
-    <div className="flex items-center gap-3 bg-white rounded-xl p-3 border border-[#e5e5e7]">
-      <div className="w-9 h-9 rounded-lg bg-[#f5f5f7] flex items-center justify-center flex-shrink-0 mobile-text-dark">
+    <div className="flex items-center gap-3 bg-card/80 backdrop-blur-xl rounded-xl p-3 border border-border/50 shadow-sm">
+      <div className="w-9 h-9 rounded-lg bg-secondary/80 backdrop-blur flex items-center justify-center flex-shrink-0 text-foreground">
         {icon}
       </div>
       <div className="min-w-0">
-        <p className="text-[10px] mobile-text-muted uppercase tracking-wide">{label}</p>
-        <p className="font-semibold text-sm truncate mobile-text-dark">{value}</p>
+        <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{label}</p>
+        <p className="font-semibold text-sm truncate text-foreground">{value}</p>
       </div>
     </div>
   )
@@ -539,14 +539,14 @@ function SpecItem({ icon, label, value }: { icon: React.ReactNode; label: string
 function FeatureBox({ icon, label, sublabel, active = true }: { icon: React.ReactNode; label: string; sublabel: string; active?: boolean }) {
   return (
     <div className={cn(
-      "bg-white rounded-2xl p-4 text-center border border-[#e5e5e7]",
+      "bg-card/80 backdrop-blur-xl rounded-2xl p-4 text-center border border-border/50 shadow-sm",
       !active && "opacity-50"
     )}>
-      <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-[#f5f5f7] flex items-center justify-center mobile-text-dark">
+      <div className="w-10 h-10 mx-auto mb-2 rounded-xl bg-secondary/80 backdrop-blur flex items-center justify-center text-foreground">
         {icon}
       </div>
-      <p className="text-sm font-medium mobile-text-dark">{label}</p>
-      <p className="text-xs mobile-text-muted">{sublabel}</p>
+      <p className="text-sm font-medium text-foreground">{label}</p>
+      <p className="text-xs text-muted-foreground">{sublabel}</p>
     </div>
   )
 }

@@ -66,11 +66,11 @@ export default function MobileGaragePage() {
       <header className="px-5 pt-12 pb-6">
         <h1 className="text-2xl font-bold mb-6">Garage</h1>
 
-        {/* Search Bar - Matching Home Page */}
+        {/* Search Bar - Glass effect matching Home Page */}
         <Link href="/mobile/search" className="block">
           <div className={cn(
             "flex items-center gap-3 px-4 py-4 rounded-2xl",
-            "bg-card border border-border shadow-sm"
+            "bg-card/80 backdrop-blur-xl border border-border/50 shadow-sm"
           )}>
             <Search className="h-5 w-5 text-muted-foreground" />
             <span className="text-base text-muted-foreground">Search any car</span>
@@ -105,10 +105,10 @@ export default function MobileGaragePage() {
                 )}
               >
                 <div className={cn(
-                  "w-16 h-16 rounded-2xl bg-card border flex items-center justify-center p-2 shadow-sm transition-colors",
+                  "w-16 h-16 rounded-2xl bg-card/80 backdrop-blur-xl border flex items-center justify-center p-2 shadow-sm transition-all hover:shadow-md",
                   selectedBrand === brand.name 
-                    ? "border-accent bg-accent/5" 
-                    : "border-border"
+                    ? "border-accent bg-accent/10" 
+                    : "border-border/50"
                 )}>
                   <Image
                     src={brand.logo}
